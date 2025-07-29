@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  backend:
+    image: algobot/backend:latest
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/.env
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  frontend:
+    image: algobot/frontend:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: trading_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: tradingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
