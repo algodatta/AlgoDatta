@@ -13,28 +13,19 @@ pipeline {
       }
     }
 
-    stage('Install Docker + Reboot') {
+    stage('Install Docker') {
       steps {
         sshagent (credentials: [env.SSH_CRED_ID]) {
           sh '''
-          ssh -o StrictHostKeyChecking=no $REMOTE_HOST << 'EOF'
-            curl -fsSL https://get.docker.com | sh
-            sudo reboot
-          EOF
+            ssh -o StrictHostKeyChecking=no $REMOTE_HOST '
+              if ! command -v docker >/dev/null 2>&1; then
+                echo "Installing Docker..."
+                curl -fsSL https://get.docker.com | sh
+              else
+                echo "Docker is already installed"
+              fi
+            '
           '''
-        }
-      }
-    }
-
-    stage('Wait for Reboot and Reconnect') {
-      steps {
-        script {
-          timeout(time: 2, unit: 'MINUTES') {
-            waitUntil {
-              sleep time: 10, unit: 'SECONDS'
-              return sh(script: "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 $REMOTE_HOST 'echo OK' || exit 1", returnStatus: true) == 0
-            }
-          }
         }
       }
     }
@@ -43,12 +34,16 @@ pipeline {
       steps {
         sshagent (credentials: [env.SSH_CRED_ID]) {
           sh '''
-          ssh -o StrictHostKeyChecking=no $REMOTE_HOST << 'EOF'
-            cd AlgoDatta || git clone https://github.com/algodatta/AlgoDatta.git && cd AlgoDatta
-            git stash || true
-            git pull origin main
-            docker compose up -d --build --remove-orphans
-          EOF
+            ssh -o StrictHostKeyChecking=no $REMOTE_HOST '
+              if [ ! -d "AlgoDatta" ]; then
+                git clone https://github.com/algodatta/AlgoDatta.git
+              fi
+              cd AlgoDatta
+              git reset --hard
+              git clean -fd
+              git pull origin main
+              docker compose -f docker-compose.yml up -d --build --remove-orphans
+            '
           '''
         }
       }

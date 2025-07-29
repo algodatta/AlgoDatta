@@ -1,36 +1,40 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  backend:
-    image: algobot/backend:latest
-    ports:
-      - "8000:8000"
-    env_file:
-      - backend/.env
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
   frontend:
-    image: algobot/frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: algodatta-frontend
     ports:
       - "3000:3000"
+    restart: always
     depends_on:
       - backend
-    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: algodatta-backend
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:15
-    container_name: trading_postgres
-    ports:
-      - "5432:5432"
+    container_name: algodatta-db
     environment:
-      POSTGRES_DB: tradingdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: algodatta
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: always
 
 volumes:
   pgdata:
