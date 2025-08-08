@@ -3,3 +3,50 @@ from routes.broker import router as broker_router
 
 app = FastAPI()
 app.include_router(broker_router, prefix="/api")
+
+import logging
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+# Configure root logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[
+        logging.FileHandler("backend.log"),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger("AutoTradingBackend")
+
+# Middleware to log each request
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        logger.info(f"Incoming request: {request.method} {request.url}")
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            logger.exception("Unhandled exception")
+            raise
+        return response
+
+app.add_middleware(LoggingMiddleware)
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    logger.warning(f"HTTP error occurred: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail},
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unexpected server error")
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal server error"},
+    )
