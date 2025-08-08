@@ -1,37 +1,20 @@
-# Algo Trading Platform (Docker + Lightsail Ready)
+# Auto Trading Platform
 
-A full-stack algorithmic trading platform using FastAPI (backend), React (frontend), and PostgreSQL.
+This repository contains the **backend** (FastAPI) and **frontend** (Next.js) for the Auto Trading Platform.
 
-## 🚀 Deployment (AWS Lightsail or any VPS)
+## Getting Started
 
-### 1. Clone this Repo
-```bash
-git clone https://github.com/openai-sample/algo-trading-platform.git
-cd algo-trading-platform
-```
+1. Copy `.env.example` to `.env` and configure your environment variables.
+2. Run `docker-compose up --build` at the root to start all services.
+3. Access frontend at `http://localhost:3000` and API docs at `http://localhost:8000/docs`.
 
-### 2. Set FERNET Secret Key
-```bash
-cd backend
-cp .env.example .env
-# Edit .env and set FERNET_SECRET_KEY
-```
+## Structure
 
-Generate key:
-```bash
-python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-```
+- `backend/`: FastAPI app
+- `frontend/`: Next.js app
+- `docker-compose.yml`: Orchestrates PostgreSQL, backend, and frontend
 
-### 3. Run the app
-```bash
-docker-compose pull
-docker-compose up -d
-```
+## TODO
 
-### 4. Access in browser
-- Frontend: http://<your-server-ip>:3000
-- Backend: http://<your-server-ip>:8000
+- Implement all endpoints and UI features as per Spec-1-auto Trading Platform PDF.
 
----
-
-✅ Uses pre-built DockerHub images: `algobot/backend` and `algobot/frontend`
