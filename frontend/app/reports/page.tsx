@@ -1,10 +1,11 @@
 'use client';
+import { withAuth } from '../../lib/withAuth';
 import React, { useEffect, useState } from 'react';
 import Alert from '../../components/Alert';
 import DataTable from '../../components/DataTable';
 import { api, authHeaders } from '../../lib/api';
 
-export default function ReportsPage(){
+function ReportsPage(){
   const [msg, setMsg] = useState('');
   const [rows, setRows] = useState<any[]>([]);
   const [filters, setFilters] = useState<any>({ status:'', type:'', start:'', end:'', limit: 200, client_id:'' });
@@ -59,3 +60,6 @@ export default function ReportsPage(){
     </div>
   );
 }
+
+
+export default withAuth(ReportsPage);

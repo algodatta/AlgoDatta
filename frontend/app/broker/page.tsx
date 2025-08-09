@@ -1,9 +1,10 @@
 'use client';
+import { withAuth } from '../../lib/withAuth';
 import React, { useState } from 'react';
 import { api, authHeaders } from '../../lib/api';
 import Alert from '../../components/Alert';
 
-export default function BrokerPage(){
+function BrokerPage(){
   const [clientId, setClientId] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [msg, setMsg] = useState('');
@@ -30,3 +31,6 @@ export default function BrokerPage(){
     </div>
   );
 }
+
+
+export default withAuth(BrokerPage);

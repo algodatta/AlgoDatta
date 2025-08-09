@@ -1,9 +1,10 @@
 'use client';
+import { withAuth } from '../../lib/withAuth';
 import React, { useEffect, useState } from 'react';
 import { api, authHeaders } from '../../lib/api';
 import DataTable from '../../components/DataTable';
 
-export default function StrategiesPage(){
+function StrategiesPage(){
   const [rows, setRows] = useState<any[]>([]);
   useEffect(()=>{ (async()=>{ const res = await api.get('/api/strategies', { headers: authHeaders() }); setRows(res.data || res); })(); }, []);
   return (<div className="min-h-screen bg-gray-100 p-6">
@@ -19,3 +20,6 @@ export default function StrategiesPage(){
     </div>
   </div>);
 }
+
+
+export default withAuth(StrategiesPage);
