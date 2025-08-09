@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { api, authHeaders } from '../lib/api';
+import axios from 'axios'
 
 export default function BrokerPage() {
   const [token, setToken] = useState('')
@@ -7,7 +7,7 @@ export default function BrokerPage() {
 
   const linkBroker = async () => {
     try {
-      const res = await api.post('/api/broker', { auth_token: token })
+      const res = await axios.post('/api/broker', { auth_token: token })
       setStatus('success')
     } catch (err) {
       setStatus('error')
