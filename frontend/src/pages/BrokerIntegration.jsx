@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api, authHeaders } from '../lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ export default function BrokerIntegration() {
 
   const fetchAccountInfo = async () => {
     try {
-      const res = await axios.get("/api/broker/account-info");
+      const res = await api.get("/api/broker/account-info");
       setAccount(res.data);
       setStatus("Connected ✅");
     } catch (error) {
@@ -31,7 +31,7 @@ export default function BrokerIntegration() {
 
   const handleConnect = async () => {
     try {
-      await axios.post("/api/broker/connect", {
+      await api.post("/api/broker/connect", {
         clientId,
         apiKey,
         apiSecret,
