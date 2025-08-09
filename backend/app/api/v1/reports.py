@@ -8,6 +8,10 @@ import csv
 
 from app.db import get_db
 from app.models.execution import Execution, ExecutionStatus, ExecutionType
+from sqlalchemy import join
+from app.models.alert import Alert
+from app.models.strategy import Strategy
+from app.models.broker import Broker
 from app.core.deps import get_current_user
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
@@ -15,6 +19,13 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 @router.get("/reports/csv")
 def export_csv(
     status: Optional[ExecutionStatus] = Query(None),
+    type: Optional[ExecutionType] = Query(None),
+    start: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    end: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    client_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+): = Query(None),
     type: Optional[ExecutionType] = Query(None),
     start: Optional[str] = Query(None, description="YYYY-MM-DD"),
     end: Optional[str] = Query(None, description="YYYY-MM-DD"),
@@ -40,19 +51,36 @@ def export_csv(
             pass
 
     q = q.order_by(Execution.executed_at.desc()).limit(1000)
-    rows = q.all()
-
-    output = StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["executed_at", "type", "status", "response"])
+    rows = q.join(Alert, Execution.alert_id == Alert.id)\
+            .join(Strategy, Alert.strategy_id == Strategy.id)\
+            .join(Broker, Strategy.broker_id == Broker.id)
+    if client_id:
+        rows = rows.filter(Broker.client_id == client_id)
+    rows = rows.add_columns(Broker.client_id).limit(limit).all()
+    out = []
     for r in rows:
-        writer.writerow([
-            r.executed_at.isoformat() if r.executed_at else "",
-            r.type.value if hasattr(r.type, "value") else str(r.type),
-            r.status.value if hasattr(r.status, "value") else str(r.status),
-            str(r.response)
-        ])
-    output.seek(0)
-    return StreamingResponse(output, media_type="text/csv", headers={
-        "Content-Disposition": "attachment; filename=executions.csv"
-    })
+        exec_obj, broker_client_id = r[0], r[1]
+        out.append({
+            "executed_at": exec_obj.executed_at.isoformat() if exec_obj.executed_at else None,
+            "type": exec_obj.type.value if hasattr(exec_obj.type, "value") else str(exec_obj.type),
+            "status": exec_obj.status.value if hasattr(exec_obj.status, "value") else str(exec_obj.status),
+            "broker_client_id": broker_client_id,
+            "response": exec_obj.response,
+            "alert_id": str(exec_obj.alert_id),
+        })
+    return out
+
+@router.get("/reports/json")
+def export_json(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    rows = db.query(Execution).order_by(Execution.executed_at.desc()).limit(200).all()
+    out = []
+    for r in rows:
+        out.append({
+            "executed_at": r.executed_at.isoformat() if r.executed_at else None,
+            "type": r.type.value if hasattr(r.type, "value") else str(r.type),
+            "status": r.status.value if hasattr(r.status, "value") else str(r.status),
+            "response": r.response,
+            "alert_id": str(r.alert_id) if getattr(r, 'alert_id', None) else None
+        })
+    return out
+

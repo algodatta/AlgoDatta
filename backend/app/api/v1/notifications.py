@@ -4,13 +4,28 @@ from uuid import UUID, uuid4
 from app.db import get_db
 from app.core.deps import get_current_user
 from app.models.notification import Notification, NotificationMethod
+from app.models.broker import Broker
 from app.schemas.notification import NotificationCreate, NotificationRead
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
-@router.get("/notifications", response_model=list[NotificationRead])
+@router.get("/notifications")
 def list_notifications(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    return db.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.created_at.desc()).all()
+    items = db.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.created_at.desc()).all()
+    broker = db.query(Broker).filter(Broker.user_id == user.id).first()
+    client_id = getattr(broker, 'client_id', None)
+    out = []
+    for n in items:
+        out.append({
+            'id': str(n.id),
+            'user_id': str(n.user_id),
+            'method': n.method.value if hasattr(n.method,'value') else str(n.method),
+            'endpoint': n.endpoint,
+            'enabled': n.enabled,
+            'created_at': n.created_at.isoformat() if n.created_at else None,
+            'broker_client_id': client_id
+        })
+    return out
 
 @router.post("/notifications", response_model=NotificationRead)
 def add_notification(payload: NotificationCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):

@@ -46,7 +46,8 @@ export default function AdminPage(){
             {key:'email', label:'Email'},
             {key:'role', label:'Role'},
             {key:'status', label:'Status'},
-            {key:'created_at', label:'Created'}
+            {key:'created_at', label:'Created'},
+            {key:'broker_client_id', label:'Broker Client ID'}
           ]}
           data={users}
         />

@@ -50,7 +50,7 @@ export default function NotificationsPage(){
           {key:'id', label:'ID'},
           {key:'method', label:'Method'},
           {key:'endpoint', label:'Endpoint'},
-          {key:'enabled', label:'Enabled'}
+          {key:'enabled', label:'Enabled'}, {key:'broker_client_id', label:'Broker Client ID'}
         ]} data={rows} />
         <div className="mt-2 space-y-2">
           {rows.map(r => (

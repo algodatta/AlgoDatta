@@ -1,31 +1,48 @@
-import { useState } from 'react'
+import React, { useState } from 'react';
 import { api, authHeaders } from '../lib/api';
+import Alert from '../components/Alert';
 
-export default function BrokerPage() {
-  const [token, setToken] = useState('')
-  const [status, setStatus] = useState(null)
+export default function BrokerPage(){
+  const [broker, setBroker] = useState('dhan');
+  const [clientId, setClientId] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  const [msg, setMsg] = useState('');
 
-  const linkBroker = async () => {
+  const link = async () => {
     try {
-      const res = await api.post('/api/broker', { auth_token: token })
-      setStatus('success')
-    } catch (err) {
-      setStatus('error')
+      if (!clientId || !accessToken) {
+        setMsg('Please enter both Client ID and Access Token');
+        return;
+      }
+      await api.post('/api/broker',
+        { broker_type: broker, client_id: clientId, access_token: accessToken, auth_token: accessToken },
+        { headers: authHeaders() }
+      );
+      setMsg('Broker linked successfully');
+    } catch (e) {
+      setMsg('Failed to link broker');
     }
-  }
+  };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Link Dhan Broker</h1>
-      <input
-        placeholder="Enter Dhan auth token"
-        value={token}
-        onChange={(e) => setToken(e.target.value)}
-        style={{ width: 400, padding: 8 }}
-      />
-      <button onClick={linkBroker} style={{ marginLeft: 10 }}>Link</button>
-      {status === 'success' && <p style={{ color: 'green' }}>Broker linked!</p>}
-      {status === 'error' && <p style={{ color: 'red' }}>Failed to link broker</p>}
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-4 space-y-3">
+        <h1 className="text-2xl font-bold">Connect Broker</h1>
+        {msg && <Alert type={msg.includes('Failed') ? 'error' : 'success'} message={msg} />}
+
+        <label className="block text-sm font-medium text-gray-700">Select Broker</label>
+        <select className="border rounded p-2 w-full" value={broker} onChange={(e)=>setBroker(e.target.value)}>
+          <option value="dhan">Dhan</option>
+        </select>
+
+        <label className="block text-sm font-medium text-gray-700 mt-2">Client ID</label>
+        <input className="border rounded p-2 w-full" placeholder="Enter Client ID" value={clientId} onChange={e=>setClientId(e.target.value)} />
+
+        <label className="block text-sm font-medium text-gray-700 mt-2">Access Token</label>
+        <input className="border rounded p-2 w-full" placeholder="Enter Access Token" type="password" value={accessToken} onChange={e=>setAccessToken(e.target.value)} />
+
+        <button onClick={link} className="px-4 py-2 rounded bg-blue-600 text-white">Link Broker</button>
+      </div>
     </div>
-  )
+  );
 }

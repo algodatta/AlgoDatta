@@ -66,3 +66,22 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Extra: check notifications for broker_client_id
+r = requests.get(url("/api/notifications"), headers=headers)
+print("GET /notifications (with client_id) ->", pp(r))
+
+# Extra: filtered executions by client_id (use one from notifications if present)
+try:
+    items = r.json()
+    cid = None
+    if isinstance(items, list) and items:
+        for it in items:
+            if isinstance(it, dict) and it.get("broker_client_id"):
+                cid = it.get("broker_client_id"); break
+    if cid:
+        r2 = requests.get(url("/api/executions"), headers=headers, params={"client_id": cid, "limit": 5})
+        print("GET /executions?client_id= ->", pp(r2))
+except Exception as e:
+    print("client_id filter check skipped:", e)
