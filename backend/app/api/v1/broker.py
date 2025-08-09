@@ -18,7 +18,7 @@ def link_broker(payload: dict, db: Session = Depends(get_db), user = Depends(get
         db.rollback()
         broker_type = payload.get("broker_type") or "dhanhq"
     client_id = payload.get("client_id")
-    access_token = payload.get("access_token") or payload.get("auth_token")
+    access_token = payload.get('access_token')
     auth_token = access_token
 
     if not client_id or not auth_token:
@@ -28,7 +28,7 @@ def link_broker(payload: dict, db: Session = Depends(get_db), user = Depends(get
     if broker:
         broker.type = broker_type
         broker.client_id = client_id
-        broker.auth_token = auth_token
+        broker.auth_token = access_token
         broker.connected_at = datetime.utcnow()
     else:
         broker = Broker(
@@ -36,9 +36,21 @@ def link_broker(payload: dict, db: Session = Depends(get_db), user = Depends(get
             user_id=user.id,
             type=broker_type,
             client_id=client_id,
-            auth_token=auth_token,
+            auth_token=access_token,
             connected_at=datetime.utcnow()
         )
         db.add(broker)
     db.commit()
     return {"status": "Broker linked"}
+
+
+@router.get("/broker")
+def get_broker(db: Session = Depends(get_db), user = Depends(get_current_user)):
+    b = db.query(Broker).filter(Broker.user_id == user.id).first()
+    if not b:
+        raise HTTPException(status_code=404, detail="No broker linked")
+    return {
+        "type": str(getattr(b.type, "value", b.type)),
+        "client_id": b.client_id,
+        "connected_at": b.connected_at.isoformat() if b.connected_at else None
+    }
