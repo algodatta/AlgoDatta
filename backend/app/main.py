@@ -15,3 +15,6 @@ app.include_router(executions.router, prefix="/executions", tags=["executions"])
 @app.get("/")
 def read_root():
     return {"message": "Auto Trading Platform API"}
+
+from .routes import alerts
+app.include_router(alerts.router, prefix='/api/alerts', tags=['alerts'])

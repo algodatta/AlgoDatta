@@ -50,3 +50,9 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"message": "Internal server error"},
     )
+
+from .routes import webhooks
+app.include_router(webhooks.router, prefix='/api/webhook', tags=['webhook'])
+
+from .routes import alerts
+app.include_router(alerts.router, prefix='/api/alerts', tags=['alerts'])
