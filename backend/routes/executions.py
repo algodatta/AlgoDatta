@@ -25,7 +25,7 @@ def list_executions(db: Session = Depends(get_db), user: User = Depends(get_curr
     return [{
         "id": e.id, "strategy_id": e.strategy_id, "symbol": getattr(e, "symbol", None), "side": getattr(e, "side", None),
         "qty": getattr(e, "qty", None), "price": getattr(e, "price", None), "status": getattr(e, "status", None),
-        "created_at": e.created_at.isoformat() if hasattr(e, "created_at") and e.created_at else None
+        "created_at": getattr(e, "created_at", None).isoformat() if getattr(e, "created_at", None) else None
     } for e in rows]
 
 def _serialize(e: Execution) -> dict:
@@ -33,13 +33,16 @@ def _serialize(e: Execution) -> dict:
         "id": e.id, "strategy_id": e.strategy_id, "symbol": getattr(e, "symbol", None),
         "side": getattr(e, "side", None), "qty": getattr(e, "qty", None),
         "price": getattr(e, "price", None), "status": getattr(e, "status", None),
-        "created_at": e.created_at.isoformat() if hasattr(e, "created_at") and e.created_at else None
+        "created_at": getattr(e, "created_at", None).isoformat() if getattr(e, "created_at", None) else None
     }
 
 @router.get("/stream")
 def stream_executions(request: Request, db: Session = Depends(get_db)):
-    # Auth via Bearer token in headers OR ?token= query param (for EventSource which can't send headers easily)
-    token = request.headers.get("Authorization", "").split(" ", 1)[1].strip() if request.headers.get("Authorization", "").startswith("Bearer ") else request.query_params.get("token", "")
+    token = request.headers.get("Authorization", "")
+    if token.startswith("Bearer "):
+        token = token.split(" ", 1)[1].strip()
+    else:
+        token = request.query_params.get("token", "")
     payload = decode_token(token) if token else None
     if not payload:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -49,10 +52,9 @@ def stream_executions(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="User not found")
 
     def event_stream():
-        last_id = None
+        last_id = 0
         while True:
-            if await_client_disconnect(request):
-                break
+            # simple loop with heartbeat; client close is handled by webserver automatically
             q = db.query(Execution)
             if not getattr(user, "is_admin", False):
                 user_sids = [sid for (sid,) in db.query(Strategy.id).filter(Strategy.user_id == user.id).all()]
@@ -60,36 +62,15 @@ def stream_executions(request: Request, db: Session = Depends(get_db)):
                     q = q.filter(Execution.strategy_id.in_(user_sids))
                 else:
                     q = q.filter(False)
-            if last_id is not None:
+            if last_id:
                 q = q.filter(Execution.id > last_id)
             batch = q.order_by(Execution.id.desc()).limit(20).all()
             if batch:
-                # send newest first
-                newest_id = max(e.id for e in batch)
-                last_id = max(last_id or 0, newest_id)
+                last_id = max(e.id for e in batch)
                 data = [_serialize(e) for e in sorted(batch, key=lambda x: x.id)]
                 yield f"data: {json.dumps(data)}\n\n"
             else:
-                # heartbeat to keep connection alive
                 yield "data: []\n\n"
-            sleep(2)  # basic polling; adjust as needed
+            sleep(2)
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
-
-def await_client_disconnect(request: Request) -> bool:
-    # FastAPI/Starlette doesn't provide direct SSE disconnect checks; using client_disconnected flag on scope if available.
-    try:
-        return await_disconnect(request)
-    except Exception:
-        return False
-
-def await_disconnect(request: Request) -> bool:
-    # Non-blocking check: is the client disconnected?
-    # Starlette sets 'client' state; here we just try accessing receive channel non-blockingly is not trivial.
-    # We'll just check if the transport is closed where available; fallback returns False.
-    try:
-        if hasattr(request, 'is_disconnected'):
-            return request.is_disconnected()
-    except Exception:
-        pass
-    return False

@@ -56,3 +56,32 @@ app.include_router(webhooks.router, prefix='/api/webhook', tags=['webhook'])
 
 from .routes import alerts
 app.include_router(alerts.router, prefix='/api/alerts', tags=['alerts'])
+
+# --- Safe router includes (auto-patched) ---
+def _include_optional():
+    import importlib
+    mods = [
+        ("routes.broker", "router", "/api/broker", "broker"),
+        ("routes.strategies", "router", "/api/strategies", "strategies"),
+        ("routes.executions", "router", "/api/executions", "executions"),
+        ("routes.reports", "router", "/api/reports", "reports"),
+        ("routes.admin", "router", "/api/admin", "admin"),
+        ("routes.auth", "router", "/api/auth", "auth"),
+        ("routes.webhooks", "router", "/api/webhook", "webhook"),
+        ("routes.alerts", "router", "/api/alerts", "alerts"),
+    ]
+    for mod, attr, prefix, tag in mods:
+        try:
+            m = importlib.import_module(f".{mod}", __package__ or __name__)
+            r = getattr(m, attr, None)
+            if r:
+                app.include_router(r, prefix=prefix, tags=[tag])
+        except Exception as e:
+            # Silently skip missing modules
+            pass
+
+try:
+    _include_optional()
+except Exception:
+    pass
+# --- end patched block ---
