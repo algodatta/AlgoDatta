@@ -1,36 +1,30 @@
-'use client';
-import { withAuth } from '../../lib/withAuth';
-import React, { useState } from 'react';
-import { api, authHeaders } from '../../lib/api';
-import Alert from '../../components/Alert';
+'use client'
+import { useEffect, useState } from 'react'
 
-function BrokerPage(){
-  const [clientId, setClientId] = useState('');
-  const [accessToken, setAccessToken] = useState('');
-  const [msg, setMsg] = useState('');
+export default function BrokerPage() {
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const link = async () => {
-    try{
-      if(!clientId || !accessToken){ setMsg('Please enter both Client ID and Access Token'); return; }
-      await api.post('/api/broker', { broker_type: 'dhan', client_id: clientId, access_token: accessToken }, { headers: authHeaders() });
-      setMsg('Broker linked successfully');
-    }catch{ setMsg('Failed to link broker'); }
-  };
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) { window.location.href='/login'; return }
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/broker/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(async r => {
+      if (!r.ok) throw new Error('Not connected')
+      return r.json()
+    }).then(setProfile).catch(e=>setError(e.message)).finally(()=>setLoading(false))
+  }, [])
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-4 space-y-3">
-        <h1 className="text-2xl font-bold">Connect Broker</h1>
-        {msg && <Alert type={msg.includes('Failed') ? 'error' : 'success'} message={msg} />}
-        <label className="block text-sm font-medium text-gray-700 mt-2">Client ID</label>
-        <input className="border rounded p-2 w-full" placeholder="Enter Client ID" value={clientId} onChange={e=>setClientId(e.target.value)} />
-        <label className="block text-sm font-medium text-gray-700 mt-2">Access Token</label>
-        <input className="border rounded p-2 w-full" placeholder="Enter Access Token" type="password" value={accessToken} onChange={e=>setAccessToken(e.target.value)} />
-        <button onClick={link} className="px-4 py-2 rounded bg-blue-600 text-white">Link Broker</button>
-      </div>
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Broker</h1>
+      {loading && <div>Loading…</div>}
+      {error && <div className="text-yellow-300">Status: {error}. Use the backend connect endpoint.</div>}
+      {profile && (
+        <pre className="bg-neutral-900 rounded-xl p-4 border border-neutral-800 overflow-auto">{JSON.stringify(profile, null, 2)}</pre>
+      )}
     </div>
-  );
+  )
 }
-
-
-export default withAuth(BrokerPage);

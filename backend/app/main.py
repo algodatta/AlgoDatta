@@ -1,49 +1,25 @@
 from fastapi import FastAPI
-from app.api.v1 import auth, broker, strategies, webhooks, admin, reports, executions
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes import auth, strategies, webhook, executions, reports, admin, broker
 
-app = FastAPI(title="Auto Trading Platform")
+app = FastAPI(title="AlgoDatta API", version="0.1.0")
 
-# Include routers
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(broker.router, prefix="/broker", tags=["broker"])
-app.include_router(strategies.router, prefix="/strategies", tags=["strategies"])
-app.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
-app.include_router(admin.router, prefix="/admin", tags=["admin"])
-app.include_router(reports.router, prefix="/reports", tags=["reports"])
-app.include_router(executions.router, prefix="/executions", tags=["executions"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-def read_root():
-    return {"message": "Auto Trading Platform API"}
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(broker.router, prefix="/api/broker", tags=["broker"])
+app.include_router(strategies.router, prefix="/api/strategies", tags=["strategies"])
+app.include_router(webhook.router, prefix="/api/webhook", tags=["webhook"])
+app.include_router(executions.router, prefix="/api/executions", tags=["executions"])
+app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
-from .routes import alerts
-app.include_router(alerts.router, prefix='/api/alerts', tags=['alerts'])
-
-# --- Safe router includes (auto-patched) ---
-def _include_optional():
-    import importlib
-    mods = [
-        ("routes.broker", "router", "/api/broker", "broker"),
-        ("routes.strategies", "router", "/api/strategies", "strategies"),
-        ("routes.executions", "router", "/api/executions", "executions"),
-        ("routes.reports", "router", "/api/reports", "reports"),
-        ("routes.admin", "router", "/api/admin", "admin"),
-        ("routes.auth", "router", "/api/auth", "auth"),
-        ("routes.webhooks", "router", "/api/webhook", "webhook"),
-        ("routes.alerts", "router", "/api/alerts", "alerts"),
-    ]
-    for mod, attr, prefix, tag in mods:
-        try:
-            m = importlib.import_module(f".{mod}", __package__ or __name__)
-            r = getattr(m, attr, None)
-            if r:
-                app.include_router(r, prefix=prefix, tags=[tag])
-        except Exception as e:
-            # Silently skip missing modules
-            pass
-
-try:
-    _include_optional()
-except Exception:
-    pass
-# --- end patched block ---
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}

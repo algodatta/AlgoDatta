@@ -1,19 +1,15 @@
-from sqlalchemy import Column, String, DateTime, Enum, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
-import enum, uuid
-from ..db import Base
-
-class BrokerType(str, enum.Enum):
-    dhanhq = "dhanhq"
-    paper = "paper"
+from sqlalchemy.orm import relationship
+from app.db.session import Base
 
 class Broker(Base):
     __tablename__ = "brokers"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    type = Column(Enum(BrokerType), default=BrokerType.dhanhq)
-    client_id = Column(String)
-    auth_token = Column(String)
-    token_expiry = Column(DateTime(timezone=True), nullable=True)
-    connected_at = Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    name = Column(String, default="dhan")
+    access_token = Column(String, nullable=True)
+    refresh_token = Column(String, nullable=True)
+    status = Column(String, default="disconnected")
+    connected_at = Column(DateTime(timezone=True), nullable=True)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

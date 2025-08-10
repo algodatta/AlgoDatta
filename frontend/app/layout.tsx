@@ -1,44 +1,33 @@
-import './globals.css';
-import Link from 'next/link';
+import './globals.css'
+import Link from 'next/link'
 
-export const metadata = {
-  title: 'AlgoDatta',
-  description: 'Automated Trading Platform',
-};
+export const metadata = { title: 'AlgoDatta', description: 'Auto Trading Platform' }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <nav className="bg-white shadow p-4 flex gap-6 text-blue-600 font-semibold">
-          <Link className="hover:underline" href="/">Home</Link>
-          <Link className="hover:underline" href="/broker">Broker</Link>
-          <Link className="hover:underline" href="/strategies">Strategies</Link>
-          <Link className="hover:underline" href="/reports">Reports</Link>
-        
-      <div style={{marginLeft:'auto'}} className="flex gap-4">
-        <a className="hover:underline" href="/login">Login</a>
-        <button
-          onClick={() => { if(typeof window!=='undefined'){ localStorage.removeItem('token'); document.cookie='token=; Max-Age=0; path=/'; window.location.href='/login'; } }}
-          className="hover:underline"
-        >
-          Logout
-        </button>
-      </div>
-    
-      <div style={{marginLeft:'auto'}} className="flex gap-4">
-        <a className="hover:underline" href="/login">Login</a>
-        <a className="hover:underline" href="/signup">Sign up</a>
-        <button
-          onClick={() => { if(typeof window!=='undefined'){ localStorage.removeItem('token'); document.cookie='token=; Max-Age=0; path=/'; window.location.href='/login'; } }}
-          className="hover:underline"
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
-        <div className="p-6 max-w-7xl mx-auto">{children}</div>
+      <body className="min-h-screen antialiased">
+        <div className="flex">
+          <aside className="w-64 hidden md:block bg-neutral-900/60 border-r border-neutral-800 min-h-screen p-4">
+            <div className="text-xl font-semibold mb-6">AlgoDatta</div>
+            <nav className="space-y-2 text-sm">
+              <NavItem href="/">Home</NavItem>
+              <NavItem href="/broker">Broker</NavItem>
+              <NavItem href="/strategies">Strategies</NavItem>
+              <NavItem href="/executions">Executions</NavItem>
+              <NavItem href="/reports">Reports</NavItem>
+              <NavItem href="/admin">Admin</NavItem>
+            </nav>
+          </aside>
+          <main className="flex-1 p-4">{children}</main>
+        </div>
       </body>
     </html>
-  );
+  )
+}
+
+function NavItem({ href, children }: { href: string, children: React.ReactNode }) {
+  return (
+    <Link className="block rounded-xl px-3 py-2 hover:bg-neutral-800/60" href={href}>{children}</Link>
+  )
 }

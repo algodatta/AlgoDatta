@@ -1,30 +1,15 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = new Set<string>(['/login', '/_next', '/favicon.ico', '/icon.png', '/health']);
+const PROTECTED = ['/broker','/strategies','/executions','/reports','/admin']
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const url = req.nextUrl.clone()
+  const token = req.cookies.get('token')?.value || '' // not set; we rely on localStorage on client
 
-  // allow public/static paths
-  if (pathname === '/' || pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.startsWith('/favicon') || pathname.startsWith('/health')) {
-    return NextResponse.next();
+  if (PROTECTED.some(path => url.pathname.startsWith(path))) {
+    // Let client-side guard redirect if needed; no SSR cookie by default.
+    return NextResponse.next()
   }
-  if (pathname === '/login') {
-    return NextResponse.next();
-  }
-
-  const token = req.cookies.get('token')?.value;
-  if (!token) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
+  return NextResponse.next()
 }
-
-export const config = {
-  matcher: ['/((?!_next|api|.*\..*).*)'],
-};
