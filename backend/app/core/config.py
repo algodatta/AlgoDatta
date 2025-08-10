@@ -1,9 +1,21 @@
 from pydantic import BaseModel
 import os
-
 class Settings(BaseModel):
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "changeme")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./algodatta.db")
-
+    SECRET_KEY: str = os.getenv("SECRET_KEY","changeme")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES","60"))
+    DATABASE_URL: str = os.getenv("DATABASE_URL","sqlite:///./algodatta.db")
+    SENDGRID_API_KEY: str = os.getenv("SENDGRID_API_KEY", "")
+    SENDGRID_FROM_EMAIL: str = os.getenv("SENDGRID_FROM_EMAIL", "")
+    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
+    REDIS_URL: str = os.getenv("REDIS_URL", "")
+    EMAIL_RATE_LIMIT_PER_MINUTE: int = int(os.getenv("EMAIL_RATE_LIMIT_PER_MINUTE", "60"))
+    EMAIL_RATE_LIMIT_PER_HOUR: int = int(os.getenv("EMAIL_RATE_LIMIT_PER_HOUR", "1000"))
+    EMAIL_RECIPIENT_LIMIT_PER_HOUR: int = int(os.getenv("EMAIL_RECIPIENT_LIMIT_PER_HOUR", "10"))
+    EMAIL_RECIPIENT_LIMIT_PER_DAY: int = int(os.getenv("EMAIL_RECIPIENT_LIMIT_PER_DAY", "50"))
+    EMAIL_MAX_RETRIES: int = int(os.getenv("EMAIL_MAX_RETRIES", "3"))
+    EMAIL_BACKOFF_BASE_SECONDS: float = float(os.getenv("EMAIL_BACKOFF_BASE_SECONDS", "0.5"))
+    EMAIL_BACKOFF_MAX_SECONDS: float = float(os.getenv("EMAIL_BACKOFF_MAX_SECONDS", "5.0"))
+    SENDGRID_API_KEY: str = os.getenv("SENDGRID_API_KEY", "")
+    SENDGRID_FROM_EMAIL: str = os.getenv("SENDGRID_FROM_EMAIL", "")
+    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
 settings = Settings()

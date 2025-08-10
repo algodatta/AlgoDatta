@@ -3,15 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, strategies, webhook, executions, reports, admin, broker
 
 app = FastAPI(title="AlgoDatta API", version="0.1.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+app.add_middleware(CORSMiddleware,allow_origins=["http://localhost:3000"],allow_credentials=False,allow_methods=["*"],allow_headers=["*"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(broker.router, prefix="/api/broker", tags=["broker"])
 app.include_router(strategies.router, prefix="/api/strategies", tags=["strategies"])
@@ -19,7 +11,5 @@ app.include_router(webhook.router, prefix="/api/webhook", tags=["webhook"])
 app.include_router(executions.router, prefix="/api/executions", tags=["executions"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
-
 @app.get("/api/health")
-def health():
-    return {"status": "ok"}
+def health(): return {"status":"ok"}

@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.sql import func
 from app.db.session import Base
-
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -10,3 +9,6 @@ class User(Base):
     role = Column(String, default="user")
     status = Column(String, default="active")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    email_verified = Column(Boolean, default=False)
+    email_verify_token = Column(String, nullable=True)
+    email_verify_sent_at = Column(DateTime(timezone=True), nullable=True)

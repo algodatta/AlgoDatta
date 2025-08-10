@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 class BrokerProfile(BaseModel):
-    name: str = "dhan"
-    status: str = "disconnected"
+    name: str = 'dhan'
+    status: str = 'disconnected'

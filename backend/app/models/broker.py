@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from app.db.session import Base
-
 class Broker(Base):
     __tablename__ = "brokers"
     id = Column(Integer, primary_key=True, index=True)
