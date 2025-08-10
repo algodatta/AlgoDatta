@@ -8,10 +8,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="text-xl font-semibold mb-6">AlgoDatta</div>
         <nav className="space-y-2 text-sm">
           <NavItem href="/">Home</NavItem>
+          <NavItem href="/login">Login</NavItem>
+          <NavItem href="/register">Register</NavItem>
+          <NavItem href="/forgot">Forgot</NavItem>
           <NavItem href="/broker">Broker</NavItem>
           <NavItem href="/strategies">Strategies</NavItem>
           <NavItem href="/executions">Executions</NavItem>
           <NavItem href="/reports">Reports</NavItem>
+          <NavItem href="/ops/health">Ops</NavItem>
           <NavItem href="/admin">Admin</NavItem>
         </nav>
       </aside>

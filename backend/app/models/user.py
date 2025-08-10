@@ -12,3 +12,5 @@ class User(Base):
     email_verified = Column(Boolean, default=False)
     email_verify_token = Column(String, nullable=True)
     email_verify_sent_at = Column(DateTime(timezone=True), nullable=True)
+    password_reset_token = Column(String, nullable=True)
+    password_reset_sent_at = Column(DateTime(timezone=True), nullable=True)

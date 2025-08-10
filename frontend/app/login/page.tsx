@@ -15,10 +15,11 @@ export default function LoginPage() {
       {error && <div className="text-red-400 text-sm">{error}
         {error==='Email not verified' && (<button type="button" className="ml-2 underline" onClick={async()=>{
           await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/send_verification`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:'x'})})
-          alert('Verification email re-sent (check backend console in dev)')
+          alert('Verification email re-sent')
         }}>Resend verification</button>)}
       </div>}
       <button disabled={loading} className="w-full bg-white text-black rounded-xl p-3 font-semibold disabled:opacity-60">{loading?'Signing in…':'Sign in'}</button>
     </form>
     <div className="text-sm mt-3 opacity-80">New here? <a className="underline" href="/register">Create one</a></div>
+    <div className="text-sm mt-3 opacity-80"><a className="underline" href="/forgot">Forgot password?</a></div>
   </div>)}

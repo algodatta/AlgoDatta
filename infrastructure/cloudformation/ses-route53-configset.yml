@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SES DKIM + MAIL FROM + DMARC + optional ConfigSet
+Parameters:
+  HostedZoneId: { Type: String }
+  RootDomain: { Type: String }
+  MailFromSubdomain: { Type: String, Default: mail }
+  DmarcRua: { Type: String, Default: dmarc-reports@example.com }
+  DkimToken1: { Type: String }  # from SES Easy DKIM
+  DkimToken2: { Type: String }
+  DkimToken3: { Type: String }
+Resources: {}
