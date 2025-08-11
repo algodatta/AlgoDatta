@@ -1,3 +1,0 @@
-
-
-ssh -i /path/to/LightsailDefaultPrivateKey.pem ubuntu@43.205.125.42

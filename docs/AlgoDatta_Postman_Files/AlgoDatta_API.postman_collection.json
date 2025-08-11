@@ -1,0 +1,702 @@
+{
+  "info": {
+    "name": "AlgoDatta API",
+    "_postman_id": "37f6faa9-c9ea-4760-a5ed-aedd19d3e3a7",
+    "description": "Postman collection for AlgoDatta Backend API. Set {{baseUrl}} and {{authToken}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "type": "string",
+        "value": "{{authToken}}"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "strategy_id",
+      "value": ""
+    },
+    {
+      "key": "notification_id",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "webhook_path",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "register"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"strongpass\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ],
+              "query": []
+            },
+            "description": "Copy access_token into {{authToken}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"strongpass\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Broker",
+      "item": [
+        {
+          "name": "Link Broker",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/broker",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "broker"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"broker_type\": \"dhan\",\n  \"client_id\": \"{{clientId}}\",\n  \"access_token\": \"{{accessToken}}\",\n  \"auth_token\": \"{{accessToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Broker Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/broker",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "broker"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Strategies",
+      "item": [
+        {
+          "name": "List Strategies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "strategies"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Create Strategy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "strategies"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Breakout Strategy\",\n  \"script\": \"strategy.entry('Buy', strategy.long)\",\n  \"broker_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"paper_trading\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Strategy",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies/{{strategy_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "strategies",
+                "{{strategy_id}}"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"paused\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Strategy",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/strategies/{{strategy_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "strategies",
+                "{{strategy_id}}"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Send Webhook Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/{{webhook_path}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "{{webhook_path}}"
+              ],
+              "query": []
+            },
+            "description": "Replace {{webhook_path}} from created strategy.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"signal\": \"buy\",\n  \"symbol\": \"NSE:TCS\",\n  \"price\": 3620.5\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Executions & Reports",
+      "item": [
+        {
+          "name": "List Executions (All)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/executions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "executions"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "List Executions (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/executions?status=success&type=paper&client_id={{clientId}}&limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "executions"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "success"
+                },
+                {
+                  "key": "type",
+                  "value": "paper"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{clientId}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reports JSON",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/json?client_id={{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "json"
+              ],
+              "query": [
+                {
+                  "key": "client_id",
+                  "value": "{{clientId}}"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reports CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/csv?client_id={{clientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "csv"
+              ],
+              "query": [
+                {
+                  "key": "client_id",
+                  "value": "{{clientId}}"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Add Notification (Telegram)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"telegram\",\n  \"endpoint\": \"123456789\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Notification (Email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ],
+              "query": []
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"email\",\n  \"endpoint\": \"alerts@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/{{notification_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notification_id}}"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Toggle User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{user_id}}/status?status=disabled",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "disabled"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "User Strategies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{user_id}}/strategies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "strategies"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reset Broker Tokens",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{user_id}}/reset-broker",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}",
+                "reset-broker"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Logs",
+      "item": [
+        {
+          "name": "List Error Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/error-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "error-logs"
+              ],
+              "query": []
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}

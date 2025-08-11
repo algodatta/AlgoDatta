@@ -1,1 +1,0 @@
-resource "aws_sns_topic" "ses_bounce" { count=var.create_config_set?1:0 name="${var.config_set_name}-bounces"} resource "aws_sns_topic" "ses_complaint" { count=var.create_config_set?1:0 name="${var.config_set_name}-complaints"} resource "aws_sesv2_configuration_set" "this" { count=var.create_config_set?1:0 name=var.config_set_name }

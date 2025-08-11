@@ -1,0 +1,94 @@
+# ---- OS / Editors ----
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+*.swp
+*.swo
+.vscode/
+.idea/
+*.code-workspace
+
+# ---- Node / Next.js / React ----
+node_modules/
+.npm/
+.pnpm-store/
+.next/
+out/
+dist/
+build/
+coverage/
+*.log
+*.cache/
+# lockfile SHOULD be committed; keep one (remove others in your project)
+# !package-lock.json
+# !yarn.lock
+# !pnpm-lock.yaml
+
+# ---- Python / FastAPI ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.env.*
+# local sqlite or dev dbs
+*.sqlite
+*.sqlite3
+*.db
+# compiled wheels / build
+build/
+dist/
+*.egg-info/
+
+# ---- Project structure specifics ----
+# Backend env (commit only backend/.env.example)
+backend/.env
+backend/.env.*
+# Frontend env (commit only frontend/.env.example)
+frontend/.env
+frontend/.env.*
+
+# ---- AWS / Secrets / Keys (NEVER COMMIT) ----
+**/*.pem
+**/*-key.pem
+**/*_key.pem
+**/*private*.key
+**/*secret*.json
+.aws/
+
+# ---- Images / uploads (if any local dev uploads dir) ----
+uploads/
+media/
+
+# ---- Local artifacts / temp ----
+*.zip
+*.tgz
+*.tar.gz
+*.bak
+*.tmp
+tmp/
+.temp/
+.cache/
+logs/
+*.log.*
+
+# ---- Terraform (if added later) ----
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+terraform.tfvars.json
+
+# ---- Docker (optional) ----
+# Uncomment if you generate these locally
+# docker-compose.override.yml
+# .docker/

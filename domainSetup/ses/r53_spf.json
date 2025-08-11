@@ -1,0 +1,16 @@
+{
+  "Comment": "MAIL FROM SPF",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "mail.algodatta.com.",
+        "Type": "TXT",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "\"v=spf1 include:amazonses.com -all\"" }
+        ]
+      }
+    }
+  ]
+}

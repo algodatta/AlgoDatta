@@ -1,1 +1,0 @@
-output "mail_from_fqdn" { value = "${var.mail_from_subdomain}.${var.root_domain}" } output "config_set_name" { value = try(aws_sesv2_configuration_set.this[0].name, null) }

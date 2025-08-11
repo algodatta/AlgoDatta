@@ -1,0 +1,14 @@
+{
+  "Comment": "api.algodatta.com -> Lightsail",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "api.algodatta.com.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "43.205.125.42" }]
+      }
+    }
+  ]
+}

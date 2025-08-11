@@ -1,0 +1,21 @@
+# name,type,ttl,value,priority
+# -----------------
+# EXAMPLES (delete the leading # to enable)
+
+# Root A record (example IP)
+# algodatta.com.,A,300,203.0.113.10,
+
+# WWW → root
+# www.algodatta.com.,CNAME,300,algodatta.com.,
+
+# API to a static IP (or use CNAME to ALB/CloudFront if applicable)
+# api.algodatta.com.,A,300,203.0.113.11,
+
+# MX for your mailbox provider (if you use one) – replace with your provider’s MX
+# algodatta.com.,MX,300,mail.yourmailhost.com.,10
+
+# SPF at root (example: allow only your provider + SES include if needed)
+# algodatta.com.,TXT,300,"v=spf1 include:yourmailhost.com include:amazonses.com -all",
+
+# Google Workspace verification / other TXT (if applicable)
+# algodatta.com.,TXT,300,"google-site-verification=xxxxxxxxxxxxxxxx",

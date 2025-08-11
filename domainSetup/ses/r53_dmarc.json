@@ -1,0 +1,16 @@
+{
+  "Comment": "DMARC at root",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_dmarc.algodatta.com.",
+        "Type": "TXT",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "\"v=DMARC1; p=quarantine; rua=mailto:dmarc@algodatta.com; fo=1\"" }
+        ]
+      }
+    }
+  ]
+}
