@@ -1,10 +1,10 @@
 "use client";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from "../lib/api";
 
 export default function Reports(){
   const download = ()=>{
     const url = `${apiBase()}/api/reports/csv`;
-    fetch(url,{ headers: authHeaders() })
+    fetch(url,{ headers: authHeaders() as HeadersInit })
       .then(r=>r.blob())
       .then(b=>{
         const a = document.createElement('a');

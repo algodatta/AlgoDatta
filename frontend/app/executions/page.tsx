@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from "../lib/api";
 
 type Exec = { id:string; strategy_id:string; symbol:string; side:string; price:number };
 
@@ -8,7 +8,7 @@ export default function Executions(){
   const [rows,setRows] = useState<Exec[]>([]);
 
   const load = async ()=>{
-    const res = await fetch(`${apiBase()}/api/executions`, { headers: authHeaders() });
+    const res = await fetch(`${apiBase()}/api/executions`, { headers: authHeaders() as HeadersInit });
     const data = await res.json();
     if(res.ok) setRows(data);
   };

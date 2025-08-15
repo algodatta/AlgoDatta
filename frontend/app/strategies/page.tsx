@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from "../lib/api";
 
 type Strategy = { id:string; name:string; webhook_path:string; is_active:boolean; paper_trading:boolean };
 
@@ -10,7 +10,7 @@ export default function Strategies(){
   const [msg,setMsg] = useState("");
 
   const load = async ()=>{
-    const res = await fetch(`${apiBase()}/api/strategies`, { headers: authHeaders() });
+    const res = await fetch(`${apiBase()}/api/strategies`, { headers: authHeaders() as HeadersInit });
     const data = await res.json();
     if(res.ok) setList(data);
   };
@@ -21,7 +21,7 @@ export default function Strategies(){
     setMsg("...");
     const res = await fetch(`${apiBase()}/api/strategies`,{
       method:"POST",
-      headers:{ ...authHeaders(), "Content-Type":"application/json" },
+      headers: ({ ...authHeaders(), "Content-Type":"application/json" } as HeadersInit),
       body: JSON.stringify({name, paper_trading:true})
     });
     const data = await res.json();
@@ -29,7 +29,7 @@ export default function Strategies(){
   };
 
   const toggle = async (id:string)=>{
-    const res = await fetch(`${apiBase()}/api/strategies/${id}/toggle`,{ method:"PATCH", headers: authHeaders() });
+    const res = await fetch(`${apiBase()}/api/strategies/${id}/toggle`,{ method:"PATCH", headers: authHeaders() as HeadersInit });
     const data = await res.json();
     if(res.ok){ setList(list.map(s=>s.id===id? data: s)); }
   };

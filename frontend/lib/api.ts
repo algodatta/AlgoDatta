@@ -1,4 +1,6 @@
-export const apiBase = () => process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+export const apiBase = () =>
+  process.env.NEXT_PUBLIC_API_BASE ||
+  (typeof window !== "undefined" ? window.location.origin : "https://algodatta.com");
 
 export const getToken = () =>
   (typeof window !== "undefined" ? localStorage.getItem("token") || "" : "");

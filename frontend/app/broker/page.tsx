@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from "../lib/api";
 
 export default function Broker(){
   const [token,setToken] = useState("");
@@ -10,7 +10,7 @@ export default function Broker(){
     setMsg("...");
     const res = await fetch(`${apiBase()}/api/broker`,{
       method:"POST",
-      headers: { ...authHeaders(), "Content-Type":"application/json" },
+      headers: ({ ...authHeaders(), "Content-Type":"application/json" } as HeadersInit),
       body: JSON.stringify({auth_token: token})
     });
     const data = await res.json().catch(()=>({}));
