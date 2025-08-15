@@ -1,3 +1,6 @@
+import { ErrorEventsBridge } from "@/components/system/ErrorEventsBridge";
+import { Toasts } from "@/components/system/Toasts";
+import ErrorBoundary from "@/components/system/ErrorBoundary";
 import './globals.css'
 import Link from 'next/link'
 export const metadata = { title: 'AlgoDatta', description: 'Auto Trading Platform' }
@@ -19,10 +22,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavItem href="/admin">Admin</NavItem>
         </nav>
       </aside>
-      <main className="flex-1 p-4">{children}</main>
+      <main className="flex-1 p-4"><ErrorBoundary><ErrorEventsBridge />{children}</ErrorBoundary></main>
     </div>
-  </body></html>)
+    <Toasts />
+      </body></html>)
 }
 function NavItem({ href, children }: { href: string, children: React.ReactNode }) {
-  return (<Link className="block rounded-xl px-3 py-2 hover:bg-neutral-800/60" href={href}>{children}</Link>)
+  return (<Link className="block rounded-xl px-3 py-2 hover:bg-neutral-800/60" href={href}><ErrorBoundary><ErrorEventsBridge />{children}</ErrorBoundary></Link>)
 }
