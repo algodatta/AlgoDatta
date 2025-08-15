@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../lib/api";
+import { apiBase, authHeaders } from "../../lib/api";
 
 type Exec = { id:string; strategy_id:string; symbol:string; side:string; price:number };
 

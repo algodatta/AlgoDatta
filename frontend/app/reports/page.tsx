@@ -1,5 +1,5 @@
 "use client";
-import { apiBase, authHeaders } from "../lib/api";
+import { apiBase, authHeaders } from "../../lib/api";
 
 export default function Reports(){
   const download = ()=>{

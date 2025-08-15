@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { apiBase, authHeaders } from "../lib/api";
+import { apiBase, authHeaders } from "../../lib/api";
 
 export default function Broker(){
   const [token,setToken] = useState("");

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../lib/api";
+import { apiBase, authHeaders } from "../../lib/api";
 
 type Strategy = { id:string; name:string; webhook_path:string; is_active:boolean; paper_trading:boolean };
 
