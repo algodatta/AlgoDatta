@@ -1,11 +1,28 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from typing import Optional, Literal
+from uuid import UUID
+
 class StrategyCreate(BaseModel):
     name: str
-    symbol: str
-    timeframe: str = "5m"
-    qty: int = 1
-    mode: Literal["paper","live"] = "paper"
-class StrategyOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int; name: str; symbol: str; timeframe: str; qty: int; mode: str; status: str; webhook_secret: Optional[str] = None
+    symbol: Optional[str] = None
+    timeframe: Optional[str] = None
+    qty: Optional[str] = None
+    mode: Optional[str] = None
+    broker_id: Optional[UUID] = None
+    paper_trading: bool = True
+
+class StrategyUpdate(BaseModel):
+    name: Optional[str] = None
+    symbol: Optional[str] = None
+    timeframe: Optional[str] = None
+    qty: Optional[str] = None
+    mode: Optional[str] = None
+    broker_id: Optional[UUID] = None
+    paper_trading: Optional[bool] = None
+    status: Optional[Literal["active","paused","error"]] = None
+    # Dhan fields
+    dhan_security_id: Optional[str] = None
+    dhan_exchange_segment: Optional[str] = None
+    dhan_product_type: Optional[str] = None
+    dhan_order_type: Optional[str] = None
+    dhan_validity: Optional[str] = None

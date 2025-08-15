@@ -14,7 +14,8 @@ class Broker(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     type = Column(Enum(BrokerType, name="broker_type"), nullable=False)
-    auth_token = Column(String, nullable=True)
+    auth_token = Column(String, nullable=True)  # Dhan access-token (JWT)
+    client_id = Column(String, nullable=True)  # Dhan dhanClientId
     token_expiry = Column(DateTime(timezone=True), nullable=True)
     connected_at = Column(DateTime(timezone=True), nullable=True)
 

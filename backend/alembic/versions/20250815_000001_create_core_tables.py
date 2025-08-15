@@ -7,17 +7,14 @@ Create Date: 2025-08-15
 """
 from alembic import op
 import sqlalchemy as sa
-import uuid
 from sqlalchemy.dialects import postgresql
 
-# revision identifiers, used by Alembic.
 revision = '20250815_000001_create_core_tables'
 down_revision = None
 branch_labels = None
 depends_on = None
 
 def upgrade():
-    # Enums
     user_role = sa.Enum('user', 'admin', name='user_role')
     user_status = sa.Enum('active', 'disabled', name='user_status')
     broker_type = sa.Enum('dhanhq', 'paper', name='broker_type')
@@ -34,9 +31,8 @@ def upgrade():
     execution_status.create(op.get_bind(), checkfirst=True)
     notification_type.create(op.get_bind(), checkfirst=True)
 
-    # users
     op.create_table('users',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('email', sa.String(), nullable=False, unique=True),
         sa.Column('password_hash', sa.String(), nullable=False),
         sa.Column('role', user_role, nullable=False, server_default='user'),
@@ -44,9 +40,9 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()'))
     )
     op.create_index('ix_users_email', 'users', ['email'])
-    # brokers
+
     op.create_table('brokers',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
         sa.Column('type', broker_type, nullable=False),
         sa.Column('auth_token', sa.String(), nullable=True),
@@ -55,9 +51,8 @@ def upgrade():
     )
     op.create_index('ix_brokers_user_id', 'brokers', ['user_id'])
 
-    # strategies
     op.create_table('strategies',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
         sa.Column('name', sa.String(), nullable=False),
         sa.Column('symbol', sa.String(), nullable=True),
@@ -74,9 +69,8 @@ def upgrade():
     )
     op.create_index('ix_strategies_user_id', 'strategies', ['user_id'])
 
-    # alerts
     op.create_table('alerts',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('strategy_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('strategies.id', ondelete='CASCADE'), nullable=False),
         sa.Column('symbol', sa.String(), nullable=True),
         sa.Column('signal', sa.String(), nullable=True),
@@ -86,9 +80,8 @@ def upgrade():
     )
     op.create_index('ix_alerts_strategy_id', 'alerts', ['strategy_id'])
 
-    # executions
     op.create_table('executions',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('strategy_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('strategies.id', ondelete='SET NULL'), nullable=True),
         sa.Column('alert_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('alerts.id', ondelete='SET NULL'), nullable=True),
         sa.Column('side', sa.String(), nullable=True),
@@ -106,9 +99,8 @@ def upgrade():
     op.create_index('ix_executions_strategy_id', 'executions', ['strategy_id'])
     op.create_index('ix_executions_alert_id', 'executions', ['alert_id'])
 
-    # paper_trades
     op.create_table('paper_trades',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('strategy_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('strategies.id', ondelete='CASCADE'), nullable=False),
         sa.Column('symbol', sa.String(), nullable=True),
         sa.Column('side', sa.String(), nullable=False),
@@ -123,9 +115,8 @@ def upgrade():
     )
     op.create_index('ix_paper_trades_strategy_id', 'paper_trades', ['strategy_id'])
 
-    # notifications
     op.create_table('notifications',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
         sa.Column('type', notification_type, nullable=False),
         sa.Column('destination', sa.String(), nullable=False),
@@ -134,9 +125,8 @@ def upgrade():
     )
     op.create_index('ix_notifications_user_id', 'notifications', ['user_id'])
 
-    # error_logs
     op.create_table('error_logs',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id', ondelete='SET NULL'), nullable=True),
         sa.Column('context', sa.String(), nullable=True),
         sa.Column('message', sa.String(), nullable=False),
@@ -164,7 +154,5 @@ def downgrade():
     op.drop_table('brokers')
     op.drop_index('ix_users_email', table_name='users')
     op.drop_table('users')
-
-    # Drop enums
     for enum_name in ['notification_type','execution_status','execution_type','strategy_status','broker_type','user_status','user_role']:
         sa.Enum(name=enum_name).drop(op.get_bind(), checkfirst=True)

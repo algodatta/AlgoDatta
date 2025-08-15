@@ -1,17 +1,48 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import auth, strategies, webhook, executions, reports, admin, broker, ops, notifications
+from fastapi.staticfiles import StaticFiles
+from app.core.config import settings
+from app.api.routers import auth, admin, strategies, webhooks, reports, admin_dhan, instruments, broker_dhan, notifications, risk, orders, positions, dashboards, metrics
 
 app = FastAPI(title="AlgoDatta API", version="0.3.0")
-app.add_middleware(CORSMiddleware,allow_origins=["http://localhost:3000"],allow_credentials=False,allow_methods=["*"],allow_headers=["*"])
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(broker.router, prefix="/api/broker", tags=["broker"])
-app.include_router(strategies.router, prefix="/api/strategies", tags=["strategies"])
-app.include_router(webhook.router, prefix="/api/webhook", tags=["webhook"])
-app.include_router(executions.router, prefix="/api/executions", tags=["executions"])
-app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
-app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
-app.include_router(ops.router, prefix="/api/ops", tags=["ops"])
-app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
-@app.get("/api/health")
-def health(): return {"status":"ok"}
+
+origins = settings.cors_origins or ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event("startup")
+def _auto_db_init():
+    if settings.auto_db_init:
+        try:
+            from scripts.init_db import migrate, seed
+            migrate()
+            seed()
+        except Exception as e:
+            print("AUTO_DB_INIT failed:", e)
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(admin_dhan.router)
+app.include_router(instruments.router)
+app.include_router(broker_dhan.router)
+app.include_router(notifications.router)
+app.include_router(risk.router)
+app.include_router(orders.router)
+app.include_router(positions.router)
+app.include_router(dashboards.router)
+app.include_router(metrics.router)
+app.include_router(strategies.router)
+app.include_router(webhooks.router)
+app.include_router(reports.router)
+
+app.mount('/ui', StaticFiles(directory='ui', html=True), name='ui')

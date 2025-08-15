@@ -1,0 +1,2 @@
+import { SelectHTMLAttributes, ReactNode } from 'react'
+export default function Select(props: SelectHTMLAttributes<HTMLSelectElement> & {children:ReactNode}){ const { className='', children, ...rest } = props; return <select {...rest} className={`border rounded px-3 py-2 ${className}`}>{children}</select> }

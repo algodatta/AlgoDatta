@@ -16,10 +16,10 @@ class Strategy(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, nullable=False)
-    symbol = Column(String, nullable=True)  # optional shortcut field
-    timeframe = Column(String, nullable=True)  # e.g., 5m, 15m
-    qty = Column(String, nullable=True)  # store as string for flexibility, cast later
-    mode = Column(String, nullable=True)  # 'paper'|'live' (kept for UI parity)
+    symbol = Column(String, nullable=True)
+    timeframe = Column(String, nullable=True)
+    qty = Column(String, nullable=True)
+    mode = Column(String, nullable=True)
     script = Column(String, nullable=True)
     broker_id = Column(UUID(as_uuid=True), ForeignKey("brokers.id", ondelete="SET NULL"), nullable=True)
     paper_trading = Column(Boolean, default=False, nullable=False)
@@ -27,6 +27,13 @@ class Strategy(Base):
     status = Column(Enum(StrategyStatus, name="strategy_status"), default=StrategyStatus.active, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # DhanHQ config (needed for live orders)
+    dhan_security_id = Column(String, nullable=True)       # e.g. "11536"
+    dhan_exchange_segment = Column(String, nullable=True)  # e.g. "NSE_EQ", "MCX_COMM", etc.
+    dhan_product_type = Column(String, nullable=True, default="INTRADAY")  # "CNC","INTRADAY","MARGIN","MTF"
+    dhan_order_type = Column(String, nullable=True, default="MARKET")      # "MARKET","LIMIT","STOP_LOSS","STOP_LOSS_MARKET"
+    dhan_validity = Column(String, nullable=True, default="DAY")           # "DAY","IOC"
 
     user = relationship("User", backref="strategies")
     broker = relationship("Broker", backref="strategies")

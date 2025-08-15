@@ -9,7 +9,7 @@ class PaperTrade(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id", ondelete="CASCADE"), nullable=False, index=True)
     symbol = Column(String, nullable=True)
-    side = Column(String, nullable=False)  # BUY/SELL
+    side = Column(String, nullable=False)
     entry_price = Column(Numeric, nullable=False)
     exit_price = Column(Numeric, nullable=True)
     qty = Column(Integer, nullable=False)

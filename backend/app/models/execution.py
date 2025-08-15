@@ -19,10 +19,10 @@ class Execution(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id", ondelete="SET NULL"), nullable=True, index=True)
     alert_id = Column(UUID(as_uuid=True), ForeignKey("alerts.id", ondelete="SET NULL"), nullable=True, index=True)
-    side = Column(String, nullable=True)  # BUY/SELL
+    side = Column(String, nullable=True)
     qty = Column(Numeric, nullable=True)
     price = Column(Numeric, nullable=True)
-    mode = Column(String, nullable=True)  # paper|live
+    mode = Column(String, nullable=True)
     broker_order_id = Column(String, nullable=True)
     type = Column(Enum(ExecutionType, name="execution_type"), nullable=True)
     status = Column(Enum(ExecutionStatus, name="execution_status"), nullable=False, default=ExecutionStatus.pending)

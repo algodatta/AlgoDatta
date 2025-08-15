@@ -1,27 +1,35 @@
-from pydantic import BaseModel
 import os
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from typing import List
+
+load_dotenv()
+
 class Settings(BaseModel):
-    SECRET_KEY: str = os.getenv("SECRET_KEY","changeme")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES","60"))
-    DATABASE_URL: str = os.getenv("DATABASE_URL","sqlite:///./algodatta.db")
-    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
-    AWS_REGION: str = os.getenv("AWS_REGION", "ap-south-1")
-    SES_FROM_EMAIL: str = os.getenv("SES_FROM_EMAIL", "")
-    SES_CONFIG_SET_NAME: str = os.getenv("SES_CONFIG_SET_NAME", "")
-    AWS_PROFILE: str = os.getenv("AWS_PROFILE", "")
-    REDIS_URL: str = os.getenv("REDIS_URL", "")
-    EMAIL_RATE_LIMIT_PER_MINUTE: int = int(os.getenv("EMAIL_RATE_LIMIT_PER_MINUTE", "60"))
-    EMAIL_RATE_LIMIT_PER_HOUR: int = int(os.getenv("EMAIL_RATE_LIMIT_PER_HOUR", "1000"))
-    EMAIL_RECIPIENT_LIMIT_PER_HOUR: int = int(os.getenv("EMAIL_RECIPIENT_LIMIT_PER_HOUR", "10"))
-    EMAIL_RECIPIENT_LIMIT_PER_DAY: int = int(os.getenv("EMAIL_RECIPIENT_LIMIT_PER_DAY", "50"))
-    EMAIL_MAX_RETRIES: int = int(os.getenv("EMAIL_MAX_RETRIES", "3"))
-    EMAIL_BACKOFF_BASE_SECONDS: float = float(os.getenv("EMAIL_BACKOFF_BASE_SECONDS", "0.5"))
-    EMAIL_BACKOFF_MAX_SECONDS: float = float(os.getenv("EMAIL_BACKOFF_MAX_SECONDS", "5.0"))
-    BRAND_NAME: str = os.getenv("BRAND_NAME", "AlgoDatta")
-    BRAND_PRIMARY: str = os.getenv("BRAND_PRIMARY", "#111111")
-    BRAND_LOGO_URL: str = os.getenv("BRAND_LOGO_URL", "")
-    EMAIL_THEME: str = os.getenv("EMAIL_THEME", "dark")
-    PASSWORD_RESET_TOKEN_TTL_MINUTES: int = int(os.getenv("PASSWORD_RESET_TOKEN_TTL_MINUTES", "30"))
-    PASSWORD_RESET_REQUESTS_PER_HOUR: int = int(os.getenv("PASSWORD_RESET_REQUESTS_PER_HOUR", "3"))
-    PASSWORD_RESET_GLOBAL_PER_MINUTE: int = int(os.getenv("PASSWORD_RESET_GLOBAL_PER_MINUTE", "60"))
+    database_url: str = os.getenv("DATABASE_URL", "")
+    jwt_secret: str = os.getenv("JWT_SECRET", "change-me")
+    jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+    cors_origins: List[str] = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    auto_db_init: bool = os.getenv("AUTO_DB_INIT", "false").lower() == "true"
+    admin_email: str = os.getenv("ADMIN_EMAIL", "admin@algodatta.com")
+    admin_password: str = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
+    admin_role: str = os.getenv("ADMIN_ROLE", "admin")
+
 settings = Settings()
+
+
+    # Optional shared secret required by /broker/dhan/postback to validate webhook origin
+    dhan_postback_secret: str = os.getenv("DHAN_POSTBACK_SECRET", "")
+
+    dhan_test_mode: bool = os.getenv("DHAN_TEST_MODE", "true").lower() == "true"
+
+    notify_test_mode: bool = os.getenv("NOTIFY_TEST_MODE", "true").lower() == "true"
+    telegram_bot_token: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    smtp_host: str = os.getenv("SMTP_HOST", "")
+    smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
+    smtp_user: str = os.getenv("SMTP_USER", "")
+    smtp_password: str = os.getenv("SMTP_PASSWORD", "")
+    smtp_from: str = os.getenv("SMTP_FROM", "noreply@algodatta.com")
+    default_max_signals_per_minute: int = int(os.getenv("DEFAULT_MAX_SIGNALS_PER_MINUTE", "30"))
+    idempotency_window_sec: int = int(os.getenv("IDEMPOTENCY_WINDOW_SEC", "120"))

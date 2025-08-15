@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AlgoDatta UI (Stub)</title>
+  <link rel="stylesheet" href="https://unpkg.com/@sakun/system.css"/>
+  <style>body{max-width:1200px;margin:20px auto;padding:0 12px}.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:16px} .hidden{display:none}</style>
+</head>
+<body>
+  <h1>AlgoDatta — UI Stub</h1>
+  <div class="card">
+    <label>Base URL <input id="baseUrl" value="http://localhost:8000" style="width:300px"/></label>
+    <label style="margin-left:12px">Token <input id="token" style="width:420px"/></label>
+    <button onclick="saveCfg()">Save</button>
+    <button onclick="login()">Login as Admin</button>
+  </div>
+
+  <div class="card">
+    <nav>
+      <button onclick="showTab('dash')">Dashboard</button>
+      <button onclick="showTab('orders')">Orders</button>
+      <button onclick="showTab('positions')">Positions</button>
+      <button id="adminTab" class="hidden" onclick="showTab('admin')">Admin</button>
+    </nav>
+  </div>
+
+  <div id="tab-dash" class="card">
+    <h3>PNL Equity Curve</h3>
+    <pre id="equity"></pre>
+  </div>
+  <div id="tab-orders" class="card hidden">
+    <h3>Recent Orders</h3>
+    <pre id="orders"></pre>
+  </div>
+  <div id="tab-positions" class="card hidden">
+    <h3>Positions</h3>
+    <pre id="positions"></pre>
+  </div>
+  <div id="tab-admin" class="card hidden">
+    <h3>Admin Summary</h3>
+    <pre id="summary"></pre>
+  </div>
+
+<script>
+function cfg(){return {base: localStorage.getItem('baseUrl')||document.getElementById('baseUrl').value, token: localStorage.getItem('token')||document.getElementById('token').value}}
+function saveCfg(){ localStorage.setItem('baseUrl', document.getElementById('baseUrl').value); localStorage.setItem('token', document.getElementById('token').value); alert('Saved.'); }
+async function login(){
+  const base = document.getElementById('baseUrl').value;
+  const r = await fetch(base + '/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:'admin@algodatta.com', password:'ChangeMe123!'})});
+  const j = await r.json();
+  localStorage.setItem('token', j.access_token || '');
+  document.getElementById('token').value = j.access_token || '';
+  await loadAll();
+}
+function showTab(t){
+  for(const id of ['dash','orders','positions','admin']){
+    document.getElementById('tab-'+id).classList.toggle('hidden', id!==t);
+  }
+}
+async function api(path){
+  const c = cfg();
+  const r = await fetch(c.base + path, {headers:{'Authorization':'Bearer ' + c.token}});
+  return r.json();
+}
+async function loadAll(){
+  const me = await api('/auth/me');
+  const isAdmin = me.role==='admin';
+  document.getElementById('adminTab').classList.toggle('hidden', !isAdmin);
+  document.getElementById('equity').textContent = JSON.stringify(await api('/dashboards/pnl/equity'), null, 2);
+  document.getElementById('orders').textContent = JSON.stringify(await api('/orders'), null, 2);
+  document.getElementById('positions').textContent = JSON.stringify(await api('/positions'), null, 2);
+  if(isAdmin){
+    document.getElementById('summary').textContent = JSON.stringify(await api('/admin/summary'), null, 2);
+  }
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('baseUrl').value = localStorage.getItem('baseUrl') || 'http://localhost:8000';
+  document.getElementById('token').value = localStorage.getItem('token') || '';
+  loadAll().catch(()=>{});
+  showTab('dash');
+});
+</script>
+</body></html>
