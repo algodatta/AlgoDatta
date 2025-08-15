@@ -36,6 +36,8 @@
   ],
   "exclude": [
     "node_modules",
-    "src/**/*"
+    "src/**/*",
+    "src/**/*",
+    "src_legacy/**/*"
   ]
 }
