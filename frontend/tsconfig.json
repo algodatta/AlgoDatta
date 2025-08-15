@@ -37,7 +37,8 @@
   "exclude": [
     "node_modules",
     "src/**/*",
-    "src/**/*",
-    "src_legacy/**/*"
+    "src_legacy/**/*",
+    "vite.config.ts",
+    "vite-env.d.ts"
   ]
 }
