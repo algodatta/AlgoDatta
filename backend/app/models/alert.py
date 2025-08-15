@@ -1,13 +1,15 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
+import uuid
+from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
-from app.db.session import Base
+from app.db.base import Base
+
 class Alert(Base):
     __tablename__ = "alerts"
-    id = Column(Integer, primary_key=True, index=True)
-    strategy_id = Column(Integer, ForeignKey("strategies.id"), nullable=False)
-    idempotency_key = Column(String, unique=True, nullable=False)
-    payload_json = Column(JSON, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id", ondelete="CASCADE"), nullable=False, index=True)
+    symbol = Column(String, nullable=True)
+    signal = Column(String, nullable=True)
+    price = Column(Numeric, nullable=True)
     received_at = Column(DateTime(timezone=True), server_default=func.now())
-    processed_at = Column(DateTime(timezone=True), nullable=True)
-    status = Column(String, default="received")
-    error_text = Column(String, nullable=True)
+    raw_payload = Column(JSONB, nullable=True)

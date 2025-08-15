@@ -1,16 +1,32 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+import uuid
+import enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, Integer, Numeric
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
-from app.db.session import Base
+from app.db.base import Base
+
+class ExecutionType(str, enum.Enum):
+    live = "live"
+    paper = "paper"
+
+class ExecutionStatus(str, enum.Enum):
+    pending = "pending"
+    success = "success"
+    fail = "fail"
+
 class Execution(Base):
     __tablename__ = "executions"
-    id = Column(Integer, primary_key=True, index=True)
-    strategy_id = Column(Integer, ForeignKey("strategies.id"), nullable=False)
-    side = Column(String, nullable=False)
-    qty = Column(Integer, default=1)
-    price = Column(Float, nullable=True)
-    mode = Column(String, default="paper")
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    strategy_id = Column(UUID(as_uuid=True), ForeignKey("strategies.id", ondelete="SET NULL"), nullable=True, index=True)
+    alert_id = Column(UUID(as_uuid=True), ForeignKey("alerts.id", ondelete="SET NULL"), nullable=True, index=True)
+    side = Column(String, nullable=True)  # BUY/SELL
+    qty = Column(Numeric, nullable=True)
+    price = Column(Numeric, nullable=True)
+    mode = Column(String, nullable=True)  # paper|live
     broker_order_id = Column(String, nullable=True)
-    status = Column(String, default="queued")
-    pnl = Column(Float, nullable=True)
+    type = Column(Enum(ExecutionType, name="execution_type"), nullable=True)
+    status = Column(Enum(ExecutionStatus, name="execution_status"), nullable=False, default=ExecutionStatus.pending)
+    response = Column(JSONB, nullable=True)
+    pnl = Column(Numeric, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
