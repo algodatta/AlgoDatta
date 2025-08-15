@@ -18,6 +18,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": [
+      "react/experimental",
+      "react-dom/experimental"
+    ],
     "plugins": [
       {
         "name": "next"
