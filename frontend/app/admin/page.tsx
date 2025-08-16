@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 import { useEffect, useState } from "react";
 import { apiBase, authHeaders } from "@/lib/api";
@@ -102,3 +103,13 @@ export default function Admin() {
     </div>
   );
 }
+=======
+export default function Admin(){
+  return (
+    <div className="space-y-2">
+      <h2 className="text-xl font-medium">Admin</h2>
+      <p>Health check available at <code>/api/admin/health</code> on the backend.</p>
+    </div>
+  )
+}
+>>>>>>> 4d0fc9a2464fb0e7af8e4db8841f28a9cb0301df

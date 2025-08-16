@@ -12,7 +12,10 @@ export default function RootLayout({children}:{children:React.ReactNode}){
               <a className="hover:underline" href="/broker">Broker</a>
               <a className="hover:underline" href="/strategies">Strategies</a>
               <a className="hover:underline" href="/executions">Executions</a>
+<<<<<<< HEAD
               <a className="hover:underline" href="/executions/live">Live</a>
+=======
+>>>>>>> 4d0fc9a2464fb0e7af8e4db8841f28a9cb0301df
               <a className="hover:underline" href="/reports">Reports</a>
               <a className="hover:underline" href="/admin">Admin</a>
             </nav>
@@ -22,4 +25,8 @@ export default function RootLayout({children}:{children:React.ReactNode}){
       </body>
     </html>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 4d0fc9a2464fb0e7af8e4db8841f28a9cb0301df
