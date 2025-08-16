@@ -32,9 +32,11 @@
   ],
   "exclude": [
     "node_modules",
-    "src/**/*",
-    "src_legacy/**/*",
-    "vite.config.ts",
-    "vite-env.d.ts"
+    "pages/**",
+    "src/pages/**",
+    "src_legacy/**",
+    "src_legacy_*/**",
+    ".next",
+    "dist"
   ]
 }
