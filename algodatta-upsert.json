@@ -1,0 +1,32 @@
+{
+  "Comment": "Point to Lightsail static IP 65.1.54.243",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "algodatta.com.",
+        "Type": "A",
+        "TTL": 60,
+        "ResourceRecords": [{ "Value": "65.1.54.243" }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "api.algodatta.com.",
+        "Type": "A",
+        "TTL": 60,
+        "ResourceRecords": [{ "Value": "65.1.54.243" }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "www.algodatta.com.",
+        "Type": "CNAME",
+        "TTL": 60,
+        "ResourceRecords": [{ "Value": "algodatta.com." }]
+      }
+    }
+  ]
+}

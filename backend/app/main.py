@@ -1,5 +1,7 @@
 import os
 from fastapi import FastAPI
+from app.api.routers import admin_health
+from app.api.routers import executions_stream
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
@@ -7,6 +9,10 @@ from app.api.routers import auth, admin, strategies, webhooks, reports, admin_dh
 
 app = FastAPI(title="AlgoDatta API", version="0.3.0")
 
+
+
+app.include_router(admin_health.router)
+app.include_router(executions_stream.router)
 origins = settings.cors_origins or ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -46,3 +52,5 @@ app.include_router(webhooks.router)
 app.include_router(reports.router)
 
 app.mount('/ui', StaticFiles(directory='ui', html=True), name='ui')
+
+from app.services.executions_publisher import start_publisher_if_enabled, stop_publisher
