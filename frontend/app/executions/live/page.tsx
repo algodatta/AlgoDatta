@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { apiBase, getToken, authHeaders } from "@/lib/api";
+import { apiBase, getToken, authHeaders } from "../../../lib/api";
 
 type ExecEvt = { id?:string; strategy_id?:string; symbol?:string; side?:string; price?:number; ts?:string; msg?:string };
 
