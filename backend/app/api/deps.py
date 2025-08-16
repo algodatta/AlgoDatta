@@ -7,7 +7,7 @@ from app.db.session import SessionLocal
 from app.core.security import decode_token
 from app.models import User, UserStatus, UserRole, Strategy
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
