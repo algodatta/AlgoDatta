@@ -1,2 +1,0 @@
-import { ButtonHTMLAttributes } from 'react'
-export default function Button(props: ButtonHTMLAttributes<HTMLButtonElement>){ const { className='', ...rest } = props; return <button {...rest} className={`px-3 py-2 rounded border hover:bg-gray-50 disabled:opacity-60 ${className}`} /> }

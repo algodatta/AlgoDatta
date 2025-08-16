@@ -1,2 +1,0 @@
-import { useEffect, useState } from 'react'
-export default function ThemeToggle(){ const [dark, setDark] = useState(false); useEffect(()=>{ const d = localStorage.getItem('theme')==='dark'; setDark(d); document.documentElement.classList.toggle('dark', d) },[]); const toggle = ()=>{ const nd = !dark; setDark(nd); localStorage.setItem('theme', nd?'dark':'light'); document.documentElement.classList.toggle('dark', nd) }; return <button className="px-2 py-1 border rounded" onClick={toggle}>{dark?'🌙':'☀️'}</button> }
