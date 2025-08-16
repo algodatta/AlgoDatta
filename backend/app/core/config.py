@@ -16,9 +16,6 @@ class Settings(BaseModel):
     admin_password: str = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
     admin_role: str = os.getenv("ADMIN_ROLE", "admin")
 
-settings = Settings()
-
-
     # Optional shared secret required by /broker/dhan/postback to validate webhook origin
     dhan_postback_secret: str = os.getenv("DHAN_POSTBACK_SECRET", "")
 
@@ -33,3 +30,5 @@ settings = Settings()
     smtp_from: str = os.getenv("SMTP_FROM", "noreply@algodatta.com")
     default_max_signals_per_minute: int = int(os.getenv("DEFAULT_MAX_SIGNALS_PER_MINUTE", "30"))
     idempotency_window_sec: int = int(os.getenv("IDEMPOTENCY_WINDOW_SEC", "120"))
+
+settings = Settings()
