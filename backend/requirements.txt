@@ -6,3 +6,8 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-dotenv
 pydantic[email]
+psycopg2-binary>=2.9.9
+pytz
+prometheus-client
+httpx>=0.24
+python-multipart
