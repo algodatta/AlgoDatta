@@ -1,31 +1,51 @@
 "use client";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { clearToken, getToken } from "../lib/api";
 import { useEffect, useState } from "react";
-import { getToken, clearToken } from "../lib/api";
+
+const links = [
+  { href: "/strategies", label: "Strategies" },
+  { href: "/executions", label: "Executions" },
+  { href: "/reports", label: "Reports" },
+];
 
 export default function Nav(){
+  const pathname = usePathname();
+  const router = useRouter();
   const [authed, setAuthed] = useState(false);
+
   useEffect(()=>{ setAuthed(!!getToken()); }, []);
-  const logout = ()=>{ clearToken(); location.href = "/login"; };
+
+  const logout = () => {
+    clearToken();
+    router.push("/login");
+  };
+
+  // Hide on login page
+  if (pathname?.startsWith("/login")) return null;
 
   return (
-    <nav className="w-full border-b bg-white">
-      <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
-        <div className="flex gap-4">
-          <Link href="/" className="font-semibold">AlgoDatta</Link>
-          <Link href="/strategies" className="text-sm">Strategies</Link>
-          <Link href="/executions" className="text-sm">Executions</Link>
-          <Link href="/executions/live" className="text-sm">Live</Link>
-          <Link href="/reports" className="text-sm">Reports</Link>
-        </div>
-        <div className="flex items-center gap-3">
+    <header className="w-full border-b bg-white">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+        <Link href="/" className="font-semibold">AlgoDatta</Link>
+        <nav className="flex items-center gap-4">
+          {links.map(l => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={`px-2 py-1 rounded ${pathname?.startsWith(l.href) ? "bg-blue-600 text-white" : "hover:bg-gray-100"}`}
+            >
+              {l.label}
+            </Link>
+          ))}
           {authed ? (
-            <button onClick={logout} className="text-sm text-red-600 hover:underline">Logout</button>
+            <button onClick={logout} className="ml-3 px-3 py-1 rounded bg-gray-800 text-white">Logout</button>
           ) : (
-            <Link href="/login" className="text-sm hover:underline">Login</Link>
+            <Link href="/login" className="ml-3 px-3 py-1 rounded bg-blue-600 text-white">Login</Link>
           )}
-        </div>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
