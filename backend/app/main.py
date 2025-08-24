@@ -26,7 +26,10 @@ from app.api.routers import (
 app = FastAPI(title="AlgoDatta API", openapi_url="/api/openapi.json", docs_url="/api/docs")
 
 # CORS
-origins = settings.cors_origins or ["*"]
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = ["https://www.algodatta.com", "https://algodatta.com"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -34,6 +37,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Mount routers under /api (except /metrics which is conventional root)
 app.include_router(admin_health.router, prefix="/api")
