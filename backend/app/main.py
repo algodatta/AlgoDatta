@@ -1,3 +1,4 @@
+from app.api.routers import health
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,3 +59,39 @@ app.include_router(risk.router, prefix="/api")
 
 # Prometheus /metrics
 app.include_router(metrics.router)
+
+
+
+# --- healthz (added for liveness checks) ---
+
+try:
+
+    app
+
+except NameError:
+
+    from fastapi import FastAPI
+
+    app = FastAPI()
+
+
+
+@app.get("/healthz", tags=["health"])
+
+def healthz():
+
+    return {"status": "ok"}
+
+# --- end healthz ---
+
+
+from fastapi import Response
+
+
+
+@app.head("/healthz", tags=["health"])
+
+def healthz_head():
+
+    return Response(status_code=200)
+

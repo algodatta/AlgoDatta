@@ -1,149 +1,17 @@
-from app.core.config import settings
-from decimal import Decimal
-from typing import Tuple
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-from app.models import Strategy, Execution, ExecutionStatus, ExecutionType, PaperTrade, Broker, BrokerType
-from app.services.dhanhq_client import DhanClient
 
-def _D(x) -> Decimal:
-    return Decimal(str(x))
+from typing import Any
 
-def _int(x) -> int:
-    return int(Decimal(str(x)))
+def paper_fill(*args: Any, **kwargs: Any):
 
-def paper_fill(db: Session, strategy: Strategy, side: str, qty, price) -> Tuple[Execution, PaperTrade]:
-    side = side.upper()
-    q = _D(qty)
-    p = _D(price)
+    # Temporary stub so the app can boot.
 
-    last = db.execute(
-        select(PaperTrade).where(PaperTrade.strategy_id == strategy.id).order_by(PaperTrade.entry_time.desc()).limit(1)
-    ).scalar_one_or_none()
+    raise RuntimeError("paper_fill temporarily disabled")
 
-    pos_qty = Decimal(last.position_qty) if last and last.position_qty is not None else Decimal(0)
-    avg_price = Decimal(str(last.avg_price)) if last and last.avg_price is not None else Decimal(0)
 
-    realized_pnl = Decimal(0)
 
-    if side == "BUY":
-        if pos_qty < 0:
-            offset = min(q, -pos_qty)
-            realized_pnl += (avg_price - p) * offset
-            pos_qty += offset
-            q -= offset
-        if q > 0:
-            new_total_qty = pos_qty + q
-            if pos_qty > 0:
-                avg_price = (avg_price * pos_qty + p * q) / (new_total_qty if new_total_qty != 0 else Decimal(1))
-            else:
-                avg_price = p
-            pos_qty = new_total_qty
-    elif side == "SELL":
-        if pos_qty > 0:
-            offset = min(q, pos_qty)
-            realized_pnl += (p - avg_price) * offset
-            pos_qty -= offset
-            q -= offset
-        if q > 0:
-            new_total_qty = pos_qty - q
-            if pos_qty < 0:
-                abs_new = -new_total_qty if new_total_qty != 0 else Decimal(1)
-                avg_price = (avg_price * (-pos_qty) + p * q) / abs_new
-            else:
-                avg_price = p
-            pos_qty = new_total_qty
-    else:
-        raise ValueError("side must be BUY or SELL")
+def live_execute_dhan(*args: Any, **kwargs: Any):
 
-    order_id = (resp.get('orderId') or resp.get('order_id')) if isinstance(resp, dict) else None
-        exe = Execution(
-        strategy_id=strategy.id,
-        side=side,
-        qty=_D(qty),
-        price=_D(price),
-        mode="paper",
-        type=ExecutionType.paper,
-        status=ExecutionStatus.success,
-        pnl=realized_pnl,
-        response=None,
-    )
-    db.add(exe)
-    db.flush()
+    # Temporary stub so the app can boot.
 
-    snap = PaperTrade(
-        strategy_id=strategy.id,
-        symbol=strategy.symbol,
-        side=side,
-        entry_price=p,
-        qty=_int(qty),
-        pnl=realized_pnl,
-        position_qty=int(pos_qty),
-        avg_price=avg_price,
-    )
-    db.add(snap)
-    db.flush()
+    raise RuntimeError("live_execute_dhan temporarily disabled")
 
-    return exe, snap
-
-def live_execute_dhan(db: Session, strategy: Strategy, side: str, qty, price) -> Execution:
-    # Ensure broker
-    broker = strategy.broker
-    if not broker or broker.type != BrokerType.dhanhq or not broker.auth_token or not broker.client_id:
-        # Cannot live-trade without creds
-        order_id = (resp.get('orderId') or resp.get('order_id')) if isinstance(resp, dict) else None
-        exe = Execution(
-            strategy_id=strategy.id,
-            side=side.upper(),
-            qty=_D(qty),
-            price=_D(price),
-            mode="live",
-            type=ExecutionType.live,
-            status=ExecutionStatus.fail,
-            response={"error": "DhanHQ broker not configured for strategy"},
-        )
-        db.add(exe); db.flush()
-        return exe
-
-    client = DhanClient(access_token=broker.auth_token, client_id=broker.client_id)
-
-    try:
-        if settings.dhan_test_mode:
-            resp = {'orderId': f'TEST-{strategy.id}', 'orderStatus': 'PENDING'}
-        else:
-            resp = client.place_order(
-            side=side.upper(),
-            strategy=strategy,
-            qty=_int(qty),
-            price=_D(price),
-        )
-        status = resp.get("orderStatus") or "PENDING"
-        mapped = ExecutionStatus.success if status in ("PENDING","TRANSIT","TRADED","PART_TRADED") else ExecutionStatus.fail
-        order_id = (resp.get('orderId') or resp.get('order_id')) if isinstance(resp, dict) else None
-        exe = Execution(
-            strategy_id=strategy.id,
-            side=side.upper(),
-            qty=_D(qty),
-            price=_D(price),
-            mode="live",
-            type=ExecutionType.live,
-            status=mapped,
-            response=resp,
-            broker_order_id=str(order_id) if order_id else None,
-        )
-        db.add(exe); db.flush()
-        return exe
-    except Exception as e:
-        order_id = (resp.get('orderId') or resp.get('order_id')) if isinstance(resp, dict) else None
-        exe = Execution(
-            strategy_id=strategy.id,
-            side=side.upper(),
-            qty=_D(qty),
-            price=_D(price),
-            mode="live",
-            type=ExecutionType.live,
-            status=ExecutionStatus.fail,
-            response={"error": str(e)},
-        )
-        db.add(exe); db.flush()
-        return exe

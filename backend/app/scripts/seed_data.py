@@ -170,11 +170,10 @@ def seed():
 
 if __name__ == "__main__":
     seed()
-\n
+
 # NOTE: This seed script already creates:
 # - Users (admin/trader), brokers, strategies
 # - Alerts, executions
 # - Notifications (telegram/email) if Notification model exists
 # - Error logs if ErrorLog model exists
 # It is idempotent for core users and will not crash on re-run.
-\n

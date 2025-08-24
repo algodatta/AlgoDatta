@@ -1,0 +1,9 @@
+
+services:
+
+  backend:
+
+    environment:
+
+      DATABASE_URL: postgresql+psycopg2://algodatta:algodatta_pass@postgres:5432/algodatta
+
