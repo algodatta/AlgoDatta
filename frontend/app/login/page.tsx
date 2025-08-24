@@ -1,62 +1,67 @@
-"use client";
-import { useState } from "react";
-import { apiFetch, setToken } from "../../lib/api";
-const QUICK = process.env.NEXT_PUBLIC_ENABLE_ADMIN_QUICKLOGIN === "1";
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "";
-const ADMIN_PASS = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "";
+'use client';
 
-export default function Page(){
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState("");
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { setToken } from '../../lib/auth';
 
-  const submit = async (e: React.FormEvent) => {
+const BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.algodatta.com';
+
+function LoginInner() {
+  const [email, setEmail]       = useState('admin@algodatta.com');
+  const [password, setPassword] = useState('Admin@123');
+  const [err, setErr]           = useState<string | null>(null);
+  const [loading, setLoading]   = useState(false);
+  const router = useRouter();
+  const search = useSearchParams();
+  const next = search.get('next') || '/dashboard';
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMsg("");
-    const res = await apiFetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json().catch(()=>({}));
-    if(res.ok){
-      setToken(data.access_token);
-      const next = new URLSearchParams(window.location.search).get("next") || "/strategies";
-      location.href = next;
-    } else {
-      setMsg(data.detail || "Login failed");
+    setLoading(true); setErr(null);
+    try {
+      const res = await fetch(`${BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.access_token) throw new Error(j.detail || `Login failed (${res.status})`);
+      setToken(j.access_token);
+      router.push(next);
+    } catch (e:any) {
+      setErr(e.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const quick = async () => {
-    if(!QUICK) return;
-    const res = await apiFetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
-    });
-    const data = await res.json().catch(()=>({}));
-    if(res.ok){
-      setToken(data.access_token);
-      const next = new URLSearchParams(window.location.search).get("next") || "/strategies";
-      location.href = next;
-    } else {
-      setMsg(data.detail || "Login failed");
-    }
-  };
+  }
 
   return (
-    <div className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Sign in</h1>
-      {msg && <div className="text-red-600 mb-3">{msg}</div>}
-      <form onSubmit={submit} className="space-y-3">
-        <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email" className="w-full border p-2 rounded" />
-        <input value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" type="password" className="w-full border p-2 rounded" />
-        <button className="w-full bg-blue-600 text-white rounded p-2">Login</button>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <form onSubmit={onSubmit} className="w-full max-w-sm border rounded-xl p-6 bg-white space-y-3">
+        <h1 className="text-xl font-semibold">Sign in</h1>
+        <label className="block">
+          <span className="text-sm text-gray-700">Email</span>
+          <input value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+        </label>
+        <label className="block">
+          <span className="text-sm text-gray-700">Password</span>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+        </label>
+        {err && <div className="text-red-600 text-sm">{err}</div>}
+        <button disabled={loading} className="w-full py-2 rounded bg-blue-600 text-white disabled:opacity-50">
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
       </form>
-      {QUICK && (
-        <div className="mt-3">
-          <button onClick={quick} className="px-4 py-2 bg-amber-600 text-white rounded">Login as Admin</button>
-        </div>
-      )}
     </div>
+  );
+}
+
+export const dynamic = 'force-dynamic'; // avoid static pre-render quirks on login
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <LoginInner />
+    </Suspense>
   );
 }

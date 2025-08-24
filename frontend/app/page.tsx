@@ -1,13 +1,11 @@
-"use client";
-import { useEffect } from "react";
-import { getToken } from "../lib/api";
-import { useRouter } from "next/navigation";
+import FeatureGrid from '../components/FeatureGrid';
 
-export default function Home(){
-  const router = useRouter();
-  useEffect(()=>{
-    if (getToken()) router.replace("/strategies");
-    else router.replace("/login");
-  }, [router]);
-  return null;
+export default function HomePage() {
+  return (
+    <>
+      <h1 className="header-title">Welcome to AlgoDatta</h1>
+      <p className="description">Choose a section to get started.</p>
+      <FeatureGrid />
+    </>
+  );
 }

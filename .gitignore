@@ -72,3 +72,27 @@ override.tf
 override.tf.json
 terraform.tfvars
 terraform.tfvars.json
+### algodatta ignore ###
+# node / next
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+# python
+.venv/
+__pycache__/
+*.pyc
+# env & secrets
+.env
+.env.*
+*.pem
+# docker junk
+*.log
+# OS/editor
+.DS_Store
+*.swp
+# archives/backups
+*.tgz
+*.tar.gz
+*.zip
+AlgoDatta.backup-*
