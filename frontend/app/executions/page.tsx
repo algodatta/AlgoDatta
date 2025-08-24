@@ -1,38 +1,39 @@
+
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { getToken } from "../../lib/api";
 
-type Exec = { id:string; strategy_id:string; symbol:string; side:string; price:number };
+type ExecMsg = { ts?: number; msg?: string } & Record<string, any>;
 
-export default function Executions(){
-  const [rows,setRows] = useState<Exec[]>([]);
+export default function ExecStream(){
+  const [lines, setLines] = useState<ExecMsg[]>([]);
+  const [err, setErr] = useState("");
 
-  const load = async ()=>{
-    const res = await fetch(`${apiBase()}/api/executions`, { headers: authHeaders() as HeadersInit });
-    const data = await res.json();
-    if(res.ok) setRows(data);
-  };
-  useEffect(()=>{ load(); },[]);
+  useEffect(()=>{
+    setErr("");
+    const token = getToken();
+    const url = `https://api.algodatta.com/api/executions/stream${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+    const es = new EventSource(url);
+    es.onmessage = (ev) => {
+      try{
+        const data = JSON.parse(ev.data);
+        setLines(prev => [data, ...prev].slice(0, 200));
+      } catch { /* ignore */ }
+    };
+    es.onerror = () => setErr("Stream error (check network / auth)");
+    return () => es.close();
+  }, []);
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-medium">Executions</h2>
-      <table className="w-full text-sm bg-white rounded border">
-        <thead className="bg-gray-100">
-          <tr><th className="p-2 text-left">ID</th><th className="p-2">Strategy</th><th className="p-2">Symbol</th><th className="p-2">Side</th><th className="p-2">Price</th></tr>
-        </thead>
-        <tbody>
-          {rows.map(r=> (
-            <tr key={r.id} className="border-t">
-              <td className="p-2 text-xs">{r.id.slice(0,8)}</td>
-              <td className="p-2 text-xs">{r.strategy_id.slice(0,8)}</td>
-              <td className="p-2">{r.symbol}</td>
-              <td className="p-2">{r.side}</td>
-              <td className="p-2">{r.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <h1 className="text-xl font-semibold mb-3">Executions Stream</h1>
+      {err && <div className="text-red-600 mb-2">{err}</div>}
+      <div className="border rounded p-2 h-[420px] overflow-auto font-mono text-xs bg-gray-50">
+        {lines.map((l, i)=>(
+          <div key={i}>{JSON.stringify(l)}</div>
+        ))}
+        {lines.length===0 && <div className="text-gray-500">Waiting for events…</div>}
+      </div>
     </div>
   );
 }
