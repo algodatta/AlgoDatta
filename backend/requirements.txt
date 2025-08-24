@@ -6,13 +6,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-dotenv
 pydantic[email]
-<<<<<<< HEAD
-psycopg2-binary>=2.9.9
-pytz
-prometheus-client
-httpx>=0.24
-python-multipart
-=======
 pytz==2024.1
 prometheus-client==0.20.0
 psycopg2-binary==2.9.9
@@ -28,4 +21,3 @@ httpx
 
 psycopg2-binary
 
->>>>>>> 6f4863e (pre-fix snapshot 2025-08-24-0940)
