@@ -1,3 +1,7 @@
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+'use client'
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { apiBase, getToken, authHeaders } from "../../../lib/api";
