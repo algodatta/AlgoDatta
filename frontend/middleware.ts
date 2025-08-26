@@ -1,15 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const PUBLIC = ['/login', '/_next', '/favicon.ico', '/robots.txt'];
+const PUBLIC_PATHS = ['/', '/login', '/logout', '/favicon.ico', '/robots.txt'];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // allow public paths
-  if (PUBLIC.some(p => pathname.startsWith(p))) return NextResponse.next();
+  // Allow public paths, static and images
+  if (
+    PUBLIC_PATHS.includes(pathname) ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/assets') ||
+    pathname.startsWith('/images')
+  ) {
+    return NextResponse.next();
+  }
 
-  // if no token cookie, redirect to login
-  const token = req.cookies.get('ad_token')?.value;
+  // Check cookie set after login
+  const token = req.cookies.get('algodatta_token')?.value;
   if (!token) {
     const url = req.nextUrl.clone();
     url.pathname = '/login';
@@ -20,5 +28,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api).*)'],
+  matcher: ['/((?!_next/static|_next/image|assets|images).*)'],
 };

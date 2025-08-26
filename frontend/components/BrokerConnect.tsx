@@ -1,111 +1,97 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
-type Status = 'idle'|'ok'|'err'|'busy';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.algodatta.com';
+const CONNECT_PATH = process.env.NEXT_PUBLIC_BROKER_CONNECT_PATH || '/api/broker/connect';
 
 export default function BrokerConnect() {
   const [clientId, setClientId] = useState('');
   const [accessToken, setAccessToken] = useState('');
-  const [showToken, setShowToken] = useState(false);
-  const [status, setStatus] = useState<Status>('idle');
-  const [message, setMessage] = useState<string>('');
-  const [linked, setLinked] = useState<boolean | null>(null);
-  const [linkedType, setLinkedType] = useState<string | null>(null);
-  const router = useRouter();
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || '';
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
 
-  // Redirect to /login if no token and also fetch current status if token exists
-  useEffect(() => {
-    const tk = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!tk) { router.replace('/login?next=/broker'); return; }
-    (async () => {
-      try {
-        const res = await fetch(`${apiBase}/api/broker`, { headers: { Authorization: `Bearer ${tk}` } });
-        if (res.ok) {
-          const data = await res.json();
-          setLinked(!!data.linked);
-          setLinkedType(data.type || null);
-        }
-      } catch {}
-    })();
-  }, [apiBase, router]);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-  async function integrate(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-    setStatus('busy'); setMessage('');
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+
+    if (!token) {
+      setMsg('Not authenticated. Please login first.');
+      return;
+    }
+    setLoading(true);
     try {
-      const tk = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      if (!tk) throw new Error('Not authenticated');
-      if (!clientId || !accessToken) throw new Error('Both Client ID and Access Token are required');
-
-      const res = await fetch(`${apiBase}/api/broker`, {
+      const res = await fetch(`${API_BASE}${CONNECT_PATH}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tk}` },
-        body: JSON.stringify({ type: 'dhanhq', client_id: clientId, access_token: accessToken }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          access_token: accessToken,
+        }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || `HTTP ${res.status}`);
+        const err = data?.detail || data?.error || res.statusText;
+        throw new Error(String(err));
       }
-      setStatus('ok');
-      setMessage('Broker integrated successfully');
-      setLinked(true);
-      setLinkedType('dhanhq');
-    } catch (e:any) {
-      setStatus('err');
-      setMessage(e?.message || 'Integration failed');
+      setMsg('✅ Broker connected successfully.');
+      setClientId('');
+      setAccessToken('');
+    } catch (err: any) {
+      setMsg(`❌ Failed: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   }
 
-  const badgeClass = linked ? 'badge ok' : (status==='err' ? 'badge err' : 'badge idle');
-  const badgeText = linked ? `Connected${linkedType ? ` • ${linkedType}` : ''}` : (status==='err' ? 'Error' : 'Not connected');
-
   return (
-    <div className="card">
-      <div className="card-header">
-        <div>
-          <h2 className="card-title">Broker Integration</h2>
-          <p className="card-subtle">Link your broker (DhanHQ) to enable live trading.</p>
-        </div>
-        <span className={badgeClass} aria-live="polite">{badgeText}</span>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-semibold">Broker Integration</h2>
       </div>
 
-      <form className="card-body" onSubmit={integrate}>
-        <div className="grid-2">
-          <div>
-            <label className="label" htmlFor="client_id">Client ID</label>
-            <input id="client_id" className="input" placeholder="e.g., 10012345"
-              value={clientId} onChange={e=>setClientId(e.target.value)} autoComplete="off" />
-            <div className="help">Your Dhan client identifier.</div>
-          </div>
+      <p className="text-sm text-gray-600 mb-6">
+        Connect your broker by providing your <b>Client ID</b> and a valid <b>Access Token</b>.
+      </p>
 
-          <div>
-            <label className="label" htmlFor="access_token">Access Token</label>
-            <div className="row" style={{gap:8}}>
-              <input id="access_token" className="input" style={{flex:1}}
-                type={showToken ? 'text' : 'password'}
-                placeholder="Paste token from Dhan"
-                value={accessToken} onChange={e=>setAccessToken(e.target.value)} />
-              <button type="button" className="btn secondary"
-                onClick={()=>setShowToken(v=>!v)} aria-label="Toggle token visibility">
-                {showToken ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="help">We send this securely to the API; it is not stored in the browser.</div>
-          </div>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Client ID</label>
+          <input
+            className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring"
+            placeholder="e.g. ZERODHA123"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            required
+            autoComplete="off"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Access Token</label>
+          <input
+            className="w-full rounded-xl border px-3 py-2 focus:outline-none focus:ring"
+            placeholder="Paste your access token"
+            value={accessToken}
+            onChange={(e) => setAccessToken(e.target.value)}
+            required
+            autoComplete="off"
+          />
         </div>
 
-        <div className="section" style={{display:'flex',gap:8}}>
-          <button type="submit" className="btn" disabled={status==='busy'}>
-            {status==='busy' ? 'Integrating…' : (linked ? 'Re-integrate' : 'Integrate')}
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl px-4 py-2 bg-black text-white disabled:opacity-50"
+          >
+            {loading ? 'Integrating…' : 'Integrate'}
           </button>
-          <a className="btn secondary" href="https://dhan.co/" target="_blank" rel="noreferrer">Get Dhan Token</a>
+          {msg && <span className="text-sm">{msg}</span>}
         </div>
-
-        {message && (
-          <p className={status==='ok' ? 'success' : 'error'} style={{margin:'8px 0 0'}} role="status">{message}</p>
-        )}
       </form>
     </div>
   );
