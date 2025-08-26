@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 
 
 
-const PUBLIC_PATHS = ['/', '/login', '/logout', '/favicon.ico', '/robots.txt'];
+const PUBLIC = ['/', '/login', '/register', '/logout', '/favicon.ico', '/robots.txt'];
 
 
 
@@ -15,11 +15,9 @@ export function middleware(req: NextRequest) {
 
 
 
-  // Allow public paths, static and images
-
   if (
 
-    PUBLIC_PATHS.includes(pathname) ||
+    PUBLIC.includes(pathname) ||
 
     pathname.startsWith('/_next') ||
 
@@ -27,15 +25,9 @@ export function middleware(req: NextRequest) {
 
     pathname.startsWith('/images')
 
-  ) {
-
-    return NextResponse.next();
-
-  }
+  ) return NextResponse.next();
 
 
-
-  // Check cookie set after login
 
   const token = req.cookies.get('algodatta_token')?.value;
 
@@ -57,9 +49,5 @@ export function middleware(req: NextRequest) {
 
 
 
-export const config = {
-
-  matcher: ['/((?!_next/static|_next/image|assets|images).*)'],
-
-};
+export const config = { matcher: ['/((?!_next/static|_next/image|assets|images).*)'] };
 

@@ -1,26 +1,23 @@
-"use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+'use client';
 
-export default function LogoutPage() {
-  const router = useRouter();
+import { useEffect } from 'react';
 
-  useEffect(() => {
-    try {
-      // Clear cookie
-      document.cookie = "algodatta_token=; Max-Age=0; Path=/; Secure; SameSite=Lax";
-      // Clear localStorage
-      localStorage.removeItem("algodatta_token");
-    } catch {}
-    const back = "/";
-    const t = setTimeout(() => router.replace(back), 150);
-    return () => clearTimeout(t);
-  }, [router]);
+import { useRouter } from 'next/navigation';
 
-  return (
-    <main style={{ padding: 24 }}>
-      <h1>Logging out…</h1>
-    </main>
-  );
+export default function Logout(){
+
+  const r = useRouter();
+
+  useEffect(()=>{
+
+    localStorage.removeItem('token'); localStorage.removeItem('role');
+
+    fetch('/api/auth/logout',{method:'POST'}).finally(()=> r.replace('/login'));
+
+  },[r]);
+
+  return <div className="card" style={{maxWidth:420, margin:'40px auto'}}>Signing out…</div>;
+
 }
+
