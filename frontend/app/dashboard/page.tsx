@@ -1,11 +1,17 @@
-import FeatureGrid from '../../components/FeatureGrid';
 
-export default function DashboardPage() {
+export default function Page(){
+
   return (
-    <>
-      <h1 className="header-title">Dashboard</h1>
-      <p className="description">Quick access to platform features</p>
-      <FeatureGrid />
-    </>
+
+    <div className="grid grid-2">
+
+      <div className="card"><h2 style={{fontSize:20,fontWeight:700}}>Dashboard</h2><p>Coming soon: rich UI.</p></div>
+
+      <div className="card"><h3 style={{fontSize:16,fontWeight:600}}>Quick stats</h3><p>…</p></div>
+
+    </div>
+
   );
+
 }
+
