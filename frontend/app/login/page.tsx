@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 
 import SignInClient from './signin-client';
 
