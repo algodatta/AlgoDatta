@@ -14,30 +14,27 @@ pipeline {
       steps {
         sshagent (credentials: [SSH_KEY_CRED]) {
           sh '''
-            set -e
-            ssh -o StrictHostKeyChecking=no ubuntu@$DEPLOY_HOST '
-              set -e
-              if [ ! -d "$REPO_DIR" ]; then
-                git clone '"$REPO_URL"' "$REPO_DIR"
-              fi
-              cd "$REPO_DIR"
-              git reset --hard
-              git clean -fd
-              git pull origin main
+              ssh -o StrictHostKeyChecking=no ubuntu@43.205.125.42 'bash -s' <<'BASH'
+          set -euo pipefail
 
-              # Build images
-              docker compose -f docker-compose.yml build
+          cd ~
+          # Clone if missing
+          [ -d AlgoDatta ] || git clone https://github.com/algodatta/AlgoDatta.git
+          cd AlgoDatta
 
-              # Ensure DB is up (if using a db service)
-              (docker compose up -d db || true)
+          # Always deploy the remote HEAD (avoid pull/merge conflicts)
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fdx
 
-              # Run Alembic migrations BEFORE starting backend
-              docker compose run --rm backend alembic upgrade head
+          # Build & start with prod overrides; never pull private images
+          docker compose -f docker-compose.yml -f /etc/algodatta/docker-compose.prod.yml \
+            up -d --build --remove-orphans
 
-              # Bring up app
-              docker compose -f docker-compose.yml up -d --remove-orphans
-            '
-          '''
+          # Show status
+          docker compose ps
+          BASH
+            '''
         }
       }
     }
