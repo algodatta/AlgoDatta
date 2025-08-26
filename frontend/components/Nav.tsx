@@ -1,75 +1,73 @@
 
-'use client';
+'use client'
 
-import Link from 'next/link';
+import Link from 'next/link'
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation'
 
 
 
-const items = [
+const links = [
 
-  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/dashboard',   label: 'Dashboard' },
 
-  { href: '/broker', label: 'Broker' },
+  { href: '/broker',      label: 'Broker' },
 
-  { href: '/strategies', label: 'Strategies' },
+  { href: '/strategies',  label: 'Strategies' },
 
-  { href: '/executions', label: 'Executions' },
+  { href: '/executions',  label: 'Executions' },
 
-  { href: '/orders', label: 'Orders' },
+  { href: '/orders',      label: 'Orders' },
 
-  { href: '/reports', label: 'Reports' },
+  { href: '/reports',     label: 'Reports' },
 
-  { href: '/admin', label: 'Admin' },
+  { href: '/admin',       label: 'Admin' },
 
-  { href: '/logout', label: 'Logout' },
+  { href: '/logout',      label: 'Logout' },
 
-];
+]
 
 
 
 export default function Nav() {
 
-  const pathname = usePathname();
-
-  // hide nav on auth pages
-
-  if (pathname === '/login' || pathname === '/register') return null;
-
-
+  const pathname = usePathname()
 
   return (
 
-    <nav className="nav">
+    <header className="sticky top-0 z-50 bg-white/70 backdrop-blur border-b">
 
-      <div className="nav-inner">
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-6">
 
-        <Link href="/dashboard" className="brand">AlgoDatta</Link>
+        <Link href="/dashboard" className="font-semibold">AlgoDatta</Link>
 
-        {items.map(i => (
+        <nav className="flex-1 flex flex-wrap gap-2">
 
-          <Link
+          {links.map(l => (
 
-            key={i.href}
+            <Link
 
-            href={i.href}
+              key={l.href}
 
-            className=""
+              href={l.href}
 
-          >
+              className={`px-3 py-1.5 rounded-md text-sm ${pathname===l.href ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
 
-            {i.label}
+            >
 
-          </Link>
+              {l.label}
 
-        ))}
+            </Link>
+
+          ))}
+
+        </nav>
 
       </div>
 
-    </nav>
+    </header>
 
-  );
+  )
 
 }
 
