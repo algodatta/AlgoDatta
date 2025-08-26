@@ -1,70 +1,43 @@
-"use client";
+'use client';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-
-function getToken() {
-  if (typeof document !== "undefined") {
-    const m = document.cookie.match(/(?:^|;\s*)algodatta_token=([^;]+)/);
-    if (m && m[1]) return decodeURIComponent(m[1]);
-    const ls = localStorage.getItem("algodatta_token");
-    if (ls) return ls;
-  }
-  return "";
-}
+const items = [
+  { href: '/', label: 'Dashboard' },
+  { href: '/broker', label: 'Broker' },
+  { href: '/strategies', label: 'Strategies' },
+  { href: '/executions', label: 'Executions' },
+  { href: '/orders', label: 'Orders' },
+  { href: '/reports', label: 'Reports' },
+  { href: '/admin', label: 'Admin' },
+];
 
 export default function Nav() {
-  const [token, setToken] = useState<string>("");
-
-  useEffect(() => {
-    setToken(getToken());
-  }, []);
-
-  const linkStyle: React.CSSProperties = {
-    padding: "8px 12px",
-    borderRadius: 8,
-    fontWeight: 600,
-    color: "#111827",
-    border: "1px solid transparent",
-    textDecoration: "none",
-    display: "inline-block",
-  };
+  const pathname = usePathname();
+  const router = useRouter();
+  const isActive = (href: string) =>
+    pathname === href ? {fontWeight:'600', color:'#1d4ed8'} : {color:'#374151'};
 
   return (
-    <nav style={{
-      position: "sticky",
-      top: 0,
-      zIndex: 20,
-      background: "#fff",
-      borderBottom: "1px solid #e5e7eb",
-      padding: "10px 16px",
-    }}>
-      <div style={{display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap"}}>
-        <Link href="/" style={{ ...linkStyle, fontSize: 18 }}>AlgoDatta</Link>
-
-        {token ? (
-          <>
-            <Link href="/" style={linkStyle}>Dashboard</Link>
-            <Link href="/strategies" style={linkStyle}>Strategies</Link>
-            <Link href="/executions" style={linkStyle}>Executions</Link>
-            <Link href="/orders" style={linkStyle}>Orders</Link>
-            <Link href="/reports" style={linkStyle}>Reports</Link>
-            <Link href="/admin" style={linkStyle}>Admin</Link>
-            <div style={{flex: 1}} />
-            <Link
-              href="/logout"
-              style={{ ...linkStyle, borderColor: "#111827" }}
-              title="Logout"
-            >
-              Logout
-            </Link>
-          </>
-        ) : (
-          <>
-            <div style={{flex: 1}} />
-            <Link href="/login" style={{ ...linkStyle, borderColor: "#111827" }}>Login</Link>
-          </>
-        )}
+    <nav style={{position:'sticky',top:0,zIndex:40,background:'#fff',borderBottom:'1px solid #e5e7eb',backdropFilter:'blur(4px)'}}>
+      <div className="container" style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
+          <span style={{fontSize:18,fontWeight:700}}>AlgoDatta</span>
+          <ul style={{display:'flex',gap:16,listStyle:'none',padding:0,margin:0}}>
+            {items.map(it => (
+              <li key={it.href}>
+                <Link style={isActive(it.href)} href={it.href}>{it.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <button
+          onClick={() => { try { localStorage.removeItem('token'); } catch{}; router.replace('/login'); }}
+          className="btn secondary"
+          aria-label="Logout"
+        >
+          Logout
+        </button>
       </div>
     </nav>
   );

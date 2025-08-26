@@ -1,19 +1,27 @@
-import React from "react";
-import BrokerConnect from "@/components/BrokerConnect";
+import Link from 'next/link';
 
-export const dynamic = "force-dynamic";
-
-export default function DashboardPage() {
+export default function Home() {
   return (
-    <main style={{ padding: 24 }}>
-      <h1 style={{ margin: "0 0 16px", fontSize: 28, fontWeight: 800 }}>Dashboard</h1>
+    <div className="section" style={{padding:0}}>
+      <h1 style={{fontSize:22,fontWeight:600,margin:'16px 0'}}>Dashboard</h1>
+      <p style={{color:'#4b5563',margin:'8px 0 16px'}}>You are logged in. Use the navigation to continue.</p>
 
-      <div style={{ display: "grid", gap: 16 }}>
-        {/* Existing dashboard cards can sit in a grid; broker connect goes near the top */}
-        <BrokerConnect />
-
-        {/* TODO: Keep or re-add your other tiles: Strategies, Executions, Orders, Reports, Admin... */}
+      <div className="card" style={{marginTop:12}}>
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">Broker Integration</h2>
+            <p className="card-subtle">Connect your broker to place live orders.</p>
+          </div>
+          <div className="card-actions">
+            <Link href="/broker" className="btn">Open</Link>
+          </div>
+        </div>
+        <div className="card-body">
+          <p style={{margin:0,color:'#6b7280'}}>
+            Configure <b>Client ID</b> and <b>Access Token</b> on the Broker page.
+          </p>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
