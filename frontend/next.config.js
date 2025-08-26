@@ -3,7 +3,7 @@
 
 const nextConfig = {
 
-  output: 'standalone',          // <- server runtime, no static export
+  output: 'standalone',
 
   reactStrictMode: true,
 
