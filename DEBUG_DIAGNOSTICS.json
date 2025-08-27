@@ -1,0 +1,74 @@
+{
+  "summary": {
+    "top_level": [
+      "README.md",
+      "components",
+      "Jenkinsfile",
+      ".gitignore",
+      "docker-compose.override.yml",
+      "algodatta-upsert.json",
+      "patches",
+      "deploy",
+      "domainSetup",
+      "package-lock.json",
+      "frontend",
+      "backend",
+      "docs",
+      "ops",
+      "docker-compose.yml",
+      "gitignore_AlgoDatta",
+      "tools",
+      "README_MERGE_KIT.md",
+      "MERGE_MANIFEST.json"
+    ],
+    "backend_dir": "/mnt/data/algo_tar_optimized/backend",
+    "frontend_dir": "/mnt/data/algo_tar_optimized/frontend",
+    "has_compose": true
+  },
+  "backend_info": {
+    "dockerfile_exists": true,
+    "dockerfile": "FROM python:3.11-slim\n\nWORKDIR /app\nENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1\n\n# If you truly need compilers for native builds, keep this; otherwise remove it.\n# RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential && rm -rf /var/lib/apt/lists/*\n\nARG CACHEBUST=0\n\nCOPY requirements.txt ./\n# Single install step; cache-busted by the build arg you pass at build time\nRUN echo \"Cache bust=$CACHEBUST\" && pip install --no-cache-dir -r requirements.txt\n\nCOPY app ./app\n\nEXPOSE 8000\nCMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n",
+    "requirements": "fastapi\nhttpx\nhttpx==0.27.0\npasslib[bcrypt]\nprometheus-client\nprometheus-client==0.20.0\npsycopg[binary]>=3.2\npydantic[email]\npython-dotenv\npython-jose[cryptography]\npython-multipart\npytz\npytz==2024.1\nsqlalchemy>=2.0\nuvicorn[standard]\n",
+    "app_module": "main.py"
+  },
+  "frontend_info": {
+    "dockerfile_exists": true,
+    "dockerfile": "FROM node:20-alpine AS deps\nWORKDIR /app\nCOPY package.json package-lock.json* ./\nRUN npm ci || npm install\n\nFROM node:20-alpine AS builder\nWORKDIR /app\nCOPY --from=deps /app/node_modules ./node_modules\nCOPY . .\nRUN npm run build\n\nFROM node:20-alpine AS runner\nWORKDIR /app\nENV NODE_ENV=production\nCOPY --from=builder /app/.next ./.next\nCOPY --from=builder /app/public ./public\nCOPY --from=builder /app/package.json ./package.json\nCOPY --from=builder /app/node_modules ./node_modules\nEXPOSE 3000\nCMD [\"npm\",\"start\"]\n",
+    "package_json_exists": true,
+    "package_json": {
+      "name": "algodatta-frontend",
+      "version": "1.0.0",
+      "private": true,
+      "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+      },
+      "dependencies": {
+        "axios": "^1.11.0",
+        "classnames": "^2.5.1",
+        "lucide-react": "^0.453.0",
+        "next": "14.2.4",
+        "react": "18.3.1",
+        "react-dom": "18.3.1",
+        "react-router-dom": "^6.30.1",
+        "recharts": "^2.15.4",
+        "zustand": "^5.0.7"
+      },
+      "devDependencies": {
+        "@types/node": "20.19.11",
+        "@types/react": "^18.3.5",
+        "@types/react-dom": "^18.3.0",
+        "autoprefixer": "^10.4.19",
+        "postcss": "^8.4.38",
+        "tailwindcss": "^3.4.4",
+        "typescript": "5.9.2"
+      }
+    },
+    "has_tailwind_config": true,
+    "has_postcss_config": true,
+    "has_styles": true
+  },
+  "compose_excerpt": "services:\n  frontend:\n    build:\n      context: ./frontend\n      dockerfile: Dockerfile\n    container_name: algodatta-frontend\n    ports:\n    - \"127.0.0.1:3000:3000\"\n    restart: always\n    depends_on:\n    - backend\n  backend:\n    build:\n      context: ./backend\n      dockerfile: Dockerfile\n    container_name: algodatta-backend\n    ports:\n    - \"127.0.0.1:8000:8000\"\n    restart: always\n    depends_on:\n    - postgres\n    environment:\n      EXEC_PUBLISHER_POLL_ENABLED: '1'\n      EXEC_PUBLISHER_POLL_INTERVAL: '5'\n      EXEC_PUBLISHER_LOOKBACK_SECONDS: '120'\n  postgres:\n    image: postgres:15\n    container_name: algodatta-db\n    environment:\n      POSTGRES_USER: postgres\n      POSTGRES_PASSWORD: postgres\n      POSTGRES_DB: algodatta\n    ports:\n    - 5432:5432\n    volumes:\n    - pgdata:/var/lib/postgresql/data\n    restart: always\nvolumes:\n  pgdata: null\n"
+}

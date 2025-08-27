@@ -20,6 +20,9 @@ services:
     depends_on:
     - postgres
     environment:
+      AUTH_JWT_ALGO: HS256
+      AUTH_JWT_SECRET: dev_secret_change_me
+      AUTH_COOKIE_NAMES: '["algodatta_session","access_token","auth_token"]'
       EXEC_PUBLISHER_POLL_ENABLED: '1'
       EXEC_PUBLISHER_POLL_INTERVAL: '5'
       EXEC_PUBLISHER_LOOKBACK_SECONDS: '120'

@@ -1,0 +1,1337 @@
+[
+  {
+    "path": "README.md",
+    "size": 1354,
+    "sha1": "c99c0f0ee250e707ddeb5b453553bc18ba3739da"
+  },
+  {
+    "path": "Jenkinsfile",
+    "size": 1328,
+    "sha1": "844ba66861a1464005926b714424d23b6bd95482"
+  },
+  {
+    "path": ".gitignore",
+    "size": 1384,
+    "sha1": "c84cb10cfbeb7e467bdd2ec5564ecb9d868eb26d"
+  },
+  {
+    "path": "docker-compose.override.yml",
+    "size": 134,
+    "sha1": "a19780921a6472a7775fdeb2620c30dd7416eaea"
+  },
+  {
+    "path": "algodatta-upsert.json",
+    "size": 712,
+    "sha1": "881aa08849c2ff58649db419fbed4b3ca99a9ce7"
+  },
+  {
+    "path": "package-lock.json",
+    "size": 88,
+    "sha1": "bdc4f832a6656ed6053192b61ff17e920a15258b"
+  },
+  {
+    "path": "docker-compose.yml",
+    "size": 861,
+    "sha1": "dd214bbdb9b87d64a2928bc94785f803d5aaac3c"
+  },
+  {
+    "path": "gitignore_AlgoDatta",
+    "size": 1353,
+    "sha1": "021c49d3b6fa8655f0d1227a550e522662cee9c1"
+  },
+  {
+    "path": "README_MERGE_KIT.md",
+    "size": 2024,
+    "sha1": "712e6b48b6515240d2a3bb2b693dc2b79b4fc511"
+  },
+  {
+    "path": "components/BrokerConnect.tsx",
+    "size": 7150,
+    "sha1": "b0cd4e78607f55639d8a6a0997b7b48230c6c9bf"
+  },
+  {
+    "path": "patches/backend_requirements_psycopg.patch",
+    "size": 113,
+    "sha1": "d4d14fcaa70280154b5a61baa332b35d0b31994a"
+  },
+  {
+    "path": "deploy/migrate.sh",
+    "size": 279,
+    "sha1": "5344bcbf20c2a7208c1075db74411a6269a8886d"
+  },
+  {
+    "path": "domainSetup/ses/r53_dmarc.json",
+    "size": 341,
+    "sha1": "8a30ce941ced6e01b98ad51106fb7efb12eb7152"
+  },
+  {
+    "path": "domainSetup/ses/r53_api.json",
+    "size": 282,
+    "sha1": "bb169262294e2207bf04dfd7cef6379ba4b24163"
+  },
+  {
+    "path": "domainSetup/ses/ses_bootstrap.sh",
+    "size": 6640,
+    "sha1": "c4d2f2fe9a1ecfaf8e13b587697554c65b57f20b"
+  },
+  {
+    "path": "domainSetup/ses/ses_bootstrap_win.sh",
+    "size": 4287,
+    "sha1": "9c8b33983432b105e8c99d933d1a3d5b4c979097"
+  },
+  {
+    "path": "domainSetup/ses/r53_spf.json",
+    "size": 312,
+    "sha1": "92b62aba8793e38e4cdb8b82cf3678fb4172b62b"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/apply_records.sh",
+    "size": 548,
+    "sha1": "911af989768363dda895f917d9b2c92514e3f270"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/route53_changes.json",
+    "size": 505,
+    "sha1": "209230267fa28d58c7056cda52dc96fbdf9a6573"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/r53_import_from_csv.py",
+    "size": 2007,
+    "sha1": "ce7425779625ea8ead085a7ba60c70d216a39924"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/create_zone.sh",
+    "size": 1035,
+    "sha1": "3a7da6753bd49c7d0b7cbe47318a7c38eece6c0d"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/records_template.csv",
+    "size": 765,
+    "sha1": "72927699f574da6ec9622bbe72b34eec7cddf5fd"
+  },
+  {
+    "path": "domainSetup/Route53_Migration_Kit/move_to_route53_README.md",
+    "size": 2882,
+    "sha1": "fe417236e299631947346f59787eb11a879d3eff"
+  },
+  {
+    "path": "frontend/README.md",
+    "size": 1232,
+    "sha1": "bcca7b0c74a0017d660f4bfc0f6c01f841997386"
+  },
+  {
+    "path": "frontend/.env.example",
+    "size": 93,
+    "sha1": "9385cec6886ab25aec2aa520a2a519fddedfa4dc"
+  },
+  {
+    "path": "frontend/.env.production",
+    "size": 171,
+    "sha1": "1c24fc800eb1554708d8183b51f3a4ec0eedde20"
+  },
+  {
+    "path": "frontend/.gitignore",
+    "size": 91,
+    "sha1": "91d841170eb70dbecd874e65e42b0d5cd6bdbfa7"
+  },
+  {
+    "path": "frontend/next-env.d.ts",
+    "size": 201,
+    "sha1": "06e5b053de5e90cae065a2ac8a57758316aeb8ea"
+  },
+  {
+    "path": "frontend/next.config.mjs",
+    "size": 43,
+    "sha1": "fd1ccb9f757ab2fc39c68484f6764feef60752a6"
+  },
+  {
+    "path": "frontend/postcss.config.js",
+    "size": 83,
+    "sha1": "81781ed39dc8e6d6521ae1d63a67e46894acc2eb"
+  },
+  {
+    "path": "frontend/tailwind.config.cjs",
+    "size": 160,
+    "sha1": "5c57a0101f8975fc5a6d7d5f1a1fc92631e256cf"
+  },
+  {
+    "path": "frontend/Dockerfile",
+    "size": 515,
+    "sha1": "9d09661ed95bafe4bc3104de1a193229dd99c8da"
+  },
+  {
+    "path": "frontend/package-lock.json",
+    "size": 98605,
+    "sha1": "319dee734ef02da2be6a147fdd6efb66fd166da2"
+  },
+  {
+    "path": "frontend/tailwind.config.js",
+    "size": 172,
+    "sha1": "3f81033b8014f1486e22f2a4e7c3a6cfe20f84a9"
+  },
+  {
+    "path": "frontend/middleware.ts",
+    "size": 665,
+    "sha1": "1fb432e0c996beca9f324fb0364bfe16193f0941"
+  },
+  {
+    "path": "frontend/package.json",
+    "size": 702,
+    "sha1": "10b04cd1af8351c31f128b4499ffae6cc55975b3"
+  },
+  {
+    "path": "frontend/tsconfig.json",
+    "size": 759,
+    "sha1": "8c899a7b45d3887d0b973d9dae2516688ea4ed13"
+  },
+  {
+    "path": "frontend/postcss.config.cjs",
+    "size": 67,
+    "sha1": "6cd293a3d38405fa586f7cd65b640dca205904b6"
+  },
+  {
+    "path": "frontend/index.html",
+    "size": 328,
+    "sha1": "31119ec6a38364547412e84e2798a42b048689b8"
+  },
+  {
+    "path": "frontend/components/FeatureGrid.tsx",
+    "size": 1037,
+    "sha1": "2968a6b092bd28e3fc272981d8dae388a490f90f"
+  },
+  {
+    "path": "frontend/components/BrokerConnect.tsx",
+    "size": 7150,
+    "sha1": "b0cd4e78607f55639d8a6a0997b7b48230c6c9bf"
+  },
+  {
+    "path": "frontend/components/Nav.tsx",
+    "size": 2004,
+    "sha1": "35e77ab0054e8c7b9653c977d8c63e85f1adb2b6"
+  },
+  {
+    "path": "frontend/components/RequireAuth.tsx",
+    "size": 414,
+    "sha1": "35670b1a638710c19e18f29c13531c438947e391"
+  },
+  {
+    "path": "frontend/components/AppShell.tsx",
+    "size": 361,
+    "sha1": "6df911318e99e47995d2d9d54bff6cb6b6dd970f"
+  },
+  {
+    "path": "frontend/components/components/Nav.tsx",
+    "size": 2004,
+    "sha1": "35e77ab0054e8c7b9653c977d8c63e85f1adb2b6"
+  },
+  {
+    "path": "frontend/components/app/globals.css",
+    "size": 288,
+    "sha1": "d7713267b51a86ad2804b7d313bbcabca16750d4"
+  },
+  {
+    "path": "frontend/components/app/login/page.tsx",
+    "size": 404,
+    "sha1": "572dca541811fe75263c7a376cc6554f09931d28"
+  },
+  {
+    "path": "frontend/components/app/login/signin-client.tsx",
+    "size": 3888,
+    "sha1": "59f970a5b1044ca214abb7a1a93413c779e1d7b6"
+  },
+  {
+    "path": "frontend/components/app/logout/page.tsx",
+    "size": 623,
+    "sha1": "893b093357b5f1a4e08fac3b8b2310317a92478f"
+  },
+  {
+    "path": "frontend/public/.gitkeep",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "frontend/styles/globals.css",
+    "size": 288,
+    "sha1": "d7713267b51a86ad2804b7d313bbcabca16750d4"
+  },
+  {
+    "path": "frontend/lib/auth.ts",
+    "size": 915,
+    "sha1": "e2662d7305caeecc33d998ce2d6ebf4952256e41"
+  },
+  {
+    "path": "frontend/lib/api.ts",
+    "size": 1447,
+    "sha1": "46c94f67974038028e86ad6ae3b86095889aba81"
+  },
+  {
+    "path": "frontend/app/globals.css",
+    "size": 1820,
+    "sha1": "9014c89e55ce1afb42f54ed82ed91f5516b8aa94"
+  },
+  {
+    "path": "frontend/app/page.tsx",
+    "size": 607,
+    "sha1": "4938fe3c23a521e49a1301a07e80a845fc28a4e6"
+  },
+  {
+    "path": "frontend/app/layout.tsx",
+    "size": 530,
+    "sha1": "476f66137b3bd548ca72606affc25b05ed32522d"
+  },
+  {
+    "path": "frontend/app/strategies/page.tsx",
+    "size": 4658,
+    "sha1": "e79b0c21f2bd201a16bee73c027a191d4d73b7eb"
+  },
+  {
+    "path": "frontend/app/strategies/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "frontend/app/orders/page.tsx",
+    "size": 1900,
+    "sha1": "76e542e80e77c9143cb52e79e5132b6b4bcb7264"
+  },
+  {
+    "path": "frontend/app/orders/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "frontend/app/broker/page.tsx",
+    "size": 3614,
+    "sha1": "07e385bf5eabdf8ae5ec6c88a2c5e87393aa918c"
+  },
+  {
+    "path": "frontend/app/login/page.tsx",
+    "size": 404,
+    "sha1": "572dca541811fe75263c7a376cc6554f09931d28"
+  },
+  {
+    "path": "frontend/app/login/signin-client.tsx",
+    "size": 3888,
+    "sha1": "59f970a5b1044ca214abb7a1a93413c779e1d7b6"
+  },
+  {
+    "path": "frontend/app/logout/page.tsx",
+    "size": 623,
+    "sha1": "893b093357b5f1a4e08fac3b8b2310317a92478f"
+  },
+  {
+    "path": "frontend/app/dashboard/page.tsx",
+    "size": 275,
+    "sha1": "3489e9105d245833b7b8bda8349af5b51b965149"
+  },
+  {
+    "path": "frontend/app/dashboard/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "frontend/app/admin/page.tsx",
+    "size": 3862,
+    "sha1": "f72f09668e98ceef4e7ada90f79765f46f90e972"
+  },
+  {
+    "path": "frontend/app/admin/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "frontend/app/notifications/page.tsx",
+    "size": 2945,
+    "sha1": "3b8eca9fd42e325303086d3f7fcdc6e8bb2d7753"
+  },
+  {
+    "path": "frontend/app/executions/page.tsx",
+    "size": 1271,
+    "sha1": "3aa3f5229dcb88ca393750c66c58d16fe75f9630"
+  },
+  {
+    "path": "frontend/app/executions/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "frontend/app/executions/live/page.tsx",
+    "size": 3437,
+    "sha1": "c2c8e2e2efb6232f7b34479580c0f2ad1aef45fa"
+  },
+  {
+    "path": "frontend/app/reports/page.tsx",
+    "size": 1775,
+    "sha1": "1ba80053812fc2dab382957f3c704a630f0c1202"
+  },
+  {
+    "path": "frontend/app/reports/layout.tsx",
+    "size": 198,
+    "sha1": "a2480f2178301fc36676a6c0d5dd42700e6ea78e"
+  },
+  {
+    "path": "backend/README.md",
+    "size": 4931,
+    "sha1": "025d203f52a5b4f83d14b887f8187c7a21965711"
+  },
+  {
+    "path": "backend/security.py",
+    "size": 982,
+    "sha1": "473e89c02f2e04cfb94f262986191c1d1d0d8624"
+  },
+  {
+    "path": "backend/.env.example",
+    "size": 235,
+    "sha1": "de2fa765a35b8944e9fbc560c4dec3d35d635f1a"
+  },
+  {
+    "path": "backend/.env.production",
+    "size": 86,
+    "sha1": "013e8dab9ec9d1794c916e4a14f980774fbb1a50"
+  },
+  {
+    "path": "backend/.gitignore",
+    "size": 78,
+    "sha1": "2fae202e07ff345487d90dd4ddaa3b64b67e21b0"
+  },
+  {
+    "path": "backend/Makefile",
+    "size": 325,
+    "sha1": "d8e7bd51fa12a7f120d47f6f92e12b0bfcf244d2"
+  },
+  {
+    "path": "backend/main.py",
+    "size": 2874,
+    "sha1": "e903873212a7f02c236fac099519365a5e5b2be7"
+  },
+  {
+    "path": "backend/.env.template",
+    "size": 112,
+    "sha1": "80b99b0e233d1335ec85666a288aeefb4161f919"
+  },
+  {
+    "path": "backend/Dockerfile",
+    "size": 587,
+    "sha1": "147428e9c61fe2934a3f06574ce333d452a94264"
+  },
+  {
+    "path": "backend/.env",
+    "size": 537,
+    "sha1": "35b6ce070436a0f40afa73371cc9ffb1e9db779a"
+  },
+  {
+    "path": "backend/auth_utils.py",
+    "size": 793,
+    "sha1": "fb9faf35d1485d39493c558f55ef106944e15656"
+  },
+  {
+    "path": "backend/BACKEND_INTEGRATION.md",
+    "size": 999,
+    "sha1": "841d83b0dec78bf361cf8c4ea14d13fa6a49a235"
+  },
+  {
+    "path": "backend/run.sh",
+    "size": 104,
+    "sha1": "609fa2385bd7badf39ae729ae5b4f8ff2d9c54e6"
+  },
+  {
+    "path": "backend/docker-compose.yml",
+    "size": 671,
+    "sha1": "84da8dd3e5862b8ea4e019de83ad3619dfd9a960"
+  },
+  {
+    "path": "backend/trade_service.py",
+    "size": 629,
+    "sha1": "dedb7f3c320d3f5ca9f646cefddb90370f501fbf"
+  },
+  {
+    "path": "backend/init_db.py",
+    "size": 103,
+    "sha1": "0ed3f30505f066757c6659c31dabe484da3bdbdf"
+  },
+  {
+    "path": "backend/notifier.py",
+    "size": 1390,
+    "sha1": "98204fe577b5cac92543669434d9dab439b12d2a"
+  },
+  {
+    "path": "backend/requirements.txt",
+    "size": 234,
+    "sha1": "80e808cf92aaf69b41b2c6da84bf1a83ddea5070"
+  },
+  {
+    "path": "backend/alembic.ini",
+    "size": 534,
+    "sha1": "0766c6b83bc755af9d7d16fddb7dbb13738bcfa1"
+  },
+  {
+    "path": "backend/seeds/seed_initial_data.py",
+    "size": 2248,
+    "sha1": "360f9c513256cb8f09203c653cfd271e1a277803"
+  },
+  {
+    "path": "backend/scripts/smoke_http_phase5.py",
+    "size": 1183,
+    "sha1": "568f6377cf39c6dae9b5359e29d47932a867660f"
+  },
+  {
+    "path": "backend/scripts/smoke_test.py",
+    "size": 1133,
+    "sha1": "26560a0a545cf5abebb75c58dc9c4818cf628083"
+  },
+  {
+    "path": "backend/scripts/smoke_http_dhan.py",
+    "size": 3485,
+    "sha1": "480d796b16057c7af38c548f1d86d0415adbe890"
+  },
+  {
+    "path": "backend/scripts/smoke_http.py",
+    "size": 1860,
+    "sha1": "3890f9bb2204f12c573305db5bc8e3795f2aefb3"
+  },
+  {
+    "path": "backend/scripts/init_db.py",
+    "size": 638,
+    "sha1": "a5f4b5ee927c29918634c782dee7d43df550904f"
+  },
+  {
+    "path": "backend/scripts/smoke_http_phase4.py",
+    "size": 2158,
+    "sha1": "e9dc1eec55043c818be08619aaf11b921f545ace"
+  },
+  {
+    "path": "backend/scripts/smoke_http_phase5p1.py",
+    "size": 1012,
+    "sha1": "7165da98224b477f91e7f6c04721027958bfe210"
+  },
+  {
+    "path": "backend/tests/test_strategies.py",
+    "size": 964,
+    "sha1": "550368ddb499d5a1536f66e3ae9ce48da5068156"
+  },
+  {
+    "path": "backend/tests/test_webhook_idempotency.py",
+    "size": 1282,
+    "sha1": "8b6d3b0530250085e5da8e593b22be3a4bb182a9"
+  },
+  {
+    "path": "backend/tests/test_sse_stream.py",
+    "size": 191,
+    "sha1": "e5cedd51005d45819ff0774417e5a8625845e8ba"
+  },
+  {
+    "path": "backend/tests/conftest.py",
+    "size": 359,
+    "sha1": "0e8a680625849300bf89f0ebe6a7b42b0fca7a58"
+  },
+  {
+    "path": "backend/tests/test_auth.py",
+    "size": 612,
+    "sha1": "b6c1f365629bba7d15e54ac811f8239d230e388b"
+  },
+  {
+    "path": "backend/alembic/env.py",
+    "size": 1284,
+    "sha1": "56de527db8d4c1c08ae30fc1ea8a9dd7ee3db8ff"
+  },
+  {
+    "path": "backend/alembic/versions/20250815_000002_add_dhan_fields.py",
+    "size": 1272,
+    "sha1": "f13fd1a783522dfc8c1521e69127dbe89ea3b614"
+  },
+  {
+    "path": "backend/alembic/versions/20250815_000004_risk_and_idempotency.py",
+    "size": 1969,
+    "sha1": "65076dd89f03c6fe3df9841b35327a023633bd0a"
+  },
+  {
+    "path": "backend/alembic/versions/20250815_000001_create_core_tables.py",
+    "size": 8848,
+    "sha1": "5750a446f56152a78fa6a5d4bdbbea4904fa21f6"
+  },
+  {
+    "path": "backend/alembic/versions/20250815_000003_create_dhan_instruments.py",
+    "size": 924,
+    "sha1": "a2cafde28c6c2daba9e104c32afe93ffdc491714"
+  },
+  {
+    "path": "backend/ui/index.html",
+    "size": 3583,
+    "sha1": "90595092eb53fec58ab3390c638c1ace47af1e70"
+  },
+  {
+    "path": "backend/app/security.py",
+    "size": 897,
+    "sha1": "334bc61e9d8d7d50fb50516f006715be6d7b517b"
+  },
+  {
+    "path": "backend/app/db.py",
+    "size": 549,
+    "sha1": "c94e51c35fd4391afe03ac4fcecda65198ea659a"
+  },
+  {
+    "path": "backend/app/main.py",
+    "size": 2135,
+    "sha1": "dce95ac3cba9ce9472b39f2891547efe19aab986"
+  },
+  {
+    "path": "backend/app/seeds.py",
+    "size": 1580,
+    "sha1": "8613e0ff682be6786d21ca6d151d48fd9d1caa2d"
+  },
+  {
+    "path": "backend/app/config.py",
+    "size": 401,
+    "sha1": "2ffdf70ee20bfad823b71244ef978fdcf0c7e368"
+  },
+  {
+    "path": "backend/app/models.py",
+    "size": 1798,
+    "sha1": "42b3b8337d3724219e458dbfc7c721a3267c29c2"
+  },
+  {
+    "path": "backend/app/metrics.py",
+    "size": 562,
+    "sha1": "772f27574c450414f3649bb02d03ff19e721678b"
+  },
+  {
+    "path": "backend/app/seed.py",
+    "size": 533,
+    "sha1": "eadb54917239dbeb21e40351c27259bcec79caa9"
+  },
+  {
+    "path": "backend/app/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/schemas.py",
+    "size": 698,
+    "sha1": "8c00fb7b34d195d1c7fe5632d269c83be6f9d7af"
+  },
+  {
+    "path": "backend/app/init_db.py",
+    "size": 258,
+    "sha1": "1d04d93330a138a32a11d9a312895ca05481b838"
+  },
+  {
+    "path": "backend/app/deps.py",
+    "size": 675,
+    "sha1": "5492ed06afe197fbd009083af90b3aa5623b00ee"
+  },
+  {
+    "path": "backend/app/schemas/auth.py",
+    "size": 189,
+    "sha1": "f362d668b8abdca3dddd57fd6fb6325833032d40"
+  },
+  {
+    "path": "backend/app/schemas/risk.py",
+    "size": 395,
+    "sha1": "978e19987f9dadd4a1735c72e6e758e347806206"
+  },
+  {
+    "path": "backend/app/schemas/strategy.py",
+    "size": 908,
+    "sha1": "a664cb6764cd53d3be4befc80d6b32145a3fe4ec"
+  },
+  {
+    "path": "backend/app/schemas/notification.py",
+    "size": 504,
+    "sha1": "7c2215f6fa45de3bcdfd3616676bb772a436257c"
+  },
+  {
+    "path": "backend/app/schemas/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/schemas/broker.py",
+    "size": 119,
+    "sha1": "805be690b6ec2362807cb33b0400b9b299e7511a"
+  },
+  {
+    "path": "backend/app/schemas/notifications.py",
+    "size": 357,
+    "sha1": "34816e12a352aa08730ef2c646e727ddaa402ffa"
+  },
+  {
+    "path": "backend/app/schemas/user.py",
+    "size": 369,
+    "sha1": "02d13f6a3f3648e94f0a478088f2e7a962f98482"
+  },
+  {
+    "path": "backend/app/schemas/common.py",
+    "size": 74,
+    "sha1": "b12da74922efff3e1c7c4f811f2ffdf5f4511ac3"
+  },
+  {
+    "path": "backend/app/schemas/execution.py",
+    "size": 259,
+    "sha1": "3b4127c6b61aedc40bc25579c643baf33e1bda48"
+  },
+  {
+    "path": "backend/app/schemas/error_log.py",
+    "size": 466,
+    "sha1": "ac6cc72a8ba890be1d5a737f206403066435d88c"
+  },
+  {
+    "path": "backend/app/schemas/reports.py",
+    "size": 234,
+    "sha1": "73cdf986bf971d9b5fa48debd1b00e286b04bb05"
+  },
+  {
+    "path": "backend/app/seeds/seed_initial_data.py",
+    "size": 2059,
+    "sha1": "92502215e5653452bd11bb31f77576e73fd141dc"
+  },
+  {
+    "path": "backend/app/seeds/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/migrations/002_add_password_reset_columns.py",
+    "size": 885,
+    "sha1": "1887f92523c8c26781ede9ff183f8fabd2ec9605"
+  },
+  {
+    "path": "backend/app/migrations/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/scripts/smoke_test.py",
+    "size": 3586,
+    "sha1": "ffbe094f67e5cba343e05fde6af05c6f1690c7ad"
+  },
+  {
+    "path": "backend/app/scripts/seed_data.py.bak",
+    "size": 6465,
+    "sha1": "1968e808871d04c47466ad61277cc4216f67c41f"
+  },
+  {
+    "path": "backend/app/scripts/__init__.py",
+    "size": 33,
+    "sha1": "fa24e09b6e4c00e74312cab90b8ef218d4e3e88d"
+  },
+  {
+    "path": "backend/app/scripts/seed_data.py",
+    "size": 6465,
+    "sha1": "1968e808871d04c47466ad61277cc4216f67c41f"
+  },
+  {
+    "path": "backend/app/models/suppression.py",
+    "size": 581,
+    "sha1": "622a759a051532b3efc4f84f13f2ef2e8cb802e5"
+  },
+  {
+    "path": "backend/app/models/strategy.py",
+    "size": 2018,
+    "sha1": "66b6448ec7199a6aefc8b01c344348608279b970"
+  },
+  {
+    "path": "backend/app/models/notification.py",
+    "size": 816,
+    "sha1": "52c6735817700095fbea365babd60f5669419f65"
+  },
+  {
+    "path": "backend/app/models/alert.py",
+    "size": 695,
+    "sha1": "74e8908ecd75d4025ec9942822b91150c9924cdd"
+  },
+  {
+    "path": "backend/app/models/dhan_instrument.py",
+    "size": 552,
+    "sha1": "87c47e7a3b04f8687ae6348ec810169bf8e54d9b"
+  },
+  {
+    "path": "backend/app/models/strategy_risk.py",
+    "size": 978,
+    "sha1": "be8e7536f3f39ddcb7da66ef16632cbb7d7a96df"
+  },
+  {
+    "path": "backend/app/models/paper_trade.py",
+    "size": 957,
+    "sha1": "4a95a9cf8cea0fab01f9764126111b15e9e04e1f"
+  },
+  {
+    "path": "backend/app/models/__init__.py",
+    "size": 582,
+    "sha1": "72112236351ad67c990651d0aadf032778f09a53"
+  },
+  {
+    "path": "backend/app/models/broker.py",
+    "size": 919,
+    "sha1": "9dd163ba7ef3156a77e60c3410ff40afbb4a02ec"
+  },
+  {
+    "path": "backend/app/models/user.py",
+    "size": 849,
+    "sha1": "254a9a475029843d76fe75d3dc714b100a090e5e"
+  },
+  {
+    "path": "backend/app/models/idempotency.py",
+    "size": 582,
+    "sha1": "98ca32e5135925c099fe22a5fb718de0c6f05317"
+  },
+  {
+    "path": "backend/app/models/execution.py",
+    "size": 1444,
+    "sha1": "32db7669e9a4be2a4a51d7feae6c49c190f8c8b3"
+  },
+  {
+    "path": "backend/app/models/error_log.py",
+    "size": 679,
+    "sha1": "f0db8364c58ae71581abe32c486a220530d00c70"
+  },
+  {
+    "path": "backend/app/models/audit_log.py",
+    "size": 664,
+    "sha1": "73587d84470558f453c2694de9ac542b6224c313"
+  },
+  {
+    "path": "backend/app/db/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/db/base.py",
+    "size": 82,
+    "sha1": "97f6059dfb5720ca083c09ae3b915aead8c5c115"
+  },
+  {
+    "path": "backend/app/db/suppressions.py",
+    "size": 1491,
+    "sha1": "039a5108c863bc52189fb09dd53aab62b8ee85ba"
+  },
+  {
+    "path": "backend/app/db/session.py",
+    "size": 407,
+    "sha1": "28272c4ec07dd286bac87565e6d041fa7e01451b"
+  },
+  {
+    "path": "backend/app/email_templates_mjml/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/core/security.py",
+    "size": 959,
+    "sha1": "82717caa59761df711b6852deb9d94e58e8b59f4"
+  },
+  {
+    "path": "backend/app/core/config.py",
+    "size": 1658,
+    "sha1": "e11eb0df0686ed17774eeac8d35320f95f83c1d9"
+  },
+  {
+    "path": "backend/app/core/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/routers/auth.py",
+    "size": 1213,
+    "sha1": "af1b013aae5a7a90c1ba34bd52cb29074410ff3b"
+  },
+  {
+    "path": "backend/app/routers/webhooks.py",
+    "size": 826,
+    "sha1": "da6d87d912dd41f3d83df4ee256a81cbf850e621"
+  },
+  {
+    "path": "backend/app/routers/executions.py",
+    "size": 620,
+    "sha1": "071ffcf76f7c2b1ee8121b57650e7d286e4d5fa4"
+  },
+  {
+    "path": "backend/app/routers/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/routers/broker.py",
+    "size": 647,
+    "sha1": "dca1152f6c274428e7b04c82d51b72422492eff2"
+  },
+  {
+    "path": "backend/app/routers/strategies.py",
+    "size": 1729,
+    "sha1": "5d242749a4fc9395ed6bcb3f81464060205e1ed8"
+  },
+  {
+    "path": "backend/app/routers/admin.py",
+    "size": 117,
+    "sha1": "c8e0950bdd0c43a166fda9a6ae406704d0d684fa"
+  },
+  {
+    "path": "backend/app/routers/reports.py",
+    "size": 857,
+    "sha1": "66a64b7cbea9be59e4a86000d181ac34f792407e"
+  },
+  {
+    "path": "backend/app/services/risk.py",
+    "size": 2302,
+    "sha1": "9c23b784cfb57caac063c5d61ed4c927f5fe1df4"
+  },
+  {
+    "path": "backend/app/services/suppression.py",
+    "size": 1019,
+    "sha1": "fe0f8fc1393cbb0eef36f64bfac3288865e70057"
+  },
+  {
+    "path": "backend/app/services/execution_engine.py.bak.1756020065",
+    "size": 4879,
+    "sha1": "afdd31d2503c1c2da0b8ab7ba5e2c3f4abf02855"
+  },
+  {
+    "path": "backend/app/services/positions.py",
+    "size": 2400,
+    "sha1": "4597ca617c4937dc9956829f7213584f1f4a8760"
+  },
+  {
+    "path": "backend/app/services/audit.py",
+    "size": 879,
+    "sha1": "d14e3cd014cd43be6a24058de351651d42b1fd71"
+  },
+  {
+    "path": "backend/app/services/execution_engine.py.bak",
+    "size": 5023,
+    "sha1": "f34dfd26c8c733f3a336155cb6d43aa402fa3a03"
+  },
+  {
+    "path": "backend/app/services/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/services/dhanhq_client.py",
+    "size": 1747,
+    "sha1": "1e205b3febb7d664b0cbe82e2a0e27a7fcf36183"
+  },
+  {
+    "path": "backend/app/services/execution_engine.py.bak.1756019960",
+    "size": 4940,
+    "sha1": "b77270ea68975b1441b52201f0cffe8f46e72546"
+  },
+  {
+    "path": "backend/app/services/idempotency.py",
+    "size": 1280,
+    "sha1": "b38e7024c0d11b5c0e6de221ec47efe8d43243ca"
+  },
+  {
+    "path": "backend/app/services/execution_engine.py.bak.1756021696",
+    "size": 5023,
+    "sha1": "f34dfd26c8c733f3a336155cb6d43aa402fa3a03"
+  },
+  {
+    "path": "backend/app/services/rate_limiter.py",
+    "size": 1318,
+    "sha1": "ec6b56ad9a3759628868b83f9953aa2876c45051"
+  },
+  {
+    "path": "backend/app/services/execution_engine.py",
+    "size": 333,
+    "sha1": "7f20875aa6b61de50b71acd0646f680f51417a07"
+  },
+  {
+    "path": "backend/app/services/notifier.py",
+    "size": 1148,
+    "sha1": "8e279f10db5c96a50b77471bdc829829eda60108"
+  },
+  {
+    "path": "backend/app/services/mailer.py",
+    "size": 6612,
+    "sha1": "b37a0196a3524ec0ef0d757fd852d5ee3a7fb44f"
+  },
+  {
+    "path": "backend/app/services/instrument_cache.py",
+    "size": 2677,
+    "sha1": "68b11f02e2155d801c264f75996d1cbcce4d1370"
+  },
+  {
+    "path": "backend/app/api/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/api/deps.py",
+    "size": 1658,
+    "sha1": "2b1b6fdb620d8753a7240de1418ba09e3fdfea23"
+  },
+  {
+    "path": "backend/app/api/v1/auth.py",
+    "size": 86,
+    "sha1": "55e8b64e92b655299f1ac51624b366ebecd70fb5"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py.bak.1756020065",
+    "size": 3376,
+    "sha1": "3ec613a24cd3622ef36227bde7969d625f871b14"
+  },
+  {
+    "path": "backend/app/api/v1/webhooks.py",
+    "size": 98,
+    "sha1": "744e784f08596b0c0534949b426a4bbb6d81648b"
+  },
+  {
+    "path": "backend/app/api/v1/executions.py",
+    "size": 1866,
+    "sha1": "2b760641b339fea27e75dd71a9eec7d0f4224bed"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py.bak.1756019960",
+    "size": 3398,
+    "sha1": "dce173c8d0916f112f44ed33fdbb79c0764a9e44"
+  },
+  {
+    "path": "backend/app/api/v1/broker.py",
+    "size": 1951,
+    "sha1": "3266f5a198432d311c38fe079ea630e2e0a8bc64"
+  },
+  {
+    "path": "backend/app/api/v1/notifications.py",
+    "size": 2029,
+    "sha1": "a497168ff842db35c439b23f44e644a0d078044f"
+  },
+  {
+    "path": "backend/app/api/v1/error_logs.py",
+    "size": 596,
+    "sha1": "0a1311ba3e522f226564e760965c7cee4155c37f"
+  },
+  {
+    "path": "backend/app/api/v1/strategies.py",
+    "size": 2176,
+    "sha1": "90650a0e9ccd18f9ce731f4f1d7a022b8a6328e7"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py.bak.1756021813",
+    "size": 54,
+    "sha1": "c525b92f47757e7cf63cac2e0d29243567c9e654"
+  },
+  {
+    "path": "backend/app/api/v1/admin.py",
+    "size": 93,
+    "sha1": "e1320ee361f4919bad03d6794dc99ddfb2479ff9"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py.bak.1756021696",
+    "size": 3375,
+    "sha1": "f46b262b6296a4d3e0dfb8ec20052fcfdadbdbf6"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py.bak",
+    "size": 3375,
+    "sha1": "f46b262b6296a4d3e0dfb8ec20052fcfdadbdbf6"
+  },
+  {
+    "path": "backend/app/api/v1/reports.py",
+    "size": 54,
+    "sha1": "c525b92f47757e7cf63cac2e0d29243567c9e654"
+  },
+  {
+    "path": "backend/app/api/routers/auth.py",
+    "size": 1180,
+    "sha1": "8c5c357514f7a8d7c44ae5f163d160676b1bcd68"
+  },
+  {
+    "path": "backend/app/api/routers/risk.py",
+    "size": 1788,
+    "sha1": "9f7408dfe32fad3c4dd9b386e88f47413b5e2912"
+  },
+  {
+    "path": "backend/app/api/routers/instruments.py",
+    "size": 532,
+    "sha1": "45d9ba03ca9116c41695862232f34e1cead60b27"
+  },
+  {
+    "path": "backend/app/api/routers/executions_stream.py.bak",
+    "size": 2490,
+    "sha1": "69ccb229d5bc5f70f74f8081d294255888f5bb52"
+  },
+  {
+    "path": "backend/app/api/routers/dashboards.py",
+    "size": 2721,
+    "sha1": "cb6905caa55a7625d94af332ae25977bf8377355"
+  },
+  {
+    "path": "backend/app/api/routers/positions.py",
+    "size": 945,
+    "sha1": "d10cb11b7ba5e00aa8fb2530a3b8853f80c8d614"
+  },
+  {
+    "path": "backend/app/api/routers/webhooks.py",
+    "size": 5362,
+    "sha1": "bc1e9da2ad4592ba050d6678567884dcf809210a"
+  },
+  {
+    "path": "backend/app/api/routers/executions_stream.py",
+    "size": 2490,
+    "sha1": "69ccb229d5bc5f70f74f8081d294255888f5bb52"
+  },
+  {
+    "path": "backend/app/api/routers/metrics.py",
+    "size": 280,
+    "sha1": "17be9745885560dc81b3d6ddc1f7fce03837d822"
+  },
+  {
+    "path": "backend/app/api/routers/admin_health.py.bak",
+    "size": 271,
+    "sha1": "c1af257cd5651cc770d0849da45ac36ab0d4dcb3"
+  },
+  {
+    "path": "backend/app/api/routers/orders.py",
+    "size": 4584,
+    "sha1": "f2f1c9feed4d91be880106805cafbe96c2c338e7"
+  },
+  {
+    "path": "backend/app/api/routers/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/api/routers/health.py",
+    "size": 145,
+    "sha1": "0189d287b47b8a5c88b4f68a89cee66261f2d01d"
+  },
+  {
+    "path": "backend/app/api/routers/notifications.py",
+    "size": 2068,
+    "sha1": "9285e07583b5ff43aff40c20a7b768ccb7fe6d61"
+  },
+  {
+    "path": "backend/app/api/routers/broker_dhan.py",
+    "size": 2541,
+    "sha1": "21bfc8ba599a8eaf5ad4e50220519ee4e70bf0ec"
+  },
+  {
+    "path": "backend/app/api/routers/strategies.py",
+    "size": 4041,
+    "sha1": "22600f131cf64fb7d8cacc904068c2196d019044"
+  },
+  {
+    "path": "backend/app/api/routers/admin_dhan.py",
+    "size": 1454,
+    "sha1": "9689eaf2fa78f5194445b9c96e9dffb90597d261"
+  },
+  {
+    "path": "backend/app/api/routers/admin.py",
+    "size": 6311,
+    "sha1": "bcc86003374718ee016736510deb6a741ea0bff5"
+  },
+  {
+    "path": "backend/app/api/routers/reports.py",
+    "size": 3425,
+    "sha1": "db54aef29d5d40e87bb5c655e38623ff5b368b0b"
+  },
+  {
+    "path": "backend/app/api/routers/admin_health.py",
+    "size": 271,
+    "sha1": "c1af257cd5651cc770d0849da45ac36ab0d4dcb3"
+  },
+  {
+    "path": "backend/app/routes/auth.py",
+    "size": 6225,
+    "sha1": "69b06793fc10ae999cd87ad6f4faf407b0d1e6af"
+  },
+  {
+    "path": "backend/app/routes/webhook.py",
+    "size": 1368,
+    "sha1": "910ca66d6875cabb1c7007d6aab86b1e0db21740"
+  },
+  {
+    "path": "backend/app/routes/admin_suppressions.py",
+    "size": 3960,
+    "sha1": "945c25abc897891d332591c32d97feab6b518c8f"
+  },
+  {
+    "path": "backend/app/routes/executions.py",
+    "size": 599,
+    "sha1": "b95d3fb347641dd4df00691c1a606e75793dd231"
+  },
+  {
+    "path": "backend/app/routes/ops.py",
+    "size": 2388,
+    "sha1": "9f94bcb8d7498ac0566affeb0d0e4b32f6f7abef"
+  },
+  {
+    "path": "backend/app/routes/sns_webhook.py",
+    "size": 4207,
+    "sha1": "09290aff27b1cd037e065fac3f44293e9d1f0a15"
+  },
+  {
+    "path": "backend/app/routes/__init__.py",
+    "size": 10,
+    "sha1": "108845ab4b084cf07fcce1055a36618da6de17a5"
+  },
+  {
+    "path": "backend/app/routes/broker.py",
+    "size": 308,
+    "sha1": "f4a34cbe42409d2cb63de585e2b5d3676e5cfed2"
+  },
+  {
+    "path": "backend/app/routes/notifications.py",
+    "size": 2477,
+    "sha1": "40d8da6a23a0c529621cf9640e346823a422e9f1"
+  },
+  {
+    "path": "backend/app/routes/strategies.py",
+    "size": 1774,
+    "sha1": "19903dfea032e7334b87506e0d560f0ea89f3f3d"
+  },
+  {
+    "path": "backend/app/routes/admin.py",
+    "size": 1360,
+    "sha1": "7007ebd9352019e552ed161bc30f4ca949d542ca"
+  },
+  {
+    "path": "backend/app/routes/reports.py",
+    "size": 782,
+    "sha1": "ba0916189601c2d7bc412f5f38c3a5095b4e9635"
+  },
+  {
+    "path": "backend/app/email_templates/verify.html",
+    "size": 396,
+    "sha1": "be8bdeae18583b529b5ab68acd59b188353160b5"
+  },
+  {
+    "path": "backend/app/email_templates/__init__.py",
+    "size": 0,
+    "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+  },
+  {
+    "path": "backend/app/email_templates/base.html",
+    "size": 1344,
+    "sha1": "667eb4012bc35296ea63ec0af6eb20c0fe154d95"
+  },
+  {
+    "path": "backend/app/email_templates/reset.html",
+    "size": 440,
+    "sha1": "9337a3cf4aa12c86777dfad1ecfe36f000e43ead"
+  },
+  {
+    "path": "backend/database/db.py",
+    "size": 358,
+    "sha1": "3155d5985e5b6ac695707f0244be97fb2780fba6"
+  },
+  {
+    "path": "backend/database/models.py",
+    "size": 370,
+    "sha1": "5b1c32c1e48a014a0574be3ecae07855bc770b8d"
+  },
+  {
+    "path": "backend/routes/webhooks.py",
+    "size": 2437,
+    "sha1": "489889af5b2357463425ebcb862b3f6fb9c5bf48"
+  },
+  {
+    "path": "backend/routes/executions.py",
+    "size": 3360,
+    "sha1": "fee14bb707e2255778b4b7c67da3c2c02029a148"
+  },
+  {
+    "path": "backend/routes/alerts.py",
+    "size": 1586,
+    "sha1": "24cd3f285ea3d588fb35272f3fdd528817d7e5ea"
+  },
+  {
+    "path": "backend/routes/broker.py",
+    "size": 2220,
+    "sha1": "56af7b0edb85f87721c5531ae1588800ae38920c"
+  },
+  {
+    "path": "backend/routes/strategies.py",
+    "size": 3113,
+    "sha1": "454812d5ffad98742073d14129df8fb8d63950dc"
+  },
+  {
+    "path": "backend/routes/admin.py",
+    "size": 1117,
+    "sha1": "fe96d26ccf1fdd27e84731a4b5f0ad6b271f0289"
+  },
+  {
+    "path": "backend/routes/reports.py",
+    "size": 3497,
+    "sha1": "fd79bca4926ff24fd3a29216155b57bed4a08d06"
+  },
+  {
+    "path": "backend/utils/encryption.py",
+    "size": 329,
+    "sha1": "467597dfb4d509dd2fd7b74341ab125500d38ff3"
+  },
+  {
+    "path": "docs/AlgoDatta_Gap_Analysis_2025-08-10.docx",
+    "size": 40923,
+    "sha1": "92d803c18ca0f3c49e94e26304077a171294e1b5"
+  },
+  {
+    "path": "docs/Spec-1-auto Trading Platform (1).pdf",
+    "size": 189293,
+    "sha1": "242838bbb320bc2b0dd83b36e35461c460830154"
+  },
+  {
+    "path": "docs/email-dkim-mailfrom.md",
+    "size": 194,
+    "sha1": "991247945aa1334ace70c3b598164251e2012a1c"
+  },
+  {
+    "path": "docs/Spec-1-auto Trading Platform.docx",
+    "size": 29955,
+    "sha1": "e1589e38553afab6413b81cb5a65d4a8cdc9fe42"
+  },
+  {
+    "path": "docs/RUNBOOK.md",
+    "size": 827,
+    "sha1": "04b96375c299398d90d40f08745c3d0e30aaf67a"
+  },
+  {
+    "path": "docs/PATCH_NOTES_v2.md",
+    "size": 411,
+    "sha1": "c24f7462de2100d72ede12dafd337df6774b56e7"
+  },
+  {
+    "path": "docs/AlgoDatta_Gap_Analysis_2025-08-10.md",
+    "size": 9273,
+    "sha1": "525aa2d3d117fae80ec9956668707e18232d258e"
+  },
+  {
+    "path": "docs/AlgoDatta_Postman_Files/AlgoDatta_API_no_body_auth.postman_collection.json",
+    "size": 3880,
+    "sha1": "f5bae5e3f6349755d4669f4262632a9da7de8fb9"
+  },
+  {
+    "path": "docs/AlgoDatta_Postman_Files/AlgoDatta_Env.postman_environment.json",
+    "size": 916,
+    "sha1": "28b52d27a7a56aab78ddd220caf593e315a4cd57"
+  },
+  {
+    "path": "docs/AlgoDatta_Postman_Files/AlgoDatta_API.postman_collection.json",
+    "size": 17407,
+    "sha1": "380b995c7776ff6131f10003bf021e3eaf760aa7"
+  },
+  {
+    "path": "ops/fix_and_deploy.sh",
+    "size": 1402,
+    "sha1": "3ae7ccb8f4b385afdfe299f6e2a03d7bef523729"
+  },
+  {
+    "path": "ops/patch_main.py",
+    "size": 952,
+    "sha1": "6900785c87551d043732340b2b1fb6521a1f316e"
+  },
+  {
+    "path": "ops/diagnose.sh",
+    "size": 975,
+    "sha1": "8b8c9e7dbf39547543c2465b68610e4670b950db"
+  },
+  {
+    "path": "tools/fix_next_conflicts.sh",
+    "size": 652,
+    "sha1": "4e31c780618ec88ae84813829d180dd94caa7e17"
+  },
+  {
+    "path": "tools/merge_algodatta_tar_into_repo.sh",
+    "size": 1623,
+    "sha1": "4c17d0a51e15e7d65173f0e0c8a3d2fcbb8858d6"
+  }
+]

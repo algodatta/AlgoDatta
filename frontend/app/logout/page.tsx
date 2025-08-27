@@ -1,26 +1,16 @@
-"use client";
+'use client';
+import { useEffect } from 'react';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-export default function LogoutPage() {
-  const router = useRouter();
-
+export default function Logout() {
   useEffect(() => {
-    try {
-      // Clear cookie
-      document.cookie = "algodatta_token=; Max-Age=0; Path=/; Secure; SameSite=Lax";
-      // Clear localStorage
-      localStorage.removeItem("algodatta_token");
-    } catch {}
-    const back = "/";
-    const t = setTimeout(() => router.replace(back), 150);
-    return () => clearTimeout(t);
-  }, [router]);
-
-  return (
-    <main style={{ padding: 24 }}>
-      <h1>Logging out…</h1>
-    </main>
-  );
+    const run = async () => {
+      const base = process.env.NEXT_PUBLIC_API_BASE || '';
+      try {
+        await fetch(base.replace(/\/$/,'') + '/auth/logout', { method: 'POST', credentials: 'include' });
+      } catch {}
+      window.location.href = '/login';
+    };
+    run();
+  }, []);
+  return <main className="p-6">Signing you out…</main>;
 }

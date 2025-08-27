@@ -96,3 +96,23 @@ __pycache__/
 *.tar.gz
 *.zip
 AlgoDatta.backup-*
+
+# --- Added by merge kit ---
+# Dependencies
+**/node_modules/
+# Next.js
+# Python
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+# Build artifacts
+htmlcov/
+# OS/files
+# Env
+*.local
+# Docker
+docker/*.env
+docker/.env
+**/.pytest_cache/
+**/.mypy_cache/

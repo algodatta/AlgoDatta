@@ -95,3 +95,9 @@ def healthz_head():
 
     return Response(status_code=200)
 
+
+from .routers import auth
+app.include_router(auth.router)
+
+from .routers import dashboard
+app.include_router(dashboard.router)
