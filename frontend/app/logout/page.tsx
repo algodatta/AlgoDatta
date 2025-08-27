@@ -1,36 +1,17 @@
-<<<<<<< HEAD
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-export default function Logout(){
+
+export default function LogoutPage() {
   const r = useRouter();
-  useEffect(()=>{
-    localStorage.removeItem('token'); localStorage.removeItem('role');
-    fetch('/api/auth/logout',{method:'POST'}).finally(()=> r.replace('/login'));
-  },[r]);
-  return <div className="card" style={{maxWidth:420, margin:'40px auto'}}>Signing out…</div>;
-=======
-
-'use client';
-
-import { useEffect } from 'react';
-
-import { useRouter } from 'next/navigation';
-
-export default function Logout(){
-
-  const r = useRouter();
-
-  useEffect(()=>{
-
-    localStorage.removeItem('token'); localStorage.removeItem('role');
-
-    fetch('/api/auth/logout',{method:'POST'}).finally(()=> r.replace('/login'));
-
-  },[r]);
-
-  return <div className="card" style={{maxWidth:420, margin:'40px auto'}}>Signing out…</div>;
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+  useEffect(() => {
+    try { localStorage.removeItem('token'); } catch {}
+    fetch('/api/auth/logout', { method: 'POST' })
+      .finally(() => r.replace('/login'));
+  }, [r]);
+  return (
+    <div className="max-w-md mx-auto p-6">
+      <div className="rounded-2xl bg-white shadow ring-1 ring-black/5 p-6">Signing out…</div>
+    </div>
+  );
 }
-
