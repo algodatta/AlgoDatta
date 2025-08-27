@@ -2,7 +2,7 @@ import uuid, pytest
 
 def _login(client):
     # Use a deterministic test account to avoid DB bloat
-    email = "ci@algodatta.com"; password = "ChangeMe123!"
+    email = "ci@algodatta.com"; settings.GENERIC_PASSWORD"
     client.post("/api/auth/register", json={"email": email, "password": password})
     r = client.post("/api/auth/login", json={"email": email, "password": password})
     assert r.status_code == 200

@@ -217,7 +217,7 @@ frontend/
 SECRET_KEY=changeme
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/algodatta
-DHAN_API_KEY=your_key
+${DHAN_API_KEY}
 DHAN_API_SECRET=your_secret
 TELEGRAM_BOT_TOKEN=your_bot_token
 SENDGRID_API_KEY=your_sendgrid_key

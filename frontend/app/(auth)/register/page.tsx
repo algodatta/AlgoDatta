@@ -1,3 +1,4 @@
+// NOTE: secrets must be server-only; do not reference in client components.
 'use client';
 import { useState } from 'react';
 
@@ -26,7 +27,7 @@ export default function RegisterPage() {
         <input className="w-full border rounded p-2" placeholder="Email" type="email"
           value={form.email} onChange={e=>setForm(s=>({...s, email: e.target.value}))}/>
         <input className="w-full border rounded p-2" placeholder="Password" type="password"
-          value={form.password} onChange={e=>setForm(s=>({...s, password: e.target.value}))}/>
+          value={form.password} onChange={e=>setForm(s=>({...s, (process.env.GENERIC_PASSWORD as string) /* server-only */
         <button className="w-full rounded bg-black text-white py-2" disabled={loading}>
           {loading ? 'Creating...' : 'Register'}
         </button>

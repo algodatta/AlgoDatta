@@ -20,4 +20,4 @@ pytz
 httpx
 
 psycopg2-binary
-
+boto3>=1.34.0

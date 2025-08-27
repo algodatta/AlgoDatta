@@ -5,7 +5,7 @@ services:
     container_name: algodatta-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_${GENERIC_PASSWORD}
       POSTGRES_DB: algodatta
     ports:
       - "5432:5432"

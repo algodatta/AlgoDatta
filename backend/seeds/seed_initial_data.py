@@ -16,7 +16,7 @@ def hash_password(p: str) -> str:
 def run():
     load_dotenv()
     admin_email = os.getenv("ADMIN_EMAIL", "admin@algodatta.com")
-    admin_password = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
+    admin_settings.GENERIC_PASSWORD"ADMIN_PASSWORD", "ChangeMe123!")
     admin_role = os.getenv("ADMIN_ROLE", "admin")
 
     with SessionLocal() as db:
