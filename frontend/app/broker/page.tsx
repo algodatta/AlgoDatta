@@ -1,101 +1,81 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { fetchJson } from '@/lib/fetcher';
-import type { BrokerProfile, Holding, Position } from '@/types/api';
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table';
+"use client";
+import { useEffect, useState } from "react";
+import { apiBase, authHeaders } from "../../lib/api";
 
-export default function BrokerPage() {
-  const [profile, setProfile] = useState<BrokerProfile | null>(null);
-  const [holdings, setHoldings] = useState<Holding[]>([]);
+type Position = { strategy_id: string; position_qty?: number; avg_price?: string };
+type Order = { id: string; strategy_id?: string; side?: string; qty?: string; price?: string; status?: string; created_at?: string };
+
+export default function Broker(){
+  const [token,setToken] = useState("");
+  const [msg,setMsg] = useState("");
   const [positions, setPositions] = useState<Position[]>([]);
-  const [msg, setMsg] = useState<string>('');
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  async function load() {
-    setMsg('');
-    try {
-      const [p, h, pos] = await Promise.all([
-        fetchJson<BrokerProfile>('/api/broker/profile'),
-        fetchJson<Holding[]>('/api/broker/holdings'),
-        fetchJson<Position[]>('/api/broker/positions'),
-      ]);
-      setProfile(p || null); setHoldings(h || []); setPositions(pos || []);
-    } catch (e: any) { setMsg(e?.message || 'Failed to load broker info'); }
-  }
-  useEffect(()=>{ load(); }, []);
+  const save = async ()=>{
+    setMsg("...");
+    const res = await fetch(`${apiBase()}/api/broker`,{
+      method:"POST",
+      headers: ({ ...authHeaders(), "Content-Type":"application/json" } as HeadersInit),
+      body: JSON.stringify({auth_token: token})
+    });
+    const data = await res.json().catch(()=>({}));
+    setMsg(res.ok ? "Linked" : (data.detail || "Error"));
+  };
 
-  async function connect() {
-    setMsg('');
-    try {
-      const res = await fetchJson<{ message: string }>('/api/broker/connect', { method: 'POST' });
-      setMsg(res.message || 'Connected');
-      load();
-    } catch (e: any) { setMsg(e?.message || 'Connect failed'); }
-  }
+  const load = async ()=>{
+    const pr = fetch(`${apiBase()}/api/positions`, { headers: authHeaders() as HeadersInit });
+    const or = fetch(`${apiBase()}/api/orders`, { headers: authHeaders() as HeadersInit });
+    const [rp, ro] = await Promise.all([pr, or]);
+    if (rp.ok) setPositions(await rp.json());
+    if (ro.ok) setOrders(await ro.json());
+  };
+
+  useEffect(()=>{ load(); },[]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Broker Integration</h1>
-        <button onClick={connect} className="rounded-2xl bg-black text-white px-4 py-2">Connect</button>
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <h2 className="text-xl font-medium">Broker Integration (Dhan)</h2>
+        <input className="border rounded p-2 w-full" placeholder="Access token" value={token} onChange={e=>setToken(e.target.value)} />
+        <button onClick={save} className="px-3 py-2 bg-black text-white rounded">Save</button>
+        <div className="text-sm text-gray-500">{msg}</div>
       </div>
-      {msg && <p className="text-sm">{msg}</p>}
 
-      <section className="space-y-2">
-        <h2 className="font-medium">Profile</h2>
-        {profile ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Client ID</div><div>{profile.client_id || '-'}</div></div>
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Name</div><div>{profile.name || '-'}</div></div>
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Email</div><div>{profile.email || '-'}</div></div>
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Phone</div><div>{profile.phone || '-'}</div></div>
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Segments</div><div>{(profile.segment||[]).join(', ') || '-'}</div></div>
-            <div className="border rounded-xl p-3"><div className="text-xs opacity-60">Balance</div><div>₹{profile.balance ?? '-'}</div></div>
-          </div>
-        ) : <div className="text-sm opacity-70">No profile yet.</div>}
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="font-medium">Holdings</h2>
-        <Table>
-          <THead>
-            <TH>Symbol</TH><TH numeric>Qty</TH><TH numeric>Avg</TH><TH numeric>LTP</TH><TH numeric>PnL</TH>
-          </THead>
-          <TBody>
-            {holdings.map((h, i)=>(
-              <TR key={i}>
-                <TD>{h.symbol}</TD>
-                <TD numeric>{h.qty}</TD>
-                <TD numeric>{h.avg_price.toFixed(2)}</TD>
-                <TD numeric>{(h.ltp ?? 0).toFixed(2)}</TD>
-                <TD numeric className={((h.pnl ?? 0) >= 0 ? 'text-green-600':'text-red-600')}>{(h.pnl ?? 0).toFixed(2)}</TD>
-              </TR>
-            ))}
-            {holdings.length===0 && <TR><TD colSpan={5}>No holdings.</TD></TR>}
-          </TBody>
-        </Table>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="font-medium">Positions</h2>
-        <Table>
-          <THead>
-            <TH>Symbol</TH><TH>Side</TH><TH numeric>Qty</TH><TH numeric>Avg</TH><TH numeric>LTP</TH><TH numeric>PnL</TH>
-          </THead>
-          <TBody>
-            {positions.map((p, i)=>(
-              <TR key={i}>
-                <TD>{p.symbol}</TD>
-                <TD>{p.side}</TD>
-                <TD numeric>{p.qty}</TD>
-                <TD numeric>{p.avg_price.toFixed(2)}</TD>
-                <TD numeric>{(p.ltp ?? 0).toFixed(2)}</TD>
-                <TD numeric className={((p.pnl ?? 0) >= 0 ? 'text-green-600':'text-red-600')}>{(p.pnl ?? 0).toFixed(2)}</TD>
-              </TR>
-            ))}
-            {positions.length===0 && <TR><TD colSpan={6}>No positions.</TD></TR>}
-          </TBody>
-        </Table>
-      </section>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <h3 className="font-medium text-lg">Positions</h3>
+          <table className="w-full text-sm bg-white rounded border">
+            <thead className="bg-gray-100"><tr><th className="p-2 text-left">Strategy</th><th className="p-2">Qty</th><th className="p-2">Avg Price</th></tr></thead>
+            <tbody>
+              {positions.map(p => (
+                <tr key={p.strategy_id} className="border-t">
+                  <td className="p-2">{p.strategy_id.slice(0,8)}</td>
+                  <td className="p-2">{p.position_qty ?? ""}</td>
+                  <td className="p-2">{p.avg_price ?? ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="space-y-2">
+          <h3 className="font-medium text-lg">Recent Orders</h3>
+          <table className="w-full text-sm bg-white rounded border">
+            <thead className="bg-gray-100"><tr><th className="p-2 text-left">ID</th><th className="p-2">Strategy</th><th className="p-2">Side</th><th className="p-2">Qty</th><th className="p-2">Price</th><th className="p-2">Status</th></tr></thead>
+            <tbody>
+              {orders.map(o => (
+                <tr key={o.id} className="border-t">
+                  <td className="p-2 text-xs">{o.id.slice(0,8)}</td>
+                  <td className="p-2 text-xs">{o.strategy_id?.slice(0,8) || ""}</td>
+                  <td className="p-2">{o.side}</td>
+                  <td className="p-2">{o.qty}</td>
+                  <td className="p-2">{o.price}</td>
+                  <td className="p-2">{o.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

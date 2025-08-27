@@ -47,7 +47,7 @@ function cfg(){return {base: localStorage.getItem('baseUrl')||document.getElemen
 function saveCfg(){ localStorage.setItem('baseUrl', document.getElementById('baseUrl').value); localStorage.setItem('token', document.getElementById('token').value); alert('Saved.'); }
 async function login(){
   const base = document.getElementById('baseUrl').value;
-  const r = await fetch(base + '/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:'admin@algodatta.com', ${GENERIC_PASSWORD}'})});
+  const r = await fetch(base + '/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:'admin@algodatta.com', password:'ChangeMe123!'})});
   const j = await r.json();
   localStorage.setItem('token', j.access_token || '');
   document.getElementById('token').value = j.access_token || '';

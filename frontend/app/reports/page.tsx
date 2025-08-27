@@ -1,81 +1,47 @@
-'use client';
-import { useEffect, useMemo, useState } from 'react';
-import { fetchJson } from '@/lib/fetcher';
-import type { Execution } from '@/types/api';
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table';
 
-function toLocalISO(date: Date) {
-  const tzOffset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - tzOffset).toISOString().slice(0,16); // yyyy-mm-ddThh:mm
-}
+"use client";
+import { useState } from "react";
+import { apiFetch } from "../../lib/api";
 
-export default function ReportsPage() {
-  const [rows, setRows] = useState<Execution[]>([]);
-  const [msg, setMsg] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [from, setFrom] = useState<string>(toLocalISO(new Date(Date.now() - 24*3600e3)));
-  const [to, setTo] = useState<string>(toLocalISO(new Date()));
+export default function ReportsPage(){
+  const [fromDate, setFrom] = useState("");
+  const [toDate, setTo] = useState("");
+  const [msg, setMsg] = useState("");
 
-  const params = useMemo(() => {
-    const f = new Date(from).toISOString();
-    const t = new Date(to).toISOString();
-    return new URLSearchParams({ from: f, to: t, limit: '500' }).toString();
-  }, [from, to]);
-
-  async function load() {
-    setLoading(true); setMsg('');
-    try {
-      const data = await fetchJson<Execution[]>(`/api/executions?${params}`);
-      setRows(Array.isArray(data) ? data : []);
-    } catch (e:any) { setMsg(e?.message || 'Failed to load'); }
-    finally { setLoading(false); }
-  }
-
-  useEffect(()=>{ load(); }, [params]);
-
-  function downloadCSV() {
-    const url = `/api/reports/csv?${params}`;
-    window.open(url, '_blank');
-  }
-
-  const totalPnL = rows.reduce((acc, r) => acc + (r.status === 'FILLED' ? (r.side==='SELL'?-1:1) * r.qty * r.price : 0), 0);
+  const downloadCsv = async () => {
+    setMsg("");
+    const qs = new URLSearchParams({ ...(fromDate?{from_date:fromDate}:{}) , ...(toDate?{to_date:toDate}:{}) });
+    const res = await apiFetch(`/api/reports/executions.csv?${qs.toString()}`, { method: "GET" });
+    if(!res.ok){
+      const data = await res.json().catch(()=>({}));
+      setMsg(data.detail || "Failed to download CSV");
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "executions.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="p-6 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">Reports</h1>
-        <div className="flex items-center gap-2">
-          <label className="text-sm">From</label>
-          <input type="datetime-local" value={from} onChange={e=>setFrom(e.target.value)} className="border rounded-xl px-2 py-1 text-sm"/>
-          <label className="text-sm">To</label>
-          <input type="datetime-local" value={to} onChange={e=>setTo(e.target.value)} className="border rounded-xl px-2 py-1 text-sm"/>
-          <button onClick={load} className="rounded-xl border px-3 py-1.5 text-sm">Apply</button>
-          <button onClick={downloadCSV} className="rounded-xl bg-black text-white px-3 py-1.5 text-sm">Export CSV</button>
+    <div>
+      <h1 className="text-xl font-semibold mb-3">Reports</h1>
+      {msg && <div className="text-red-600 mb-2">{msg}</div>}
+      <div className="flex items-end gap-2 mb-4">
+        <div>
+          <label className="block text-sm">From (YYYY-MM-DD)</label>
+          <input value={fromDate} onChange={e=>setFrom(e.target.value)} className="border p-2 rounded" placeholder="2025-08-01"/>
         </div>
+        <div>
+          <label className="block text-sm">To (YYYY-MM-DD)</label>
+          <input value={toDate} onChange={e=>setTo(e.target.value)} className="border p-2 rounded" placeholder="2025-08-24"/>
+        </div>
+        <button onClick={downloadCsv} className="px-3 py-2 rounded bg-blue-600 text-white">Download CSV</button>
       </div>
-      {msg && <p className="text-sm">{msg}</p>}
-      <div className="text-sm opacity-70">Rows: {rows.length} · Estimated P&L (naïve): {totalPnL.toFixed(2)}</div>
-      <Table>
-        <THead>
-          <TH>Time</TH><TH>Strategy</TH><TH>Symbol</TH><TH>Side</TH><TH numeric>Qty</TH><TH numeric>Price</TH><TH>Status</TH><TH>Order ID</TH><TH>Exchange</TH>
-        </THead>
-        <TBody>
-          {rows.map(r => (
-            <TR key={r.id}>
-              <TD>{new Date(r.timestamp).toLocaleString()}</TD>
-              <TD>{r.strategy_id}</TD>
-              <TD>{r.symbol}</TD>
-              <TD>{r.side}</TD>
-              <TD numeric>{r.qty}</TD>
-              <TD numeric>{r.price.toFixed(2)}</TD>
-              <TD>{r.status}</TD>
-              <TD>{r.order_id || '-'}</TD>
-              <TD>{r.exchange || '-'}</TD>
-            </TR>
-          ))}
-          {rows.length===0 && !loading && <TR><TD colSpan={9}>No data in range.</TD></TR>}
-        </TBody>
-      </Table>
+      <p className="text-sm text-gray-600">CSV will include executions in the selected range.</p>
     </div>
   );
 }

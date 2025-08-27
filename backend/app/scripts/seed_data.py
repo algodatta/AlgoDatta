@@ -38,10 +38,10 @@ try:
 except Exception:
     # Fallback if import path differs
     from passlib.context import CryptContext
-    _settings.GENERIC_PASSWORD"bcrypt"], deprecated="auto")
+    _pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
     def hash_password(p): return _pwd.hash(p)
 
-DATABASE_URL = os.getenv("DATABASE_URL", settings.POSTGRES_URL)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://at_user:at_pass@localhost:5432/autotrading")
 
 def get_engine():
     return create_engine(DATABASE_URL, echo=False, future=True)

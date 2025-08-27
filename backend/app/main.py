@@ -1,11 +1,3 @@
-from app.api.routes.trades import router as trades_router
-
-# Configure JSON logging
-try:
-    from app.core.logging_config import configure_logging
-    configure_logging()
-except Exception:
-    pass
 from app.api.routers import health
 import os
 from fastapi import FastAPI
@@ -33,14 +25,6 @@ from app.api.routers import (
 )
 
 app = FastAPI(title="AlgoDatta API", openapi_url="/api/openapi.json", docs_url="/api/docs")
-
-# Auto-injected env validation
-try:
-    from app.core.secrets import validate_required
-    validate_required()
-except Exception as e:
-    # Fail fast if critical envs are missing
-    raise
 
 # CORS
 from fastapi.middleware.cors import CORSMiddleware
@@ -111,57 +95,3 @@ def healthz_head():
 
     return Response(status_code=200)
 
-
-
-# Auto-injected secret format validation
-try:
-    from app.core.secrets import validate_formats
-    validate_formats()
-except Exception:
-    raise
-
-
-
-from fastapi import FastAPI
-try:
-    app  # type: ignore # noqa
-except NameError:
-    app = FastAPI()
-
-@app.get("/healthz")
-async def healthz():
-    return {"status": "ok"}
-
-
-
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-import traceback, asyncio
-
-try:
-    from app.services.notifier import notify_error
-except Exception:
-    notify_error = None
-
-@app.exception_handler(RequestValidationError)
-async def request_validation_exception_handler(request: Request, exc: RequestValidationError):
-    if notify_error:
-        detail = {"path": str(request.url), "method": request.method, "errors": exc.errors()}
-        await notify_error("RequestValidationError", detail, err=str(exc))
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
-
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    if notify_error:
-        tb = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
-        detail = {"path": str(request.url), "method": request.method}
-        await notify_error("UnhandledException", detail, err=tb[:2000])
-    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
-
-
-
-try:
-    app.include_router(trades_router)
-except Exception:
-    pass

@@ -1,12 +1,3 @@
-try:
-    from app.core.secrets import settings  # central secrets loader
-except Exception:
-    import os
-    class _Fallback:
-        def __getattr__(self, k):
-            return os.getenv(k)
-    settings = _Fallback()
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 import requests
@@ -40,12 +31,12 @@ def connect_dhan(creds: DhanCredentials, db: Session = Depends(get_db)):
     existing = db.query(DhanCredential).filter_by(client_id=creds.clientId).first()
     if existing:
         existing.api_key = encrypted_api_key
-        existing.api_settings.GENERIC_SECRET
+        existing.api_secret = encrypted_api_secret
     else:
         new_entry = DhanCredential(
             client_id=creds.clientId,
             api_key=encrypted_api_key,
-            api_settings.GENERIC_SECRET
+            api_secret=encrypted_api_secret
         )
         db.add(new_entry)
     db.commit()

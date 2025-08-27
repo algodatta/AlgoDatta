@@ -14,7 +14,7 @@ def main():
     print("== AlgoDatta API Smoke Test ==")
     # 1) Register (ignore if exists), then login
     email = f"smoke_{uuid.uuid4().hex[:6]}@algodatta.io"
-    settings.GENERIC_PASSWORD"
+    password = "Smoke@123"
     print("Registering:", email)
     r = requests.post(url("/api/register"), json={"email": email, "password": password})
     print("REGISTER ->", pp(r))

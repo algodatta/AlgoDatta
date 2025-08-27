@@ -1,81 +1,28 @@
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, EmailStr
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import secrets, hashlib
+from ..db import get_db
+from .. import models
+from ..schemas import RegisterIn, TokenOut
+from ..security import hash_password, verify_password, create_access_token
 
-# NOTE: Replace imports below with your real modules.
-# from app.db import get_db, User
-# from app.security import hash_password, verify_password, create_jwt
-# from app.mailer import send_mail
+router = APIRouter()
 
-def get_db():
-    # placeholder for dependency in case you paste this before wiring
-    return None
+@router.post("/register", response_model=TokenOut)
+def register(body: RegisterIn, db: Session = Depends(get_db)):
+    existing = db.query(models.User).filter(models.User.email == body.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="Email already registered")
+    user = models.User(email=body.email, password_hash=hash_password(body.password))
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    token = create_access_token(user.id)
+    return TokenOut(access_token=token)
 
-def hash_password(pw: str) -> str:
-    # replace with real password hashing (e.g., passlib/bcrypt)
-    return "hashed:" + pw
-
-def send_mail(to: str, subject: str, body: str):
-    # replace with SES/SendGrid implementation
-    print(f"[MAIL] to={to} subject={subject} body={body}")
-
-# Replace this with your SQLAlchemy User model and real DB logic.
-class UserObj:
-    def __init__(self, name, email, password_hash, role='user'):
-        self.name = name
-        self.email = email
-        self.password_hash = password_hash
-        self.role = role
-        self.reset_token_hash = None
-        self.reset_token_expires_at = None
-
-FAKE_DB = {}
-
-router = APIRouter(prefix="/api/auth", tags=["auth"])
-
-class RegisterIn(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-
-@router.post("/register")
-def register(data: RegisterIn):
-    if data.email in FAKE_DB:
-        raise HTTPException(400, "Email already registered")
-    user = UserObj(name=data.name, email=data.email, password_hash=hash_password(data.password))
-    FAKE_DB[data.email] = user
-    send_mail(to=data.email, subject="Welcome to AlgoDatta", body="Your account is ready.")
-    return {"message": "Registered successfully"}
-
-class ForgotIn(BaseModel):
-    email: EmailStr
-
-@router.post("/forgot-password")
-def forgot_password(data: ForgotIn):
-    user = FAKE_DB.get(data.email)
-    if user:
-        raw = secrets.token_urlsafe(32)
-        digest = hashlib.sha256(raw.encode()).hexdigest()
-        user.reset_token_hash = digest
-        user.reset_token_expires_at = datetime.utcnow() + timedelta(hours=2)
-        link = f"https://www.algodatta.com/reset-password?token={raw}"
-        send_mail(to=user.email, subject="Reset your password", body=f"Click to reset: {link}")
-    return {"message": "If the email exists, a reset link has been sent."}
-
-class ResetIn(BaseModel):
-    token: str
-    password: str
-
-@router.post("/reset-password")
-def reset_password(data: ResetIn):
-    digest = hashlib.sha256(data.token.encode()).hexdigest()
-    # scan fake DB
-    for user in FAKE_DB.values():
-        if user.reset_token_hash == digest and user.reset_token_expires_at and user.reset_token_expires_at > datetime.utcnow():
-            user.password_hash = hash_password(data.password)
-            user.reset_token_hash = None
-            user.reset_token_expires_at = None
-            return {"message": "Password updated"}
-    raise HTTPException(400, "Invalid or expired token")
+@router.post("/login", response_model=TokenOut)
+def login(body: RegisterIn, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == body.email).first()
+    if not user or not verify_password(body.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = create_access_token(user.id)
+    return TokenOut(access_token=token)

@@ -3,7 +3,7 @@ import httpx
 
 BASE = os.getenv("BASE_URL", "http://localhost:8000")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@algodatta.com")
-ADMIN_settings.GENERIC_PASSWORD"ADMIN_PASSWORD", "ChangeMe123!")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
 
 def main():
     try:
