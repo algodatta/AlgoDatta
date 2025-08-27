@@ -1,13 +1,14 @@
-<<<<<<< HEAD
-import dynamic from 'next/dynamic';
-const BrokerConnect = dynamic(() => import('@/components/BrokerConnect'), { ssr:false });
-export default function Page(){ return <div className="grid"><div className="card"><h2 style={{fontSize:20,fontWeight:700}}>Broker</h2><p>Connect your broker account.</p></div><BrokerConnect/></div>; }
-=======
+'use client';
 
-import dynamic from 'next/dynamic';
-
-const BrokerConnect = dynamic(() => import('@/components/BrokerConnect'), { ssr:false });
-
-export default function Page(){ return <div className="grid"><div className="card"><h2 style={{fontSize:20,fontWeight:700}}>Broker</h2><p>Connect your broker account.</p></div><BrokerConnect/></div>; }
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+export default function Page() {
+  return (
+    <div className="max-w-5xl mx-auto p-6">
+      <div className="rounded-2xl bg-white shadow ring-1 ring-black/5 p-6">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Broker</h1>
+        <p className="text-slate-600">
+          Connect your broker account here. (Component coming soon.)
+        </p>
+      </div>
+    </div>
+  );
+}

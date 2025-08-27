@@ -1,31 +1,22 @@
-<<<<<<< HEAD
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-export async function POST(req: Request) {
-  const { token, exp } = await req.json().catch(()=>({}));
-  if(!token) return NextResponse.json({ok:false,error:'token required'},{status:400});
-  const maxAge = typeof exp === 'number' ? Math.max(0, exp - Math.floor(Date.now()/1000)) : 6*60*60;
-  cookies().set('algodatta_token', token, { httpOnly:true, sameSite:'lax', secure:true, path:'/', maxAge });
-  return NextResponse.json({ok:true});
-}
-=======
-
-import { cookies } from 'next/headers';
-
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({} as any));
+  const token: string = body?.token ?? '';
+  const maxAge: number = Number(body?.maxAge ?? 60 * 60 * 24 * 7); // 7 days default
 
-  const { token, exp } = await req.json().catch(()=>({}));
+  if (!token) {
+    return NextResponse.json({ ok: false, error: 'token required' }, { status: 400 });
+  }
 
-  if(!token) return NextResponse.json({ok:false,error:'token required'},{status:400});
+  cookies().set('algodatta_token', token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/',
+    maxAge,
+  });
 
-  const maxAge = typeof exp === 'number' ? Math.max(0, exp - Math.floor(Date.now()/1000)) : 6*60*60;
-
-  cookies().set('algodatta_token', token, { httpOnly:true, sameSite:'lax', secure:true, path:'/', maxAge });
-
-  return NextResponse.json({ok:true});
-
+  return NextResponse.json({ ok: true });
 }
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
