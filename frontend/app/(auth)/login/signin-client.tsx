@@ -1,116 +1,105 @@
-
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? '';
 
-
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.algodatta.com';
-
-
-
-function parseJwt(token: string) {
-
-  try { return JSON.parse(atob(token.split('.')[1])); } catch { return null; }
-
-}
-
-
-
-function Inner(){
-
-  const sp = useSearchParams();
-
+export default function SignInForm() {
   const router = useRouter();
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState<string | null>(null);
 
-  const [email, setEmail] = useState('admin@algodatta.com');
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const msg = await res.text().catch(()=> '');
+        throw new Error(msg || 'Invalid email or password');
+      }
+      const data  = await res.json().catch(()=> ({} as any));
+      const token = (data && (data.token || data.access_token)) || '';
+      if (!token) throw new Error('Login succeeded but no token returned');
 
-  const [password, setPassword] = useState('Admin@123');
+      try { localStorage.setItem('token', token); } catch {}
 
-  const [loading, setLoading] = useState(false);
+      // Also set an httpOnly cookie via our Next API
+      await fetch('/api/auth/set-cookie', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ token, maxAge: 60*60*24*7 }) // 7 days
+      }).catch(()=>{});
 
-  const [err, setErr] = useState<string|null>(null);
-
-
-
-  async function onSubmit(e: React.FormEvent){
-
-    e.preventDefault(); setErr(null); setLoading(true);
-
-    try{
-
-      const r = await fetch(`${API_BASE}/api/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email,password}) });
-
-      const j = await r.json();
-
-      if (!r.ok) throw new Error(j?.detail || j?.error || r.statusText);
-
-
-
-      const token = j.access_token as string;
-
-      const payload = parseJwt(token);
-
-      localStorage.setItem('token', token);
-
-      if (payload?.role) localStorage.setItem('role', payload.role);
-
-
-
-      await fetch('/api/auth/set-cookie', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token, exp: payload?.exp }) });
-
-
-
-      router.replace(sp.get('next') || '/dashboard');
-
-    }catch(e:any){ setErr(e.message||'Login failed'); } finally{ setLoading(false); }
-
+      router.replace('/dashboard');
+    } catch (err: any) {
+      setError(err?.message || 'Unable to sign in.');
+    } finally {
+      setLoading(false);
+    }
   }
 
-
-
   return (
+    <div className="w-full max-w-md">
+      <div className="mb-6 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-black/90 text-white text-lg font-bold shadow">
+          A
+        </div>
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
+        <p className="mt-1 text-sm text-slate-600">Sign in to your AlgoDatta account</p>
+      </div>
 
-    <div className="card" style={{maxWidth:420, margin:'40px auto'}}>
+      <form onSubmit={onSubmit} className="rounded-2xl bg-white shadow-lg ring-1 ring-black/5 p-6 space-y-4">
+        {error && (
+          <div className="text-sm rounded-md border border-red-200 bg-red-50 text-red-700 px-3 py-2">{error}</div>
+        )}
 
-      <h1 style={{fontSize:24, fontWeight:700, marginBottom:12}}>Sign in</h1>
-
-      <form onSubmit={onSubmit} className="grid" style={{gap:12}}>
-
-        <div>
-
-          <label className="block" style={{fontSize:12, marginBottom:6}}>Email</label>
-
-          <input className="input" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="username" />
-
+        <div className="space-y-1.5">
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/80"
+            placeholder="you@company.com"
+          />
         </div>
 
-        <div>
-
-          <label className="block" style={{fontSize:12, marginBottom:6}}>Password</label>
-
-          <input className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" />
-
+        <div className="space-y-1.5">
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e)=>setPassword(e.target.value)}
+            className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/80"
+            placeholder="••••••••"
+          />
         </div>
 
-        <button className="btn" disabled={loading}>{loading?'Signing in…':'Sign in'}</button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-lg bg-black/90 text-white px-4 py-2.5 text-sm font-medium shadow hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
 
-        {err && <div style={{color:'#c00', fontSize:13}}>{err}</div>}
-
-        <div style={{fontSize:13}}>New here? <a href="/register" style={{textDecoration:'underline'}}>Create an account</a></div>
-
+        <p className="text-center text-xs text-slate-500">Trouble signing in? Contact your administrator.</p>
       </form>
-
     </div>
-
   );
-
 }
-
-
-
-export default function SignInClient(){ return <Suspense fallback={null}><Inner/></Suspense>; }
-

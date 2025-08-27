@@ -6,7 +6,7 @@ export default function LogoutPage() {
   const r = useRouter();
   useEffect(() => {
     try { localStorage.removeItem('token'); } catch {}
-    fetch('/api/auth/logout', { method: 'POST' })
+    fetch('/api/auth/logout', { method:'POST' })
       .finally(() => r.replace('/login'));
   }, [r]);
   return (
