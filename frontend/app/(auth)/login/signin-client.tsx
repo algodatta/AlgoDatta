@@ -16,28 +16,33 @@ export default function SignInForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
-      const res = await fetch(`${apiBase}/auth/login`, {
+      // ✅ FastAPI is mounted at /api
+      const res = await fetch(`${apiBase}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) {
-        const msg = await res.text().catch(()=> '');
-        throw new Error(msg || 'Invalid email or password');
-      }
-      const data  = await res.json().catch(()=> ({} as any));
-      const token = (data && (data.token || data.access_token)) || '';
-      if (!token) throw new Error('Login succeeded but no token returned');
 
+      if (!res.ok) {
+        const msg = await res.text().catch(() => '');
+        throw new Error(msg || `Login failed (${res.status})`);
+      }
+
+      const data  = await res.json().catch(() => ({} as any));
+      const token = (data?.token ?? data?.access_token ?? data?.access) as string | undefined;
+      if (!token) throw new Error('Login succeeded but backend did not return a token.');
+
+      // Persist token for client-side fetches
       try { localStorage.setItem('token', token); } catch {}
 
-      // Also set an httpOnly cookie via our Next API
+      // Set secure HTTP-only cookie on the Next.js side (used by middleware)
       await fetch('/api/auth/set-cookie', {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ token, maxAge: 60*60*24*7 }) // 7 days
-      }).catch(()=>{});
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, maxAge: 60 * 60 * 24 * 7 }),
+      }).catch(() => { /* non-fatal */ });
 
       router.replace('/dashboard');
     } catch (err: any) {
@@ -70,7 +75,7 @@ export default function SignInForm() {
             required
             autoComplete="email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/80"
             placeholder="you@company.com"
           />
@@ -78,16 +83,18 @@ export default function SignInForm() {
 
         <div className="space-y-1.5">
           <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-            className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/80"
-            placeholder="••••••••"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 pr-10 text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/80"
+              placeholder="••••••••"
+            />
+          </div>
         </div>
 
         <button
