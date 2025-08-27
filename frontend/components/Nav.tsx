@@ -1,109 +1,39 @@
-<<<<<<< HEAD
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const items = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/broker', label: 'Broker' },
-  { href: '/strategies', label: 'Strategies' },
-  { href: '/executions', label: 'Executions' },
-  { href: '/orders', label: 'Orders' },
-  { href: '/reports', label: 'Reports' },
-  { href: '/admin', label: 'Admin' },
-  { href: '/logout', label: 'Logout' },
-];
-
 export default function Nav() {
   const pathname = usePathname();
-  // hide nav on auth pages
-  if (pathname === '/login' || pathname === '/register') return null;
+  // Hide nav on auth pages
+  if (pathname?.startsWith('/login') || pathname?.startsWith('/register')) return null;
+
+  const items = [
+    { href: '/dashboard',  label: 'Dashboard' },
+    { href: '/broker',     label: 'Broker' },
+    { href: '/strategies', label: 'Strategies' },
+    { href: '/executions', label: 'Executions' },
+    { href: '/orders',     label: 'Orders' },
+    { href: '/reports',    label: 'Reports' },
+    { href: '/admin',      label: 'Admin' },
+  ];
 
   return (
-    <nav className="nav">
-      <div className="nav-inner">
-        <Link href="/dashboard" className="brand">AlgoDatta</Link>
-        {items.map(i => (
-          <Link
-            key={i.href}
-            href={i.href}
-            className=""
-          >
-            {i.label}
-          </Link>
-        ))}
-=======
-
-'use client'
-
-import Link from 'next/link'
-
-import { usePathname } from 'next/navigation'
-
-
-
-const links = [
-
-  { href: '/dashboard',   label: 'Dashboard' },
-
-  { href: '/broker',      label: 'Broker' },
-
-  { href: '/strategies',  label: 'Strategies' },
-
-  { href: '/executions',  label: 'Executions' },
-
-  { href: '/orders',      label: 'Orders' },
-
-  { href: '/reports',     label: 'Reports' },
-
-  { href: '/admin',       label: 'Admin' },
-
-  { href: '/logout',      label: 'Logout' },
-
-]
-
-
-
-export default function Nav() {
-
-  const pathname = usePathname()
-
-  return (
-
-    <header className="sticky top-0 z-50 bg-white/70 backdrop-blur border-b">
-
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-6">
-
-        <Link href="/dashboard" className="font-semibold">AlgoDatta</Link>
-
-        <nav className="flex-1 flex flex-wrap gap-2">
-
-          {links.map(l => (
-
+    <nav className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
+      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <Link href="/dashboard" className="font-semibold tracking-tight">AlgoDatta</Link>
+        <div className="flex items-center gap-4">
+          {items.map(i => (
             <Link
-
-              key={l.href}
-
-              href={l.href}
-
-              className={`px-3 py-1.5 rounded-md text-sm ${pathname===l.href ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
-
+              key={i.href}
+              href={i.href}
+              className={`text-sm hover:text-black ${pathname === i.href ? 'text-black font-medium' : 'text-slate-600'}`}
             >
-
-              {l.label}
-
+              {i.label}
             </Link>
-
           ))}
-
-        </nav>
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+          <Link href="/logout" className="text-sm text-slate-600 hover:text-black">Logout</Link>
+        </div>
       </div>
-
-    </header>
-
-  )
-
+    </nav>
+  );
 }
-
