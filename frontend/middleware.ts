@@ -1,59 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC = new Set<string>(['/', '/login', '/register', '/logout', '/favicon.ico', '/robots.txt']);
-
-function decodeRole(token: string): string {
-  try {
-    const seg = token.split('.')[1] || '';
-    const pad = '='.repeat((4 - (seg.length % 4)) % 4);
-    const base64 = (seg + pad).replace(/-/g, '+').replace(/_/g, '/');
-    const json = JSON.parse(typeof atob === 'function'
-      ? atob(base64)
-      : (typeof Buffer !== 'undefined'
-          ? Buffer.from(base64, 'base64').toString('binary')
-          : '{}'));
-    return (
-      json?.role ??
-      (Array.isArray(json?.roles) ? json.roles[0] : '') ??
-      json?.['https://algodatta.com/role'] ??
-      ''
-    );
-  } catch { return ''; }
-}
+const PROTECTED = [/^\/dashboard/, /^\/broker/, /^\/strategies/, /^\/reports/, /^\/admin/];
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const url = req.nextUrl.clone();
+  const path = url.pathname;
+  if (!PROTECTED.some(rx => rx.test(path))) return NextResponse.next();
 
-  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || pathname.startsWith('/assets') || pathname.startsWith('/images'))
-    return NextResponse.next();
+  const token = req.cookies.get('access_token')?.value;
+  if (!token) { url.pathname = '/login'; return NextResponse.redirect(url); }
 
-  if (PUBLIC.has(pathname)) return NextResponse.next();
-
-  const token = req.cookies.get('algodatta_token')?.value;
-  if (!token) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname.startsWith('/admin')) {
-    const role = decodeRole(token);
-    if (role !== 'admin') {
-      const url = req.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
+  // Soft-role-gate: decode payload only; for real systems verify signature server-side.
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()) as any;
+    if ((path.startsWith('/admin') || path.startsWith('/dashboard')) && payload?.role !== 'admin') {
+      url.pathname = '/'; return NextResponse.redirect(url);
     }
+  } catch {
+    url.pathname = '/login'; return NextResponse.redirect(url);
   }
-
-  if (pathname === '/login') {
-    const url = req.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
-  }
-
   return NextResponse.next();
 }
 
-export const config = { matcher: ['/((?!_next/static|_next/image|assets|images|favicon.ico|robots.txt).*)'] };
+export const config = { matcher: ['/dashboard/:path*','/broker/:path*','/strategies/:path*','/reports/:path*','/admin/:path*'] };

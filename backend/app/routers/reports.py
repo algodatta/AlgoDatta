@@ -1,19 +1,33 @@
-import csv, io
-from fastapi import APIRouter, Depends, Response
-from sqlalchemy.orm import Session
-from ..db import get_db
-from .. import models
-from ..deps import get_current_user
+from fastapi import APIRouter, Response, Query
+from datetime import datetime, timedelta
+from typing import List, Dict
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["reports"])
 
-@router.get("/csv")
-def export_csv(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
-    rows = db.query(models.Execution).filter(models.Execution.user_id == user.id).order_by(models.Execution.created_at.desc()).all()
-    buf = io.StringIO()
-    w = csv.writer(buf)
-    w.writerow(["id","strategy_id","symbol","side","price","created_at"])
+_EXECUTIONS: List[Dict] = [
+    {"id":"ex-101","strategy_id":"strat-1","symbol":"NATURALGAS","side":"BUY","qty":1,"price":222.5,"status":"FILLED","timestamp":(datetime.utcnow()-timedelta(hours=1)).isoformat()+"Z","order_id":"DH123","exchange":"MCX"},
+    {"id":"ex-102","strategy_id":"strat-2","symbol":"CRUDEOIL","side":"SELL","qty":1,"price":6950.0,"status":"FILLED","timestamp":(datetime.utcnow()-timedelta(minutes=30)).isoformat()+"Z","order_id":"DH124","exchange":"MCX"},
+]
+
+@router.get("/executions")
+def executions(from_: str = Query(None, alias="from"), to: str = Query(None, alias="to"), limit: int = 500):
+    def parse(ts: str):
+        try: return datetime.fromisoformat(ts.replace("Z","+00:00"))
+        except: return None
+    f = parse(from_) if from_ else datetime.utcnow()-timedelta(days=1)
+    t = parse(to) if to else datetime.utcnow()
+    rows = [r for r in _EXECUTIONS if f <= parse(r["timestamp"]) <= t]
+    return rows[:limit]
+
+@router.get("/reports/csv")
+def export_csv(from_: str = Query(None, alias="from"), to: str = Query(None, alias="to"), limit: int = 500):
+    rows = executions(from_, to, limit)
+    headers = ["id","strategy_id","symbol","side","qty","price","status","timestamp","order_id","exchange"]
+    lines = [",".join(headers)]
     for r in rows:
-        w.writerow([r.id, r.strategy_id, r.symbol, r.side, r.price, r.created_at.isoformat()])
-    data = buf.getvalue().encode("utf-8")
-    return Response(content=data, media_type="text/csv", headers={"Content-Disposition":"attachment; filename=executions.csv"})
+        line = ",".join([str(r.get(h,"")) for h in headers])
+        lines.append(line)
+    csv_data = "\n".join(lines)
+    return Response(content=csv_data, media_type="text/csv", headers={
+        "Content-Disposition": "attachment; filename=executions.csv"
+    })

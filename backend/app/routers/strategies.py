@@ -1,32 +1,22 @@
-import uuid
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from ..db import get_db
-from .. import models
-from ..schemas import StrategyIn, StrategyOut
-from ..deps import get_current_user
+from fastapi import APIRouter
+from typing import Dict
 
-router = APIRouter()
+router = APIRouter(prefix="/api/strategies", tags=["strategies"])
 
-@router.get("/strategies", response_model=list[StrategyOut])
-def list_strategies(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
-    qs = db.query(models.Strategy).filter(models.Strategy.user_id == user.id).all()
-    return [StrategyOut(id=s.id, name=s.name, webhook_path=s.webhook_path, is_active=s.is_active, paper_trading=s.paper_trading) for s in qs]
+# In-memory store for demo
+_STRATS: Dict[str, Dict] = {
+    "strat-1": {"id":"strat-1","name":"NG QuickScalp","status":"running","metrics":{"win_rate":0.62,"pnl":15500.5,"trades":128}},
+    "strat-2": {"id":"strat-2","name":"Mean Revert","status":"stopped","metrics":{"win_rate":0.48,"pnl":-2200.0,"trades":60}},
+}
 
-@router.post("/strategies", response_model=StrategyOut)
-def create_strategy(body: StrategyIn, db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
-    hook = str(uuid.uuid4())
-    s = models.Strategy(user_id=user.id, name=body.name, script=body.script, paper_trading=body.paper_trading, webhook_path=hook)
-    db.add(s)
-    db.commit()
-    db.refresh(s)
-    return StrategyOut(id=s.id, name=s.name, webhook_path=s.webhook_path, is_active=s.is_active, paper_trading=s.paper_trading)
+@router.get("")
+def list_strategies():
+    return list(_STRATS.values())
 
-@router.patch("/strategies/{strategy_id}/toggle", response_model=StrategyOut)
-def toggle_strategy(strategy_id: str, db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
-    s = db.query(models.Strategy).filter(models.Strategy.id == strategy_id, models.Strategy.user_id == user.id).first()
+@router.post("/{strategy_id}/toggle")
+def toggle_strategy(strategy_id: str):
+    s = _STRATS.get(strategy_id)
     if not s:
-        raise HTTPException(status_code=404, detail="Strategy not found")
-    s.is_active = not s.is_active
-    db.commit()
-    return StrategyOut(id=s.id, name=s.name, webhook_path=s.webhook_path, is_active=s.is_active, paper_trading=s.paper_trading)
+        return {"id": strategy_id, "status": "error", "message": "Strategy not found"}
+    s["status"] = "stopped" if s["status"] == "running" else "running"
+    return {"id": strategy_id, "status": s["status"], "message": f"Strategy {s['status']}"}
