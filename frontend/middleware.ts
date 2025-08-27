@@ -1,75 +1,47 @@
-<<<<<<< HEAD
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-const PUBLIC = ['/', '/login', '/register', '/logout', '/favicon.ico', '/robots.txt'];
-=======
-
 import { NextResponse } from 'next/server';
 
-import type { NextRequest } from 'next/server';
+const PUBLIC_PATHS = new Set<string>([
+  '/', '/login', '/register', '/logout', '/favicon.ico', '/robots.txt', '/sitemap.xml',
+]);
 
-
-
-const PUBLIC = ['/', '/login', '/register', '/logout', '/favicon.ico', '/robots.txt'];
-
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+// Anything starting with these prefixes should bypass auth checks
+const PUBLIC_PREFIXES = [
+  '/api/auth',  // login/logout cookie endpoints
+  '/_next',     // Next.js assets
+  '/assets',
+  '/images',
+];
 
 export function middleware(req: NextRequest) {
-
   const { pathname } = req.nextUrl;
 
-<<<<<<< HEAD
-  if (
-    PUBLIC.includes(pathname) ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/assets') ||
-    pathname.startsWith('/images')
-  ) return NextResponse.next();
+  // Allow public paths and prefixes
+  if (PUBLIC_PATHS.has(pathname) || PUBLIC_PREFIXES.some(p => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
 
-  const token = req.cookies.get('algodatta_token')?.value;
-=======
-
-
-  if (
-
-    PUBLIC.includes(pathname) ||
-
-    pathname.startsWith('/_next') ||
-
-    pathname.startsWith('/assets') ||
-
-    pathname.startsWith('/images')
-
-  ) return NextResponse.next();
-
-
-
+  // Check auth cookie
   const token = req.cookies.get('algodatta_token')?.value;
 
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+  // If not logged in, send to /login and remember where they came from
   if (!token) {
-
     const url = req.nextUrl.clone();
-
     url.pathname = '/login';
-
-    url.searchParams.set('next', pathname);
-
+    url.searchParams.set('from', pathname);
     return NextResponse.redirect(url);
+  }
 
+  // If already logged in and trying to hit / or /login, send to /dashboard
+  if ((pathname === '/' || pathname === '/login') && token) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
-
 }
 
-<<<<<<< HEAD
-export const config = { matcher: ['/((?!_next/static|_next/image|assets|images).*)'] };
-=======
-
-
-export const config = { matcher: ['/((?!_next/static|_next/image|assets|images).*)'] };
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|assets|images|favicon.ico|robots.txt|sitemap.xml).*)'],
+};
