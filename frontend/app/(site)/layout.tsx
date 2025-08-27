@@ -1,19 +1,18 @@
+'use client';
 
-import '../globals.css';
+import Nav from '@/components/Nav';
 
-
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
-
   return (
-
-    <div className="min-h-dvh bg-slate-50">
-
-      <main className="p-4">{children}</main>
-
-    </div>
-
+    <html lang="en">
+      <body className="min-h-screen bg-slate-50">
+        <Nav />
+        <main className="p-4 md:p-6">{children}</main>
+      </body>
+    </html>
   );
-
 }
-
