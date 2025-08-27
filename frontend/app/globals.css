@@ -1,55 +1,8 @@
-<<<<<<< HEAD
-:root { color-scheme: light; }
-html,body { margin:0; padding:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Ubuntu; background:#f7f7f8; color:#0b0b0c; }
-a { color: inherit; text-decoration: none; }
-* { box-sizing: border-box; }
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.card { background:#fff; border:1px solid #e8e8ea; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(10,10,20,.04); }
-.btn { border-radius:12px; padding:10px 14px; border:1px solid #1f1f23; background:#111; color:#fff; cursor:pointer; }
-.btn:disabled { opacity:.6; cursor:default; }
-.input { width:100%; border:1px solid #d7d7db; border-radius:12px; padding:10px 12px; }
-.grid { display:grid; gap:16px; }
-.grid-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
-.grid-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
-.nav { position: sticky; top:0; z-index: 20; background:#fff; border-bottom:1px solid #eee; }
-.nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:8px; align-items:center; padding:10px 16px; }
-.nav a { padding:8px 12px; border-radius:12px; }
-.nav a:hover { background:#f0f0f2; }
-.brand { font-weight:700; margin-right:12px; }
-=======
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root { color-scheme: light; }
-
-html,body { margin:0; padding:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Ubuntu; background:#f7f7f8; color:#0b0b0c; }
-
-a { color: inherit; text-decoration: none; }
-
-* { box-sizing: border-box; }
-
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-.card { background:#fff; border:1px solid #e8e8ea; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(10,10,20,.04); }
-
-.btn { border-radius:12px; padding:10px 14px; border:1px solid #1f1f23; background:#111; color:#fff; cursor:pointer; }
-
-.btn:disabled { opacity:.6; cursor:default; }
-
-.input { width:100%; border:1px solid #d7d7db; border-radius:12px; padding:10px 12px; }
-
-.grid { display:grid; gap:16px; }
-
-.grid-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
-
-.grid-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
-
-.nav { position: sticky; top:0; z-index: 20; background:#fff; border-bottom:1px solid #eee; }
-
-.nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:8px; align-items:center; padding:10px 16px; }
-
-.nav a { padding:8px 12px; border-radius:12px; }
-
-.nav a:hover { background:#f0f0f2; }
-
-.brand { font-weight:700; margin-right:12px; }
-
->>>>>>> 70c56dd2decfcb9a464e980fc93d3b81cb1e9180
+/* minimal polish */
+:root { --ring: 0 0% 0%; }
+html, body { height: 100%; }
+input::placeholder { color: rgb(148 163 184 / 0.9); }
