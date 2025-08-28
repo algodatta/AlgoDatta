@@ -71,13 +71,11 @@ async function attemptLogin(ep: Endpoint, user: string, password: string) {
 
 
 
-  let token: string | null = null;
-
   try {
 
     const data = await res.json();
 
-    token =
+    return (
 
       data?.access_token ||
 
@@ -87,17 +85,15 @@ async function attemptLogin(ep: Endpoint, user: string, password: string) {
 
       data?.detail?.access_token ||
 
-      null;
+      null
+
+    );
 
   } catch {
 
-    /* ignore non-JSON */
+    return null;
 
   }
-
-
-
-  return token;
 
 }
 
@@ -141,6 +137,8 @@ export default function LoginClient() {
 
       let lastErr: Error | null = null;
 
+
+
       for (const ep of ENDPOINTS) {
 
         try {
@@ -149,7 +147,7 @@ export default function LoginClient() {
 
           lastErr = null;
 
-          break;
+          if (token !== null) break;
 
         } catch (err: any) {
 
@@ -165,7 +163,7 @@ export default function LoginClient() {
 
       if (token) localStorage.setItem("token", token);
 
-      // Set a front-end cookie (read by middleware) – 7 days.
+      // Set lightweight auth cookie for client-guarded routes (7 days)
 
       document.cookie = `ad_at=${encodeURIComponent(token || "1")}; Path=/; Max-Age=604800; SameSite=Lax; Secure`;
 
@@ -193,131 +191,157 @@ export default function LoginClient() {
 
       <div className="w-full max-w-md">
 
-        <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+        <div className="relative">
 
-          <div className="p-6 sm:p-8">
+          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-slate-300 via-slate-100 to-slate-200 blur-md opacity-70"></div>
 
-            <div className="mb-6 text-center">
+          <div className="relative bg-white/90 backdrop-blur border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
 
-              <div className="mx-auto h-12 w-12 rounded-full bg-slate-900 text-white grid place-items-center text-xl font-bold">A</div>
+            <div className="p-6 sm:p-8">
 
-              <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
+              <div className="mb-6 text-center">
 
-              <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
+                <div className="mx-auto h-12 w-12 rounded-2xl bg-slate-900 text-white grid place-items-center text-xl font-bold shadow">
 
-            </div>
+                  A
 
+                </div>
 
+                <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">
 
-            <form onSubmit={onSubmit} className="space-y-4">
+                  Welcome back
 
-              <div>
+                </h1>
 
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email or Username</label>
-
-                <input
-
-                  type="text"
-
-                  inputMode="email"
-
-                  autoComplete="username"
-
-                  required
-
-                  value={user}
-
-                  onChange={(e) => setUser(e.target.value)}
-
-                  className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition"
-
-                  placeholder="you@example.com or username"
-
-                />
+                <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
 
               </div>
 
 
 
-              <div>
+              <form onSubmit={onSubmit} className="space-y-4">
 
-                <div className="flex items-center justify-between mb-1">
+                <div>
 
-                  <label className="block text-sm font-medium text-slate-700">Password</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
 
-                  <label className="flex items-center gap-2 text-xs text-slate-500 select-none cursor-pointer">
-
-                    <input
-
-                      type="checkbox"
-
-                      className="rounded border-slate-300"
-
-                      checked={showPw}
-
-                      onChange={(e) => setShowPw(e.target.checked)}
-
-                    />
-
-                    Show
+                    Email or Username
 
                   </label>
 
-                </div>
+                  <input
 
-                <input
+                    type="text"
 
-                  type={showPw ? "text" : "password"}
+                    inputMode="email"
 
-                  autoComplete="current-password"
+                    autoComplete="username"
 
-                  required
+                    required
 
-                  value={password}
+                    value={user}
 
-                  onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setUser(e.target.value)}
 
-                  className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition"
+                    className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition bg-white"
 
-                  placeholder="••••••••"
+                    placeholder="you@example.com or username"
 
-                />
-
-              </div>
-
-
-
-              {error && (
-
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-
-                  {error}
+                  />
 
                 </div>
 
-              )}
+
+
+                <div>
+
+                  <div className="flex items-center justify-between mb-1">
+
+                    <label className="block text-sm font-medium text-slate-700">
+
+                      Password
+
+                    </label>
+
+                    <button
+
+                      type="button"
+
+                      onClick={() => setShowPw((v) => !v)}
+
+                      className="text-xs text-slate-600 hover:text-slate-900 underline underline-offset-2"
+
+                    >
+
+                      {showPw ? "Hide" : "Show"}
+
+                    </button>
+
+                  </div>
+
+                  <input
+
+                    type={showPw ? "text" : "password"}
+
+                    autoComplete="current-password"
+
+                    required
+
+                    value={password}
+
+                    onChange={(e) => setPassword(e.target.value)}
+
+                    className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition bg-white"
+
+                    placeholder="••••••••"
+
+                  />
+
+                </div>
 
 
 
-              <button
+                {error && (
 
-                type="submit"
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
 
-                disabled={busy}
+                    {error}
 
-                className="w-full rounded-xl bg-slate-900 text-white px-4 py-2.5 font-medium shadow hover:opacity-95 active:opacity-90 disabled:opacity-60 transition"
+                  </div>
 
-              >
+                )}
 
-                {busy ? "Signing in…" : "Sign in"}
 
-              </button>
 
-            </form>
+                <button
+
+                  type="submit"
+
+                  disabled={busy}
+
+                  className="w-full rounded-xl bg-slate-900 text-white px-4 py-2.5 font-medium shadow hover:opacity-95 active:opacity-90 disabled:opacity-60 transition"
+
+                >
+
+                  {busy ? "Signing in…" : "Sign in"}
+
+                </button>
+
+              </form>
+
+            </div>
 
           </div>
 
         </div>
+
+
+
+        <p className="mt-6 text-center text-xs text-slate-500">
+
+          By continuing you agree to our Terms and Privacy Policy.
+
+        </p>
 
       </div>
 

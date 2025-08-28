@@ -1,71 +1,71 @@
 
+import { NextResponse } from "next/server";
+
 import type { NextRequest } from "next/server";
 
-import { NextResponse } from "next/server";
+
+
+const PRIV_PATHS = [
+
+  "/dashboard",
+
+  "/executions",
+
+  "/orders",
+
+  "/strategies",
+
+  "/reports",
+
+  "/notifications",
+
+  "/admin",
+
+];
 
 
 
 export function middleware(req: NextRequest) {
 
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
+
+  const token = req.cookies.get("ad_at")?.value;
 
 
 
-  const protectedBases = [
+  // Already logged-in users hitting /login → send to /dashboard (or ?next)
 
-    "/dashboard",
+  if (pathname === "/login" && token) {
 
-    "/executions",
-
-    "/orders",
-
-    "/strategies",
-
-    "/reports",
-
-    "/notifications",
-
-    "/admin",
-
-  ];
-
-
-
-  const needsAuth = protectedBases.some(
-
-    (base) => pathname === base || pathname.startsWith(base + "/"),
-
-  );
-
-
-
-  if (!needsAuth) return NextResponse.next();
-
-
-
-  // Accept any of these cookies as a logged-in signal.
-
-  const allowed =
-
-    req.cookies.has("ad_at") ||
-
-    req.cookies.has("token") ||
-
-    req.cookies.has("access_token") ||
-
-    req.cookies.has("Authorization");
-
-
-
-  if (!allowed) {
+    const nextParam = req.nextUrl.searchParams.get("next") || "/dashboard";
 
     const url = req.nextUrl.clone();
 
-    url.pathname = "/login";
+    url.pathname = nextParam;
 
-    url.searchParams.set("next", pathname);
+    url.search = "";
 
     return NextResponse.redirect(url);
+
+  }
+
+
+
+  // Protect private paths
+
+  if (PRIV_PATHS.some(p => pathname === p || pathname.startsWith(p + "/"))) {
+
+    if (!token) {
+
+      const url = req.nextUrl.clone();
+
+      url.pathname = "/login";
+
+      url.search = `next=${encodeURIComponent(pathname + (search || ""))}`;
+
+      return NextResponse.redirect(url);
+
+    }
 
   }
 
@@ -79,23 +79,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
 
-  matcher: [
-
-    "/dashboard/:path*",
-
-    "/executions/:path*",
-
-    "/orders/:path*",
-
-    "/strategies/:path*",
-
-    "/reports/:path*",
-
-    "/notifications/:path*",
-
-    "/admin/:path*",
-
-  ],
+  matcher: ["/((?!_next|favicon.ico|assets|public).*)"],
 
 };
 
