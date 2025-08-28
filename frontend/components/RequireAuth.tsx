@@ -1,17 +1,31 @@
-"use client";
-import { useEffect, useState } from "react";
-import { getToken } from '@/lib/api';
 
-export default function RequireAuth({ children }: { children: React.ReactNode }){
-  const [ok, setOk] = useState(false);
-  useEffect(()=>{
-    const t = getToken();
-    if(!t){
-      window.location.href = "/login";
-    } else {
-      setOk(true);
+"use client";
+
+import { useEffect } from "react";
+
+import { useRouter } from "next/navigation";
+
+
+
+export default function RequireAuth({ children }: { children: React.ReactNode }) {
+
+  const router = useRouter();
+
+  useEffect(() => {
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (!token) {
+
+      const next = typeof window !== "undefined" ? window.location.pathname : "/dashboard";
+
+      router.replace(`/login?next=${encodeURIComponent(next)}`);
+
     }
-  }, []);
-  if(!ok) return null;
+
+  }, [router]);
+
   return <>{children}</>;
+
 }
+
