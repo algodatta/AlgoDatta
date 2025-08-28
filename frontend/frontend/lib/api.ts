@@ -1,50 +1,47 @@
-export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? '').replace(/\/$/, '');
+type Json = Record<string, unknown> | Array<unknown> | string | number | boolean | null;
 
-function buildUrl(path: string): string {
-  if (!path.startsWith('/')) path = '/' + path;
-  return `${API_BASE}${path}`;
+function join(base: string, path: string) {
+  const b = base.replace(/\/+$/g, "");
+  const p = path.replace(/^\/+/, "");
+  return `${b}/${p}`;
 }
 
+/**
+ * Simple fetch wrapper:
+ * - Uses NEXT_PUBLIC_API_BASE_URL if provided; otherwise defaults to "/api"
+ * - Sends/receives cookies
+ * - Throws on non-2xx with response text for easier debugging
+ */
 export async function apiFetch<T = unknown>(
   path: string,
-  init: RequestInit = {}
+  options: RequestInit & { json?: Json } = {}
 ): Promise<T> {
-  const url = buildUrl(path);
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
+  const url = join(base, path);
 
-  const headers = new Headers({
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  });
-  const initHeaders = init.headers instanceof Headers
-    ? Object.fromEntries(init.headers.entries())
-    : (init.headers as Record<string, string> | undefined);
-  if (initHeaders) {
-    for (const [k, v] of Object.entries(initHeaders)) headers.set(k, v);
-  }
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(options.headers ?? {}),
+  };
 
-  let body = (init as any).body;
-  if (body && typeof body === 'object' && !(body instanceof FormData) && !(body instanceof Blob)) {
-    body = JSON.stringify(body);
-  }
+  const body =
+    options.json !== undefined ? JSON.stringify(options.json) : (options.body as BodyInit | null);
 
   const res = await fetch(url, {
-    credentials: 'include',
-    ...init,
+    method: options.method ?? (options.json ? "POST" : "GET"),
     headers,
     body,
+    credentials: "include",
   });
 
-  const text = await res.text().catch(() => '');
-  let data: any = undefined;
-  try { data = text ? JSON.parse(text) : undefined; } catch { data = text; }
-
   if (!res.ok) {
-    const msg =
-      (data && typeof data === 'object' && 'detail' in data && (data as any).detail) ||
-      (typeof data === 'string' ? data : '') ||
-      res.statusText;
-    throw new Error(`${res.status} ${res.statusText}${msg ? ': ' + msg : ''}`);
+    const text = await res.text().catch(() => "");
+    throw new Error(`API ${res.status} ${res.statusText}${text ? `: ${text}` : ""}`);
   }
 
-  return (data as T) ?? ({} as T);
+  const contentType = res.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    return (await res.json()) as T;
+  }
+  return (await res.text()) as unknown as T;
 }

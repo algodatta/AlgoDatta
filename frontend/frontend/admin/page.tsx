@@ -10,43 +10,35 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await apiFetch<User[]>("/admin/users");
-        if (!cancelled) setUsers(data || []);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || "Failed to load users");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+    apiFetch<User[]>("/admin/users")
+      .then(setUsers)
+      .catch((e) => setError(e.message || String(e)))
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <main className="p-6 max-w-4xl mx-auto">Loading…</main>;
-  if (error) return <main className="p-6 max-w-4xl mx-auto text-red-600">Error: {error}</main>;
+  if (loading) return <main className="p-6">Loading…</main>;
+  if (error) return <main className="p-6 text-red-600">Error: {error}</main>;
 
   return (
     <main className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Admin · Users</h1>
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="min-w-full text-sm">
+      <h1 className="text-2xl font-semibold mb-4">Admin — Users</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">ID</th>
-              <th className="px-3 py-2 text-left font-medium">Email</th>
-              <th className="px-3 py-2 text-left font-medium">Role</th>
-              <th className="px-3 py-2 text-left font-medium">Status</th>
+              <th className="px-3 py-2 text-left text-sm font-medium text-gray-700 border-b">ID</th>
+              <th className="px-3 py-2 text-left text-sm font-medium text-gray-700 border-b">Email</th>
+              <th className="px-3 py-2 text-left text-sm font-medium text-gray-700 border-b">Role</th>
+              <th className="px-3 py-2 text-left text-sm font-medium text-gray-700 border-b">Status</th>
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
-              <tr key={u.id} className="border-t">
-                <td className="px-3 py-2">{u.id}</td>
-                <td className="px-3 py-2">{u.email}</td>
-                <td className="px-3 py-2">{u.role}</td>
-                <td className="px-3 py-2">{u.status}</td>
+            {users.map((u) => (
+              <tr key={u.id} className="odd:bg-white even:bg-gray-50">
+                <td className="px-3 py-2 text-sm border-b">{u.id}</td>
+                <td className="px-3 py-2 text-sm border-b">{u.email}</td>
+                <td className="px-3 py-2 text-sm border-b">{u.role}</td>
+                <td className="px-3 py-2 text-sm border-b">{u.status}</td>
               </tr>
             ))}
           </tbody>
