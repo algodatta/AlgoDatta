@@ -1,50 +1,51 @@
-// frontend/middleware.ts
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from "next/server";
 
-const PUBLIC = ['/login', '/signup', '/reset'];
+const PUBLIC_PATHS = ["/login", "/signup", "/reset", "/logout"];
 const PROTECTED_PREFIXES = [
-  '/dashboard',
-  '/executions',
-  '/orders',
-  '/strategies',
-  '/reports',
-  '/notifications',
-  '/admin',
-  '/broker',
+  "/dashboard",
+  "/executions",
+  "/orders",
+  "/strategies",
+  "/reports",
+  "/notifications",
+  "/admin",
+  "/broker",
 ];
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
-  // Always send "/" to "/login"
-  if (pathname === '/') {
+  // Default / -> /login
+  if (pathname === "/") {
     const url = req.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Let Next internals & assets pass
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon') ||
-    pathname.startsWith('/images') ||
-    pathname.startsWith('/assets')
-  ) {
+  // Always allow public pages
+  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    // If user is already authenticated, keep them away from auth pages
+    const token = req.cookies.get("algodatta_auth")?.value || req.cookies.get("algodatta_token")?.value;
+    if (token && (pathname === "/login" || pathname === "/signup" || pathname.startsWith("/reset"))) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
     return NextResponse.next();
   }
 
-  const isPublic = PUBLIC.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  const needsAuth = PROTECTED_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  // Check protected areas
+  const needsAuth = PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
-  if (needsAuth && !isPublic) {
-    const token = req.cookies.get('algodatta_auth')?.value;
+  if (needsAuth) {
+    const token = req.cookies.get("algodatta_auth")?.value || req.cookies.get("algodatta_token")?.value;
     if (!token) {
       const url = req.nextUrl.clone();
-      url.pathname = '/login';
-      url.searchParams.set('next', pathname);
+      url.pathname = "/login";
+      if (pathname !== "/login") {
+        // preserve intended destination
+        url.search = `?next=${encodeURIComponent(pathname + (search || ""))}`;
+      }
       return NextResponse.redirect(url);
     }
   }
@@ -53,5 +54,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|fonts|icons).*)'],
+  matcher: [
+    // Run middleware on all routes except static assets & Next internals
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:css|js|map|png|jpg|jpeg|gif|svg|ico)$).*)",
+  ],
 };

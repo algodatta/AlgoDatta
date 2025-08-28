@@ -1,108 +1,73 @@
-// frontend/app/login/page.tsx
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api";
-
-export const dynamic = "force-dynamic"; // avoid static export issues
+import Link from "next/link";
+import { loginRequest } from "@/lib/api";
 
 export default function LoginPage() {
-  const r = useRouter();
-  const [identifier, setIdentifier] = useState("");
+  const router = useRouter();
+  const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+
+  // parse ?next= without useSearchParams to avoid build issues
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const u = new URL(window.location.href);
+      const nxt = u.searchParams.get("next");
+      setNextUrl(nxt);
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErr(null);
-    setBusy(true);
-    try {
-      await login(identifier.trim(), password);
-      r.replace("/dashboard");
-    } catch (e: any) {
-      setErr(e?.message ?? "Login failed. Please try again.");
-    } finally {
-      setBusy(false);
+    setError(null);
+    setLoading(true);
+    const res = await loginRequest(identity.trim(), password);
+    setLoading(false);
+    if (res.ok) {
+      router.push(nextUrl || "/dashboard");
+      return;
     }
+    setError(res.error || "Invalid credentials");
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="bg-white/5 backdrop-blur rounded-2xl shadow-2xl ring-1 ring-white/10 p-8">
-          <div className="mb-8 text-center">
-            <div className="mx-auto h-12 w-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-              <span className="text-indigo-400 font-bold text-xl">A</span>
-            </div>
-            <h1 className="mt-4 text-2xl font-semibold text-white">Welcome back</h1>
-            <p className="mt-1 text-sm text-slate-300">
-              Sign in to continue to AlgoDatta
-            </p>
-          </div>
-
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-200">
-                Email or Username
-              </label>
-              <input
-                type="text"
-                autoComplete="username"
-                required
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="you@algodatta.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-200">
-                Password
-              </label>
-              <input
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {err && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-red-200 text-sm">
-                {err}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition px-4 py-3 text-white font-medium shadow-lg"
-            >
-              {busy ? "Signing in…" : "Sign in"}
-            </button>
-          </form>
-
-          <div className="mt-6 text-sm text-center text-slate-300">
-            <a href="/reset" className="text-indigo-400 hover:underline">
-              Forgot password?
-            </a>
-            <span className="mx-2 text-slate-500">•</span>
-            <a href="/signup" className="text-indigo-400 hover:underline">
-              Create an account
-            </a>
-          </div>
+    <main style={{minHeight:"100svh",display:"grid",placeItems:"center",background:"#0b1020"}}>
+      <div style={{width:"100%",maxWidth:420,background:"rgba(255,255,255,0.06)",backdropFilter:"blur(6px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:16,padding:24,boxShadow:"0 10px 30px rgba(0,0,0,.4)"}}>
+        <div style={{textAlign:"center",marginBottom:16}}>
+          <img src="/logo.svg" alt="AlgoDatta" style={{height:36,objectFit:"contain"}} onError={(e)=>{(e.currentTarget as HTMLImageElement).style.display="none"}}/>
+          <h1 style={{color:"#fff",fontSize:22,fontWeight:700,margin:"8px 0 0"}}>Welcome back</h1>
+          <p style={{color:"rgba(255,255,255,0.7)",marginTop:6,fontSize:13}}>Please sign in to continue</p>
         </div>
-
-        <p className="mt-6 text-center text-xs text-slate-400">
-          By continuing you agree to our Terms & Privacy Policy.
-        </p>
+        <form onSubmit={onSubmit} style={{display:"grid",gap:12}}>
+          <label style={{display:"grid",gap:6}}>
+            <span style={{color:"#cfd8dc",fontSize:12}}>Email or Username</span>
+            <input value={identity} onChange={(e)=>setIdentity(e.target.value)} placeholder="you@company.com or username" autoComplete="username"
+              style={{padding:"12px 14px",borderRadius:10,border:"1px solid #263043",background:"#11162a",color:"#e3f2fd",outline:"none"}} />
+          </label>
+          <label style={{display:"grid",gap:6}}>
+            <span style={{color:"#cfd8dc",fontSize:12}}>Password</span>
+            <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Your password" autoComplete="current-password" required
+              style={{padding:"12px 14px",borderRadius:10,border:"1px solid #263043",background:"#11162a",color:"#e3f2fd",outline:"none"}} />
+          </label>
+          {error && (
+            <div style={{color:"#ff8a80",fontSize:12,background:"rgba(255,82,82,.15)",border:"1px solid rgba(255,82,82,.35)",padding:"8px 10px",borderRadius:8}}>
+              {error}
+            </div>
+          )}
+          <button type="submit" disabled={loading}
+            style={{marginTop:4,background:"#4f8cff",border:"1px solid #2e6bff",color:"#fff",padding:"12px 14px",borderRadius:10,fontWeight:700,cursor:"pointer",opacity:loading?0.75:1}}>
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:12}}>
+          <Link href="/signup" style={{color:"#9ec1ff",fontSize:13}}>Create account</Link>
+          <Link href="/reset" style={{color:"#9ec1ff",fontSize:13}}>Forgot password?</Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
