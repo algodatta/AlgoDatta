@@ -1,109 +1,105 @@
-/**
- * Shared API utilities for the Next.js app.
- * Provides: apiBase, getToken, authHeaders, apiFetch (Response),
- * and helpers apiJson/apiGet/apiPost/apiPut/apiDelete.
- */
+// Lightweight API helper for Next.js (App Router).
+// Exports: apiBase, getToken, authHeaders, apiFetch (+ JSON helpers).
 
-export const apiBase: string =
-  (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/$/, "");
+export const apiBase: string = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
-/** Best-effort token lookup on the client side (localStorage + cookie). */
-export function getToken(): string | undefined {
-  if (typeof window === "undefined") return undefined;
+/** Build an absolute URL when a relative path is provided. */
+function buildUrl(path: string): string {
+  if (!path) return apiBase || "";
+  // If already absolute, leave it
+  if (/^https?:\/\//i.test(path)) return path;
+  // Join with base when provided, otherwise use same-origin relative
+  if (apiBase) {
+    const p = path.startsWith("/") ? path : `/${path}`;
+    return `${apiBase}${p}`;
+  }
+  return path;
+}
+
+/** Read token from browser storage safely (client-side only). */
+export function getToken(): string | null {
   try {
-    const keys = ["algodatta_token", "token", "access_token"];
-    for (const k of keys) {
-      const v = window.localStorage?.getItem(k);
-      if (v && v !== "null" && v !== "undefined") {
-        return v.replace(/^"|"$/g, "");
+    if (typeof window === "undefined") return null;
+    const fromLocal = window.localStorage?.getItem("token");
+    const fromSession = window.sessionStorage?.getItem("token");
+    return fromLocal || fromSession || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Construct Authorization + JSON headers. You can pass extra headers to merge. */
+export function authHeaders(extra?: HeadersInit): HeadersInit {
+  const base: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const token = getToken();
+  if (token) base["Authorization"] = `Bearer ${token}`;
+
+  if (extra) {
+    // Normalize and merge any incoming headers
+    try {
+      const merged = new Headers(extra as any);
+      merged.forEach((value, key) => {
+        base[key] = value;
+      });
+    } catch {
+      // Fallback for environments without Headers constructor (unlikely in Next 14+)
+      if (typeof extra === "object") {
+        Object.assign(base, extra as any);
       }
     }
-  } catch {}
-  // cookie fallback
-  try {
-    const m = document.cookie?.match(/(?:^|;\s*)token=([^;]+)/);
-    if (m) return decodeURIComponent(m[1]);
-  } catch {}
-  return undefined;
+  }
+  return base;
 }
 
-/** Build Authorization + JSON headers; merges any provided headers. */
-export function authHeaders(extra?: HeadersInit): HeadersInit {
-  const headers = new Headers(extra as any);
-  if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-  const token = getToken();
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-  return headers;
-}
+export type ApiFetchInit = RequestInit & { absolute?: boolean };
 
-/**
- * Fetch wrapper that always returns a real Response.
- * Uses same-origin unless NEXT_PUBLIC_API_BASE_URL is set to an absolute base.
- */
-export async function apiFetch(
-  input: string | URL | Request,
-  init?: RequestInit
-): Promise<Response> {
-  // Work out the URL string
-  let target: string;
-  if (typeof input === "string" || input instanceof URL) {
-    target = input.toString();
-  } else {
-    target = input.url;
-  }
-
-  // Prefix with apiBase if provided and 'target' isn't absolute
-  const isAbsolute = /^https?:\/\//i.test(target);
-  const finalUrl =
-    isAbsolute || target.startsWith("/") || !apiBase
-      ? target
-      : `${apiBase}${target.startsWith("/") ? "" : "/"}${target}`;
-
+/** Fetch wrapper that returns a standard Response with auth + JSON headers applied. */
+export async function apiFetch(path: string, init?: ApiFetchInit): Promise<Response> {
+  const url = init?.absolute ? path : buildUrl(path);
+  // Merge headers, but allow explicit override via init.headers
+  const headers = authHeaders(init?.headers as HeadersInit);
   const opts: RequestInit = {
-    ...init,
-    headers: authHeaders(init?.headers as HeadersInit),
+    // sensible defaults
     credentials: "include",
+    ...init,
+    headers,
   };
-
-  return fetch(finalUrl, opts);
+  return fetch(url, opts);
 }
 
-/** Parse JSON and throw on !ok with message from 'detail' if present. */
-export async function apiJson<T = any>(
-  input: string | URL | Request,
-  init?: RequestInit
-): Promise<T> {
-  const res: Response = await apiFetch(input, init);
-  const data = await res.json().catch(() => ({}));
+/** Convenience helper: fetch + parse JSON, throwing on non-2xx responses. */
+export async function apiJson<T = any>(path: string, init?: ApiFetchInit): Promise<T> {
+  const res: Response = await apiFetch(path, init);
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
   if (!res.ok) {
-    const message =
-      (data && (data.detail || data.message)) ||
-      res.statusText ||
-      "Request failed";
-    throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+    const err: any = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
   return data as T;
 }
 
-// Small helpers
-export const apiGet = <T = any>(path: string, init?: RequestInit) =>
-  apiJson<T>(path, { ...init, method: "GET" });
+export function apiGet<T = any>(path: string, init?: ApiFetchInit) {
+  return apiJson<T>(path, { ...init, method: "GET" });
+}
+export function apiPost<T = any>(path: string, body?: any, init?: ApiFetchInit) {
+  return apiJson<T>(path, { ...init, method: "POST", body: body == null ? undefined : JSON.stringify(body) });
+}
+export function apiPut<T = any>(path: string, body?: any, init?: ApiFetchInit) {
+  return apiJson<T>(path, { ...init, method: "PUT", body: body == null ? undefined : JSON.stringify(body) });
+}
+export function apiDelete<T = any>(path: string, init?: ApiFetchInit) {
+  return apiJson<T>(path, { ...init, method: "DELETE" });
+}
 
-export const apiPost = <T = any>(path: string, body?: any, init?: RequestInit) =>
-  apiJson<T>(path, {
-    ...init,
-    method: "POST",
-    body: body instanceof FormData ? body : JSON.stringify(body ?? {}),
-  });
-
-export const apiPut = <T = any>(path: string, body?: any, init?: RequestInit) =>
-  apiJson<T>(path, {
-    ...init,
-    method: "PUT",
-    body: body instanceof FormData ? body : JSON.stringify(body ?? {}),
-  });
-
-export const apiDelete = <T = any>(path: string, init?: RequestInit) =>
-  apiJson<T>(path, { ...init, method: "DELETE" });
+// Optional default export for convenience
+export default apiFetch;
