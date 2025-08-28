@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from '@/lib/api';
 
 type Notif = { id: string; type: "telegram" | "email"; destination: string; verified: boolean };
 
@@ -10,13 +10,13 @@ export default function NotificationsPage(){
   const [dest, setDest] = useState("");
 
   const load = async ()=>{
-    const r = await fetch(`${apiBase()}/api/notifications`, { headers: authHeaders() as HeadersInit });
+    const r = await fetch(`${apiBase}/api/notifications`, { headers: authHeaders() as HeadersInit });
     if(r.ok) setRows(await r.json());
   };
   useEffect(()=>{ load(); },[]);
 
   const add = async ()=>{
-    await fetch(`${apiBase()}/api/notifications`, {
+    await fetch(`${apiBase}/api/notifications`, {
       method:"POST",
       headers: ({...authHeaders(), "Content-Type":"application/json"}) as HeadersInit,
       body: JSON.stringify({ type, destination: dest })
@@ -25,7 +25,7 @@ export default function NotificationsPage(){
   };
 
   const verify = async (id: string, v: boolean)=>{
-    await fetch(`${apiBase()}/api/notifications/${id}/verify`, {
+    await fetch(`${apiBase}/api/notifications/${id}/verify`, {
       method:"PATCH",
       headers: ({...authHeaders(), "Content-Type":"application/json"}) as HeadersInit,
       body: JSON.stringify({ verified: v })
@@ -34,7 +34,7 @@ export default function NotificationsPage(){
   };
 
   const delItem = async (id: string)=>{
-    await fetch(`${apiBase()}/api/notifications/${id}`, { method:"DELETE", headers: authHeaders() as HeadersInit });
+    await fetch(`${apiBase}/api/notifications/${id}`, { method:"DELETE", headers: authHeaders() as HeadersInit });
     load();
   };
 

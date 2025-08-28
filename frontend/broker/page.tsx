@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from '../lib/api';
+import { apiBase, authHeaders } from '@/lib/api';
 
 type Position = { strategy_id: string; position_qty?: number; avg_price?: string };
 type Order = { id: string; strategy_id?: string; side?: string; qty?: string; price?: string; status?: string; created_at?: string };

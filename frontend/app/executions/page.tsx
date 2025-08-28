@@ -1,7 +1,7 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { getToken } from "../../lib/api";
+import { getToken } from '@/lib/api';
 
 type ExecMsg = { ts?: number; msg?: string } & Record<string, any>;
 

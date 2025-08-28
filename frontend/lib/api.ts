@@ -1,64 +1,29 @@
-// Unified API helpers for the Next.js frontend (frontend/).
-// Exports: apiBase, isBrowser, getToken, authHeaders, apiFetch (default & named), jsonFetch.
-
 export const apiBase: string =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_BASE ||
-  "";
+  (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_BASE) ||
+  (typeof window !== 'undefined' ? window.location.origin : '');
 
-export const isBrowser = typeof window !== "undefined";
-
-export function getToken(): string | null {
-  if (!isBrowser) return null;
-  try {
-    return (
-      localStorage.getItem("token") ||
-      localStorage.getItem("access_token") ||
-      sessionStorage.getItem("token") ||
-      null
-    );
-  } catch {
-    return null;
-  }
+export function getToken(): string {
+  if (typeof window === 'undefined') return '';
+  try { return localStorage.getItem('token') || ''; } catch { return ''; }
 }
 
-export function authHeaders(extra?: HeadersInit): HeadersInit {
-  const out = new Headers(extra || {});
-  if (!out.has("Content-Type")) out.set("Content-Type", "application/json");
-  const token = getToken();
-  if (token && !out.has("Authorization")) out.set("Authorization", `Bearer ${token}`);
-  return out;
+export function authHeaders(): Record<string,string> {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-function mergeHeaders(a?: HeadersInit, b?: HeadersInit): HeadersInit {
-  const h = new Headers(a || {});
-  new Headers(b || {}).forEach((v, k) => h.set(k, v));
-  return h;
-}
-
-export async function apiFetch(input: string, init: RequestInit = {}): Promise<Response> {
-  const url = input.startsWith("http") ? input : `${apiBase}${input}`;
-  const headers = mergeHeaders(init.headers, authHeaders());
-  return fetch(url, {
-    ...init,
-    headers,
-    credentials: init.credentials ?? "include",
-    cache: init.cache ?? "no-store",
-  });
-}
-
-export async function jsonFetch<T = any>(input: string, init?: RequestInit): Promise<T> {
-  const res = await apiFetch(input, init);
-  const ctype = res.headers.get("content-type") || "";
-  const body = ctype.includes("application/json") ? await res.json() : await res.text();
+/** Parse JSON + throw typed error details when available */
+export async function jsonFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${apiBase}${path}`, init);
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const detail =
-      (typeof body === "object" && body && (body as any).detail) ||
-      (typeof body === "string" ? body : `HTTP ${res.status}`);
-    throw new Error(String(detail));
+    const detail = (data as any)?.detail ?? (data as any)?.message ?? res.statusText;
+    throw new Error(typeof detail === 'string' ? detail : 'Request failed');
   }
-  return body as T;
+  return data as T;
 }
 
-// keep legacy default import support
-export default apiFetch;
+/** Low-level helper when you need the raw Response */
+export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${apiBase}${path}`, init);
+}

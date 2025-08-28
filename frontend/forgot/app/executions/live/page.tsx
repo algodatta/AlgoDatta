@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { apiBase, getToken, authHeaders } from "../../../lib/api";
+import { apiBase, getToken, authHeaders } from '@/lib/api';
 
 type ExecEvt = { id?:string; strategy_id?:string; symbol?:string; side?:string; price?:number; ts?:string; msg?:string };
 
@@ -11,7 +11,7 @@ export default function LiveExecutions(){
 
   useEffect(()=>{
     const token = getToken();
-    const url = `${apiBase()}/api/executions/stream${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+    const url = `${apiBase}/api/executions/stream${token ? `?token=${encodeURIComponent(token)}` : ""}`;
     let es: EventSource | null = null;
     let closed = false;
 
@@ -40,7 +40,7 @@ export default function LiveExecutions(){
       const iv = setInterval(async ()=>{
         try {
           const qs = sinceRef.current ? `?since=${encodeURIComponent(sinceRef.current)}` : "";
-          const res = await fetch(`${apiBase()}/api/executions${qs}`, { headers: authHeaders() as HeadersInit });
+          const res = await fetch(`${apiBase}/api/executions${qs}`, { headers: authHeaders() as HeadersInit });
           if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data) && data.length) {

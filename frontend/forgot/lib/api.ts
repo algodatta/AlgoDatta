@@ -35,7 +35,7 @@ export const authHeaders = (): Record<string, string> => {
 };
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
-  const res = await fetch(`${apiBase()}${path}`, {
+  const res = await fetch(`${apiBase}${path}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init.headers || {}), ...authHeaders() },
   });

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getToken } from "../lib/api";
+import { getToken } from '@/lib/api';
 
 export default function RequireAuth({ children }: { children: React.ReactNode }){
   const [ok, setOk] = useState(false);
