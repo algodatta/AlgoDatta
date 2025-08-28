@@ -67,7 +67,7 @@ async function attemptLogin(ep: Endpoint, user: string, password: string) {
 
   const res = await fetch(url, { method: "POST", headers, body, credentials: "include" });
 
-  if (!res.ok) throw new Error((await res.text().catch(()=>"")) || `HTTP ${res.status}`);
+  if (!res.ok) throw new Error((await res.text().catch(() => "")) || `HTTP ${res.status}`);
 
 
 
@@ -77,9 +77,23 @@ async function attemptLogin(ep: Endpoint, user: string, password: string) {
 
     const data = await res.json();
 
-    token = data?.access_token || data?.token || data?.accessToken || data?.detail?.access_token || null;
+    token =
 
-  } catch { /* ignore non-JSON */ }
+      data?.access_token ||
+
+      data?.token ||
+
+      data?.accessToken ||
+
+      data?.detail?.access_token ||
+
+      null;
+
+  } catch {
+
+    /* ignore non-JSON */
+
+  }
 
 
 
@@ -103,6 +117,8 @@ export default function LoginClient() {
 
   const [password, setPassword] = useState("");
 
+  const [showPw, setShowPw] = useState(false);
+
   const [busy, setBusy] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -125,13 +141,21 @@ export default function LoginClient() {
 
       let lastErr: Error | null = null;
 
-
-
       for (const ep of ENDPOINTS) {
 
-        try { token = await attemptLogin(ep, user, password); lastErr = null; break; }
+        try {
 
-        catch (err: any) { lastErr = err instanceof Error ? err : new Error(String(err)); }
+          token = await attemptLogin(ep, user, password);
+
+          lastErr = null;
+
+          break;
+
+        } catch (err: any) {
+
+          lastErr = err instanceof Error ? err : new Error(String(err));
+
+        }
 
       }
 
@@ -141,9 +165,7 @@ export default function LoginClient() {
 
       if (token) localStorage.setItem("token", token);
 
-
-
-      // Set frontend auth flag cookie (readable by middleware). 7 days.
+      // Set a front-end cookie (read by middleware) – 7 days.
 
       document.cookie = `ad_at=${encodeURIComponent(token || "1")}; Path=/; Max-Age=604800; SameSite=Lax; Secure`;
 
@@ -167,65 +189,137 @@ export default function LoginClient() {
 
   return (
 
-    <main className="max-w-sm mx-auto p-6">
+    <main className="min-h-[calc(100vh-0px)] flex items-center justify-center px-4 py-10">
 
-      <h1 className="text-2xl font-bold mb-4">Sign in</h1>
+      <div className="w-full max-w-md">
 
-      <form onSubmit={onSubmit} className="space-y-3">
+        <div className="bg-white/80 backdrop-blur border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
 
-        <label className="block">
+          <div className="p-6 sm:p-8">
 
-          <span className="text-sm">Email or username</span>
+            <div className="mb-6 text-center">
 
-          <input
+              <div className="mx-auto h-12 w-12 rounded-full bg-slate-900 text-white grid place-items-center text-xl font-bold">A</div>
 
-            type="text"
+              <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
 
-            required
+              <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
 
-            value={user}
+            </div>
 
-            onChange={(e) => setUser(e.target.value)}
 
-            className="w-full border rounded p-2"
 
-            placeholder="you@example.com or username"
+            <form onSubmit={onSubmit} className="space-y-4">
 
-          />
+              <div>
 
-        </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email or Username</label>
 
-        <label className="block">
+                <input
 
-          <span className="text-sm">Password</span>
+                  type="text"
 
-          <input
+                  inputMode="email"
 
-            type="password"
+                  autoComplete="username"
 
-            required
+                  required
 
-            value={password}
+                  value={user}
 
-            onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setUser(e.target.value)}
 
-            className="w-full border rounded p-2"
+                  className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition"
 
-            placeholder="your password"
+                  placeholder="you@example.com or username"
 
-          />
+                />
 
-        </label>
+              </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        <button type="submit" disabled={busy} className="w-full border rounded p-2">
 
-          {busy ? "Signing in..." : "Sign in"}
+              <div>
 
-        </button>
+                <div className="flex items-center justify-between mb-1">
 
-      </form>
+                  <label className="block text-sm font-medium text-slate-700">Password</label>
+
+                  <label className="flex items-center gap-2 text-xs text-slate-500 select-none cursor-pointer">
+
+                    <input
+
+                      type="checkbox"
+
+                      className="rounded border-slate-300"
+
+                      checked={showPw}
+
+                      onChange={(e) => setShowPw(e.target.checked)}
+
+                    />
+
+                    Show
+
+                  </label>
+
+                </div>
+
+                <input
+
+                  type={showPw ? "text" : "password"}
+
+                  autoComplete="current-password"
+
+                  required
+
+                  value={password}
+
+                  onChange={(e) => setPassword(e.target.value)}
+
+                  className="w-full rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 px-3 py-2 outline-none transition"
+
+                  placeholder="••••••••"
+
+                />
+
+              </div>
+
+
+
+              {error && (
+
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+
+                  {error}
+
+                </div>
+
+              )}
+
+
+
+              <button
+
+                type="submit"
+
+                disabled={busy}
+
+                className="w-full rounded-xl bg-slate-900 text-white px-4 py-2.5 font-medium shadow hover:opacity-95 active:opacity-90 disabled:opacity-60 transition"
+
+              >
+
+                {busy ? "Signing in…" : "Sign in"}
+
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
 
     </main>
 

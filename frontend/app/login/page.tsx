@@ -15,7 +15,7 @@ export default function Page() {
 
   return (
 
-    <Suspense fallback={<main className="max-w-sm mx-auto p-6">Loading…</main>}>
+    <Suspense fallback={<main className="min-h-screen grid place-items-center">Loading…</main>}>
 
       <LoginClient />
 
