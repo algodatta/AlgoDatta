@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "==> Writing frontend/lib/api.ts with proper named + default exports..."
+cat > frontend/lib/api.ts <<'TS'
 // Unified API helpers for the Next.js frontend (frontend/).
 // Exports: apiBase, isBrowser, getToken, authHeaders, apiFetch (default & named), jsonFetch.
 
@@ -62,3 +67,14 @@ export async function jsonFetch<T = any>(input: string, init?: RequestInit): Pro
 
 // keep legacy default import support
 export default apiFetch;
+TS
+
+echo "==> Patching frontend/app/admin/page.tsx to type the Response..."
+# GNU sed (Git Bash on Windows reports a version) vs BSD sed
+if sed --version >/dev/null 2>&1; then
+  sed -i 's/const res = await apiFetch/const res: Response = await apiFetch/' frontend/app/admin/page.tsx || true
+else
+  sed -i '' 's/const res = await apiFetch/const res: Response = await apiFetch/' frontend/app/admin/page.tsx || true
+fi
+
+echo "==> Done."

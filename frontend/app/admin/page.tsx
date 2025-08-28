@@ -14,7 +14,7 @@ export default function AdminUsers(){
 
   const search = async () => {
     setErr("");
-    const res = await apiFetch(`/api/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`);
+    const res: Response = await apiFetch(`/api/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`);
     const data = await res.json().catch(()=>[]);
     if(res.ok) setUsers(Array.isArray(data) ? data : (data.items || []));
     else setErr(data.detail || "Failed to load users");
@@ -24,7 +24,7 @@ export default function AdminUsers(){
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await apiFetch("/api/admin/users", {
+    const res: Response = await apiFetch("/api/admin/users", {
       method: "POST",
       body: JSON.stringify(form)
     });
