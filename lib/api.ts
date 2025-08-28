@@ -1,105 +1,76 @@
-// Lightweight API helper for Next.js (App Router).
-// Exports: apiBase, getToken, authHeaders, apiFetch (+ JSON helpers).
+// Unified API helpers used by pages and components
+// Exports: apiBase, getToken, authHeaders, apiFetch, jsonFetch, and default apiFetch
 
-export const apiBase: string = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+export const apiBase =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE ||
+  "";
 
-/** Build an absolute URL when a relative path is provided. */
-function buildUrl(path: string): string {
-  if (!path) return apiBase || "";
-  // If already absolute, leave it
-  if (/^https?:\/\//i.test(path)) return path;
-  // Join with base when provided, otherwise use same-origin relative
-  if (apiBase) {
-    const p = path.startsWith("/") ? path : `/${path}`;
-    return `${apiBase}${p}`;
-  }
-  return path;
-}
+// SSR/browser guard
+export const isBrowser = typeof window !== "undefined";
 
-/** Read token from browser storage safely (client-side only). */
 export function getToken(): string | null {
+  if (!isBrowser) return null;
   try {
-    if (typeof window === "undefined") return null;
-    const fromLocal = window.localStorage?.getItem("token");
-    const fromSession = window.sessionStorage?.getItem("token");
-    return fromLocal || fromSession || null;
+    return (
+      localStorage.getItem("token") ||
+      localStorage.getItem("access_token") ||
+      sessionStorage.getItem("token") ||
+      null
+    );
   } catch {
     return null;
   }
 }
 
-/** Construct Authorization + JSON headers. You can pass extra headers to merge. */
 export function authHeaders(extra?: HeadersInit): HeadersInit {
-  const base: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  const token = getToken();
-  if (token) base["Authorization"] = `Bearer ${token}`;
+  const base = new Headers();
+  base.set("Content-Type", "application/json");
 
-  if (extra) {
-    // Normalize and merge any incoming headers
-    try {
-      const merged = new Headers(extra as any);
-      merged.forEach((value, key) => {
-        base[key] = value;
-      });
-    } catch {
-      // Fallback for environments without Headers constructor (unlikely in Next 14+)
-      if (typeof extra === "object") {
-        Object.assign(base, extra as any);
-      }
-    }
+  // Merge caller's headers first, so we don't lose them
+  if (extra) new Headers(extra).forEach((v, k) => base.set(k, v));
+
+  const token = getToken();
+  if (token && !base.has("Authorization")) {
+    base.set("Authorization", `Bearer ${token}`);
   }
   return base;
 }
 
-export type ApiFetchInit = RequestInit & { absolute?: boolean };
+function mergeHeaders(a?: HeadersInit, b?: HeadersInit): HeadersInit {
+  const h = new Headers(a || {});
+  new Headers(b || {}).forEach((v, k) => h.set(k, v));
+  return h;
+}
 
-/** Fetch wrapper that returns a standard Response with auth + JSON headers applied. */
-export async function apiFetch(path: string, init?: ApiFetchInit): Promise<Response> {
-  const url = init?.absolute ? path : buildUrl(path);
-  // Merge headers, but allow explicit override via init.headers
-  const headers = authHeaders(init?.headers as HeadersInit);
+export async function apiFetch(input: string, init: RequestInit = {}): Promise<Response> {
+  const base = apiBase || "";
+  const url = input.startsWith("http") ? input : `${base}${input}`;
+  const headers = mergeHeaders(init.headers, authHeaders());
+
   const opts: RequestInit = {
-    // sensible defaults
-    credentials: "include",
     ...init,
     headers,
+    credentials: init.credentials ?? "include",
+    cache: init.cache ?? "no-store",
   };
+
   return fetch(url, opts);
 }
 
-/** Convenience helper: fetch + parse JSON, throwing on non-2xx responses. */
-export async function apiJson<T = any>(path: string, init?: ApiFetchInit): Promise<T> {
-  const res: Response = await apiFetch(path, init);
-  const text = await res.text();
-  let data: any = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
+export async function jsonFetch<T = any>(input: string, init?: RequestInit): Promise<T> {
+  const res = await apiFetch(input, init);
+  const ctype = res.headers.get("content-type") || "";
+  const body = ctype.includes("application/json") ? await res.json() : await res.text();
+
   if (!res.ok) {
-    const err: any = new Error(`HTTP ${res.status}`);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    const detail =
+      (typeof body === "object" && body && (body as any).detail) ||
+      (typeof body === "string" ? body : `HTTP ${res.status}`);
+    throw new Error(String(detail));
   }
-  return data as T;
+  return body as T;
 }
 
-export function apiGet<T = any>(path: string, init?: ApiFetchInit) {
-  return apiJson<T>(path, { ...init, method: "GET" });
-}
-export function apiPost<T = any>(path: string, body?: any, init?: ApiFetchInit) {
-  return apiJson<T>(path, { ...init, method: "POST", body: body == null ? undefined : JSON.stringify(body) });
-}
-export function apiPut<T = any>(path: string, body?: any, init?: ApiFetchInit) {
-  return apiJson<T>(path, { ...init, method: "PUT", body: body == null ? undefined : JSON.stringify(body) });
-}
-export function apiDelete<T = any>(path: string, init?: ApiFetchInit) {
-  return apiJson<T>(path, { ...init, method: "DELETE" });
-}
-
-// Optional default export for convenience
+// Also provide a default export for legacy imports
 export default apiFetch;
