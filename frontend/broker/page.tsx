@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { apiBase, authHeaders } from "../../lib/api";
+import { apiBase, authHeaders } from '../lib/api';
 
 type Position = { strategy_id: string; position_qty?: number; avg_price?: string };
 type Order = { id: string; strategy_id?: string; side?: string; qty?: string; price?: string; status?: string; created_at?: string };
@@ -13,7 +13,7 @@ export default function Broker(){
 
   const save = async ()=>{
     setMsg("...");
-    const res = await fetch(`${apiBase()}/api/broker`,{
+    const res = await fetch(`${apiBase}/api/broker`,{
       method:"POST",
       headers: ({ ...authHeaders(), "Content-Type":"application/json" } as HeadersInit),
       body: JSON.stringify({auth_token: token})
@@ -23,8 +23,8 @@ export default function Broker(){
   };
 
   const load = async ()=>{
-    const pr = fetch(`${apiBase()}/api/positions`, { headers: authHeaders() as HeadersInit });
-    const or = fetch(`${apiBase()}/api/orders`, { headers: authHeaders() as HeadersInit });
+    const pr = fetch(`${apiBase}/api/positions`, { headers: authHeaders() as HeadersInit });
+    const or = fetch(`${apiBase}/api/orders`, { headers: authHeaders() as HeadersInit });
     const [rp, ro] = await Promise.all([pr, or]);
     if (rp.ok) setPositions(await rp.json());
     if (ro.ok) setOrders(await ro.json());
