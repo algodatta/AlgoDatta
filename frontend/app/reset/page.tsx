@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
-import LoginClient from './LoginClient';
+import ResetClient from './ResetClient';
 
-function PageInner({ searchParams }: { searchParams: { next?: string } }) {
+function PageInner({ searchParams }: { searchParams: { token?: string; next?: string } }) {
+  const token = searchParams?.token || '';
   const next = searchParams?.next || '/dashboard';
-  return <LoginClient next={next} />;
+  return <ResetClient token={token} next={next} />;
 }
 
 export default function Page(props: any) {
