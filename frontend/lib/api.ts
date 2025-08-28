@@ -1,44 +1,51 @@
-export const apiBase = () => {
-  if (process.env.NEXT_PUBLIC_API_BASE) return process.env.NEXT_PUBLIC_API_BASE;
-  return "https://api.algodatta.com";
+/**
+ * Simple API helper used across the frontend.
+ * Adjust NEXT_PUBLIC_API_BASE_URL in .env.* if your backend lives elsewhere.
+ */
+export const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "";
+
+export type JsonInit = Omit<RequestInit, "body" | "headers"> & {
+  headers?: HeadersInit;
+  body?: unknown;
 };
 
-function getCookie(name: string): string {
-  if (typeof document === "undefined") return "";
-  const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-  return m ? decodeURIComponent(m[1]) : "";
+function asJson(init?: JsonInit): RequestInit {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(init?.headers || {}),
+  };
+  const body =
+    init && "body" in init && init.body !== undefined
+      ? JSON.stringify(init.body)
+      : undefined;
+  return { ...init, headers, body, credentials: "include" };
 }
 
-export const getToken = (): string => {
-  if (typeof window === "undefined") return "";
-  return (localStorage.getItem("token") || getCookie("token") || "");
-};
+export async function apiFetch<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  const url = `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+  const res = await fetch(url, init);
+  const isJson = (res.headers.get("content-type") || "").includes("application/json");
 
-export const setToken = (t: string) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", t);
-    const maxAge = 60 * 60 * 6;
-    document.cookie = `token=${t}; Path=/; Max-Age=${maxAge}; SameSite=Lax; Secure`;
+  if (!res.ok) {
+    const errText = isJson ? JSON.stringify(await res.json()) : await res.text();
+    throw new Error(`API ${res.status} ${res.statusText}: ${errText}`);
   }
-};
+  return (isJson ? await res.json() : (await res.text() as any)) as T;
+}
 
-export const clearToken = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
-    document.cookie = "token=; Path=/; Max-Age=0; SameSite=Lax; Secure";
-  }
-};
+export function apiGet<T = unknown>(path: string, init?: JsonInit) {
+  return apiFetch<T>(path, asJson({ ...init, method: "GET" }));
+}
 
-export const authHeaders = (): Record<string, string> => {
-  const t = getToken();
-  return t ? { Authorization: `Bearer ${t}` } : {};
-};
+export function apiPost<T = unknown>(path: string, body?: unknown, init?: JsonInit) {
+  return apiFetch<T>(path, asJson({ ...init, method: "POST", body }));
+}
 
-export async function apiFetch(path: string, init: RequestInit = {}) {
-  const res = await fetch(`${apiBase()}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init.headers || {}), ...authHeaders() },
-  });
-  if (res.status === 401) clearToken();
-  return res;
+export function apiPut<T = unknown>(path: string, body?: unknown, init?: JsonInit) {
+  return apiFetch<T>(path, asJson({ ...init, method: "PUT", body }));
+}
+
+export function apiDelete<T = unknown>(path: string, init?: JsonInit) {
+  return apiFetch<T>(path, asJson({ ...init, method: "DELETE" }));
 }
