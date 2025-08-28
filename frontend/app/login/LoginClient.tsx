@@ -13,27 +13,117 @@ const apiBase = process.env.NEXT_PUBLIC_API_BASE || "https://api.algodatta.com";
 
 
 
-async function tryLogin(path: string, email: string, password: string) {
+type Endpoint = { path: string; mode: "json" | "form" };
 
-  const res = await fetch(`${apiBase}${path}`, {
+
+
+const ENDPOINTS: Endpoint[] = [
+
+  { path: "/auth/login", mode: "json" },
+
+  { path: "/api/auth/login", mode: "json" },
+
+  { path: "/auth/token", mode: "form" },      // FastAPI OAuth2 (username/password form)
+
+  { path: "/api/auth/token", mode: "form" },
+
+  { path: "/login", mode: "json" },
+
+  { path: "/api/login", mode: "json" },
+
+];
+
+
+
+async function attemptLogin(ep: Endpoint, email: string, password: string) {
+
+  const url = `${apiBase}${ep.path}`;
+
+  const headers: Record<string, string> = {};
+
+  let body: BodyInit;
+
+
+
+  if (ep.mode === "json") {
+
+    headers["Content-Type"] = "application/json";
+
+    // send both keys to satisfy either schema
+
+    body = JSON.stringify({ email, username: email, password });
+
+  } else {
+
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+
+    const form = new URLSearchParams();
+
+    form.set("username", email);
+
+    form.set("password", password);
+
+    body = form.toString();
+
+  }
+
+
+
+  const res = await fetch(url, {
 
     method: "POST",
 
-    headers: { "Content-Type": "application/json" },
+    headers,
 
-    body: JSON.stringify({ email, password }),
+    body,
+
+    credentials: "include", // allow cookie-based auth too
 
   });
 
-  if (!res.ok) throw new Error(await res.text().catch(() => "Login failed"));
 
-  const data = await res.json().catch(() => ({} as any));
 
-  const token = data.access_token || data.token || data.accessToken;
+  if (!res.ok) {
 
-  if (!token) throw new Error("Token missing in response");
+    const text = await res.text().catch(() => "");
 
-  return token as string;
+    const msg = text || `HTTP ${res.status}`;
+
+    throw new Error(msg);
+
+  }
+
+
+
+  // Try to extract token if provided; if not, assume cookie auth is set.
+
+  let token: string | null = null;
+
+  try {
+
+    const data = await res.json();
+
+    token =
+
+      data?.access_token ||
+
+      data?.token ||
+
+      data?.accessToken ||
+
+      data?.detail?.access_token ||
+
+      null;
+
+  } catch {
+
+    /* ignore if not JSON */
+
+  }
+
+
+
+  return token;
 
 }
 
@@ -67,21 +157,43 @@ export default function LoginClient() {
 
     setError(null);
 
+
+
     try {
 
-      let token: string;
+      let token: string | null = null;
 
-      try {
+      let lastErr: Error | null = null;
 
-        token = await tryLogin("/auth/login", email, password);
 
-      } catch {
 
-        token = await tryLogin("/api/auth/login", email, password);
+      for (const ep of ENDPOINTS) {
+
+        try {
+
+          token = await attemptLogin(ep, email, password);
+
+          lastErr = null;
+
+          break;
+
+        } catch (err: any) {
+
+          lastErr = err instanceof Error ? err : new Error(String(err));
+
+          continue;
+
+        }
 
       }
 
-      localStorage.setItem("token", token);
+      if (lastErr) throw lastErr;
+
+
+
+      if (token) localStorage.setItem("token", token);
+
+      // Either token stored or cookie set. Go to dashboard.
 
       router.replace(next);
 
@@ -109,11 +221,11 @@ export default function LoginClient() {
 
         <label className="block">
 
-          <span className="text-sm">Email</span>
+          <span className="text-sm">Email or username</span>
 
           <input
 
-            type="email"
+            type="text"
 
             required
 

@@ -1,9 +1,7 @@
 
-"use client";
+export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-
-import RequireAuth from "@/components/RequireAuth";
+export const revalidate = 0;
 
 
 
@@ -29,39 +27,29 @@ export default function Page() {
 
   return (
 
-    <RequireAuth>
+    <main className="max-w-5xl mx-auto p-6">
 
-      <main className="max-w-6xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {features.map((f) => (
 
-          {features.map((f) => (
+          <li key={f.href}>
 
-            <Link
+            <a href={f.href} className="block border rounded p-4 hover:bg-gray-50">
 
-              key={f.href}
+              {f.label}
 
-              href={f.href}
+            </a>
 
-              className="block border rounded-xl p-4 hover:shadow"
+          </li>
 
-            >
+        ))}
 
-              <div className="text-lg">{f.label}</div>
+      </ul>
 
-              <div className="text-sm text-gray-500">Go to {f.label}</div>
-
-            </Link>
-
-          ))}
-
-        </div>
-
-      </main>
-
-    </RequireAuth>
+    </main>
 
   );
 

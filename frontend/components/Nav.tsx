@@ -1,69 +1,33 @@
 
-"use client";
-
 import Link from "next/link";
-
-import { usePathname } from "next/navigation";
-
-
-
-const items = [
-
-  { href: "/dashboard", label: "Dashboard" },
-
-  { href: "/executions", label: "Executions" },
-
-  { href: "/orders", label: "Orders" },
-
-  { href: "/strategies", label: "Strategies" },
-
-  { href: "/reports", label: "Reports" },
-
-  { href: "/notifications", label: "Notifications" },
-
-  { href: "/admin", label: "Admin" },
-
-];
 
 
 
 export default function Nav() {
 
-  const pathname = usePathname();
-
   return (
 
-    <nav className="w-full border-b">
+    <header className="border-b">
 
-      <div className="max-w-6xl mx-auto flex flex-wrap gap-3 p-3">
+      <nav className="max-w-5xl mx-auto flex gap-4 p-3">
 
-        {items.map((i) => {
+        <Link href="/dashboard" className="font-semibold">Dashboard</Link>
 
-          const active = pathname === i.href;
+        <Link href="/executions">Executions</Link>
 
-          return (
+        <Link href="/orders">Orders</Link>
 
-            <Link
+        <Link href="/strategies">Strategies</Link>
 
-              key={i.href}
+        <Link href="/reports">Reports</Link>
 
-              href={i.href}
+        <Link href="/notifications">Notifications</Link>
 
-              className={`px-3 py-1 rounded ${active ? "font-semibold underline" : "hover:underline"}`}
+        <Link href="/admin">Admin</Link>
 
-            >
+      </nav>
 
-              {i.label}
-
-            </Link>
-
-          );
-
-        })}
-
-      </div>
-
-    </nav>
+    </header>
 
   );
 

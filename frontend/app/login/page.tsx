@@ -5,7 +5,9 @@ import LoginClient from "./LoginClient";
 
 
 
-export const dynamic = "force-dynamic"; // avoid static export pitfalls
+export const dynamic = "force-dynamic";
+
+export const revalidate = 0;
 
 
 
