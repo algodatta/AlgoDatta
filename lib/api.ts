@@ -1,72 +1,109 @@
-export const apiBase = () => {
-  if (process.env.NEXT_PUBLIC_API_BASE) return process.env.NEXT_PUBLIC_API_BASE;
-  return "https://api.algodatta.com";
-};
+/**
+ * Shared API utilities for the Next.js app.
+ * Provides: apiBase, getToken, authHeaders, apiFetch (Response),
+ * and helpers apiJson/apiGet/apiPost/apiPut/apiDelete.
+ */
 
-function getCookie(name: string): string {
-  if (typeof document === "undefined") return "";
-  const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-  return m ? decodeURIComponent(m[1]) : "";
-}
+export const apiBase: string =
+  (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/$/, "");
 
-/** Build Authorization & extra headers safely. */
-export function authHeaders(extra?: HeadersInit): HeadersInit {
-  const base: Record<string, string> = {};
-  if (extra) {
-    if (Array.isArray(extra)) {
-      for (const [k, v] of extra) base[k] = String(v);
-    } else if (extra instanceof Headers) {
-      extra.forEach((v, k) => (base[k] = v));
-    } else {
-      Object.assign(base, extra as Record<string, string>);
+/** Best-effort token lookup on the client side (localStorage + cookie). */
+export function getToken(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const keys = ["algodatta_token", "token", "access_token"];
+    for (const k of keys) {
+      const v = window.localStorage?.getItem(k);
+      if (v && v !== "null" && v !== "undefined") {
+        return v.replace(/^"|"$/g, "");
+      }
     }
+  } catch {}
+  // cookie fallback
+  try {
+    const m = document.cookie?.match(/(?:^|;\s*)token=([^;]+)/);
+    if (m) return decodeURIComponent(m[1]);
+  } catch {}
+  return undefined;
+}
+
+/** Build Authorization + JSON headers; merges any provided headers. */
+export function authHeaders(extra?: HeadersInit): HeadersInit {
+  const headers = new Headers(extra as any);
+  if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const token = getToken();
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
-  const tok = getToken();
-  if (tok) base["Authorization"] = `Bearer ${tok}`;
-  return base;
+  return headers;
 }
 
-type ApiOptions = RequestInit & { json?: any };
+/**
+ * Fetch wrapper that always returns a real Response.
+ * Uses same-origin unless NEXT_PUBLIC_API_BASE_URL is set to an absolute base.
+ */
+export async function apiFetch(
+  input: string | URL | Request,
+  init?: RequestInit
+): Promise<Response> {
+  // Work out the URL string
+  let target: string;
+  if (typeof input === "string" || input instanceof URL) {
+    target = input.toString();
+  } else {
+    target = input.url;
+  }
 
-function resolveUrl(path: string): string {
-  if (/^https?:\/\//i.test(path)) return path;
-  if (path.startsWith("/")) return path; // same-origin (e.g., Next proxy /api/*)
-  return apiBase ? `${apiBase}/${path.replace(/^\/+/, "")}` : `/${path.replace(/^\/+/, "")}`;
-}
+  // Prefix with apiBase if provided and 'target' isn't absolute
+  const isAbsolute = /^https?:\/\//i.test(target);
+  const finalUrl =
+    isAbsolute || target.startsWith("/") || !apiBase
+      ? target
+      : `${apiBase}${target.startsWith("/") ? "" : "/"}${target}`;
 
-/** Low-level fetch wrapper (typed). */
-export async function apiFetch(path: string, opts: ApiOptions = {}): Promise<Response> {
-  const url = resolveUrl(path);
-  const headers: HeadersInit = {
-    ...(opts.body || opts.json ? { "Content-Type": "application/json" } : {}),
-    ...authHeaders(opts.headers),
+  const opts: RequestInit = {
+    ...init,
+    headers: authHeaders(init?.headers as HeadersInit),
+    credentials: "include",
   };
-  const init: RequestInit = {
-    ...opts,
-    headers,
-    ...(opts.json !== undefined
-      ? { body: JSON.stringify(opts.json), method: opts.method ?? "POST" }
-      : {}),
-  };
-  return fetch(url, init);
+
+  return fetch(finalUrl, opts);
 }
 
-/** High-level helper that returns JSON (throws on non-2xx). */
-export async function apiJson<T = any>(path: string, opts: ApiOptions = {}): Promise<T> {
-  const res = await apiFetch(path, opts);
+/** Parse JSON and throw on !ok with message from 'detail' if present. */
+export async function apiJson<T = any>(
+  input: string | URL | Request,
+  init?: RequestInit
+): Promise<T> {
+  const res: Response = await apiFetch(input, init);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const msg = (data && (data.detail || data.message)) || res.statusText || "Request failed";
-    throw new Error(msg);
+    const message =
+      (data && (data.detail || data.message)) ||
+      res.statusText ||
+      "Request failed";
+    throw new Error(typeof message === "string" ? message : JSON.stringify(message));
   }
   return data as T;
 }
 
-export const apiGet = <T = any>(path: string, opts: ApiOptions = {}) =>
-  apiJson<T>(path, { ...opts, method: "GET" });
-export const apiPost = <T = any>(path: string, body?: any, opts: ApiOptions = {}) =>
-  apiJson<T>(path, { ...opts, json: body, method: "POST" });
-export const apiPut = <T = any>(path: string, body?: any, opts: ApiOptions = {}) =>
-  apiJson<T>(path, { ...opts, json: body, method: "PUT" });
-export const apiDelete = <T = any>(path: string, opts: ApiOptions = {}) =>
-  apiJson<T>(path, { ...opts, method: "DELETE" });
+// Small helpers
+export const apiGet = <T = any>(path: string, init?: RequestInit) =>
+  apiJson<T>(path, { ...init, method: "GET" });
+
+export const apiPost = <T = any>(path: string, body?: any, init?: RequestInit) =>
+  apiJson<T>(path, {
+    ...init,
+    method: "POST",
+    body: body instanceof FormData ? body : JSON.stringify(body ?? {}),
+  });
+
+export const apiPut = <T = any>(path: string, body?: any, init?: RequestInit) =>
+  apiJson<T>(path, {
+    ...init,
+    method: "PUT",
+    body: body instanceof FormData ? body : JSON.stringify(body ?? {}),
+  });
+
+export const apiDelete = <T = any>(path: string, init?: RequestInit) =>
+  apiJson<T>(path, { ...init, method: "DELETE" });
