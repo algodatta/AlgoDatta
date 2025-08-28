@@ -30,7 +30,13 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "admin/**"
+    "**/.next/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "admin/**",
+    "forgot/**",
+    "frontend/**",
+    "node_modules"
   ]
 }
