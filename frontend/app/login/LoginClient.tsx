@@ -15,15 +15,13 @@ const apiBase = process.env.NEXT_PUBLIC_API_BASE || "https://api.algodatta.com";
 
 type Endpoint = { path: string; mode: "json" | "form" };
 
-
-
 const ENDPOINTS: Endpoint[] = [
 
   { path: "/auth/login", mode: "json" },
 
   { path: "/api/auth/login", mode: "json" },
 
-  { path: "/auth/token", mode: "form" },      // FastAPI OAuth2 (username/password form)
+  { path: "/auth/token", mode: "form" },
 
   { path: "/api/auth/token", mode: "form" },
 
@@ -35,7 +33,7 @@ const ENDPOINTS: Endpoint[] = [
 
 
 
-async function attemptLogin(ep: Endpoint, email: string, password: string) {
+async function attemptLogin(ep: Endpoint, user: string, password: string) {
 
   const url = `${apiBase}${ep.path}`;
 
@@ -49,9 +47,7 @@ async function attemptLogin(ep: Endpoint, email: string, password: string) {
 
     headers["Content-Type"] = "application/json";
 
-    // send both keys to satisfy either schema
-
-    body = JSON.stringify({ email, username: email, password });
+    body = JSON.stringify({ email: user, username: user, password });
 
   } else {
 
@@ -59,7 +55,7 @@ async function attemptLogin(ep: Endpoint, email: string, password: string) {
 
     const form = new URLSearchParams();
 
-    form.set("username", email);
+    form.set("username", user);
 
     form.set("password", password);
 
@@ -69,33 +65,11 @@ async function attemptLogin(ep: Endpoint, email: string, password: string) {
 
 
 
-  const res = await fetch(url, {
+  const res = await fetch(url, { method: "POST", headers, body, credentials: "include" });
 
-    method: "POST",
-
-    headers,
-
-    body,
-
-    credentials: "include", // allow cookie-based auth too
-
-  });
+  if (!res.ok) throw new Error((await res.text().catch(()=>"")) || `HTTP ${res.status}`);
 
 
-
-  if (!res.ok) {
-
-    const text = await res.text().catch(() => "");
-
-    const msg = text || `HTTP ${res.status}`;
-
-    throw new Error(msg);
-
-  }
-
-
-
-  // Try to extract token if provided; if not, assume cookie auth is set.
 
   let token: string | null = null;
 
@@ -103,23 +77,9 @@ async function attemptLogin(ep: Endpoint, email: string, password: string) {
 
     const data = await res.json();
 
-    token =
+    token = data?.access_token || data?.token || data?.accessToken || data?.detail?.access_token || null;
 
-      data?.access_token ||
-
-      data?.token ||
-
-      data?.accessToken ||
-
-      data?.detail?.access_token ||
-
-      null;
-
-  } catch {
-
-    /* ignore if not JSON */
-
-  }
+  } catch { /* ignore non-JSON */ }
 
 
 
@@ -139,7 +99,7 @@ export default function LoginClient() {
 
 
 
-  const [email, setEmail] = useState("");
+  const [user, setUser] = useState("");
 
   const [password, setPassword] = useState("");
 
@@ -169,21 +129,9 @@ export default function LoginClient() {
 
       for (const ep of ENDPOINTS) {
 
-        try {
+        try { token = await attemptLogin(ep, user, password); lastErr = null; break; }
 
-          token = await attemptLogin(ep, email, password);
-
-          lastErr = null;
-
-          break;
-
-        } catch (err: any) {
-
-          lastErr = err instanceof Error ? err : new Error(String(err));
-
-          continue;
-
-        }
+        catch (err: any) { lastErr = err instanceof Error ? err : new Error(String(err)); }
 
       }
 
@@ -193,7 +141,13 @@ export default function LoginClient() {
 
       if (token) localStorage.setItem("token", token);
 
-      // Either token stored or cookie set. Go to dashboard.
+
+
+      // Set frontend auth flag cookie (readable by middleware). 7 days.
+
+      document.cookie = `ad_at=${encodeURIComponent(token || "1")}; Path=/; Max-Age=604800; SameSite=Lax; Secure`;
+
+
 
       router.replace(next);
 
@@ -229,13 +183,13 @@ export default function LoginClient() {
 
             required
 
-            value={email}
+            value={user}
 
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setUser(e.target.value)}
 
             className="w-full border rounded p-2"
 
-            placeholder="you@example.com"
+            placeholder="you@example.com or username"
 
           />
 
@@ -265,15 +219,7 @@ export default function LoginClient() {
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        <button
-
-          type="submit"
-
-          disabled={busy}
-
-          className="w-full border rounded p-2"
-
-        >
+        <button type="submit" disabled={busy} className="w-full border rounded p-2">
 
           {busy ? "Signing in..." : "Sign in"}
 
