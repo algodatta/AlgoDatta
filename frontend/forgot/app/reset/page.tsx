@@ -10,7 +10,6 @@ function PageInner({ searchParams }: { searchParams: { token?: string; next?: st
 export default function Page(props: any) {
   return (
     <Suspense fallback={<main className="p-6 max-w-md mx-auto">Loading…</main>}>
-      {/* @ts-expect-error Async RSC wrapper */}
       <PageInner {...props} />
     </Suspense>
   );
