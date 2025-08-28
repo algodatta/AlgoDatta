@@ -15,9 +15,34 @@ export async function logout() {
 }
 // Base URL (configurable via env)
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "") ||
-  "https://api.algodatta.com";
+  process.env.NEXT_PUBLIC_API_BASE || 'https://api.algodatta.com';
 
+// --- cookie helpers used by guards/pages
+export function getClientToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const m = document.cookie.match(/(?:^|;\s*)algodatta_auth=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+export function setClientToken(token: string, maxAgeSeconds = 60 * 60) {
+  if (typeof document === 'undefined') return;
+  document.cookie = `algodatta_auth=${encodeURIComponent(
+    token
+  )}; Path=/; Max-Age=${maxAgeSeconds}; Secure; SameSite=Lax`;
+}
+export function clearClientToken() {
+  if (typeof document === 'undefined') return;
+  document.cookie = `algodatta_auth=; Path=/; Max-Age=0; Secure; SameSite=Lax`;
+}
+
+
+// URL helper
+export function apiUrl(path: string) {
+  return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+/* ==== Back-compat re-exports (keep older pages compiling) ==== */
+export const apiBase = API_BASE;          // old name
+export const getToken = getClientToken;   // old name
 // ────────────────────────────────────────────────────────────────────────────────
 // Small utils
 async function asJson<T>(res: Response): Promise<T> {
@@ -63,6 +88,11 @@ export function authHeaders(extra?: Record<string, string>) {
     ...(extra ?? {}),
     ...(t ? { Authorization: `Bearer ${t}` } : {}),
   };
+}
+// Auth header factory (client-side)
+export function authHeaders(init: HeadersInit = {}): HeadersInit {
+  const t = getClientToken();
+  return t ? { ...init, Authorization: `Bearer ${t}` } : init;
 }
 
 // Backward-compat alias for older pages
