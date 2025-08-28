@@ -1,4 +1,18 @@
 // frontend/lib/api.ts
+
+export async function logout() {
+  // Try server-side logout (if your backend exposes it)
+  try {
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch {
+    // ignore network/endpoint absence
+  }
+  // Always clear the client-visible auth cookie used by the frontend guard
+  clearAuthCookie();
+}
 // Base URL (configurable via env)
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "") ||
