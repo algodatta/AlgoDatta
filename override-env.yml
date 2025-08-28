@@ -1,0 +1,25 @@
+
+services:
+
+  backend:
+
+    environment:
+
+      DATABASE_URL: "postgresql+psycopg://postgres:postgres@postgres:5432/algodatta"
+
+      SECRET_KEY: "REPLACE_WITH_A_RANDOM_HEX_64"
+
+      ALLOWED_ORIGINS: "https://www.algodatta.com,https://algodatta.com"
+
+      ENV: "production"
+
+      LOG_LEVEL: "info"
+
+      # optional, but supported by the shim:
+
+      JWT_ALGORITHM: "HS256"
+
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+
+      REFRESH_TOKEN_EXPIRE_MINUTES: "10080"
+
