@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "==> Writing lib/api.ts with proper named + default exports..."
+cat > lib/api.ts <<'TS'
 // Unified API helpers used across the app.
 // Exports: apiBase, isBrowser, getToken, authHeaders, apiFetch (default & named), jsonFetch.
 
@@ -62,3 +67,16 @@ export async function jsonFetch<T = any>(input: string, init?: RequestInit): Pro
 
 // keep legacy default import support
 export default apiFetch;
+TS
+
+echo "==> Patching app/admin/page.tsx to type the Response..."
+# Works on GNU sed (Git Bash) and macOS sed
+if sed --version >/dev/null 2>&1; then
+  # GNU sed (Linux/Git Bash)
+  sed -i 's/const res = await apiFetch/const res: Response = await apiFetch/' app/admin/page.tsx || true
+else
+  # BSD sed (macOS)
+  sed -i '' 's/const res = await apiFetch/const res: Response = await apiFetch/' app/admin/page.tsx || true
+fi
+
+echo "==> Done."
