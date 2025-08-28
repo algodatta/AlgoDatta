@@ -1,33 +1,57 @@
 // frontend/middleware.ts
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-const PUBLIC = new Set(["/", "/login", "/signup", "/reset"]);
-const ASSET_PREFIX = /^\/(_next|favicon\.ico|assets|images|fonts)\b/i;
+const PUBLIC = ['/login', '/signup', '/reset'];
+const PROTECTED_PREFIXES = [
+  '/dashboard',
+  '/executions',
+  '/orders',
+  '/strategies',
+  '/reports',
+  '/notifications',
+  '/admin',
+  '/broker',
+];
 
 export function middleware(req: NextRequest) {
-  const { pathname, searchParams } = req.nextUrl;
-  if (ASSET_PREFIX.test(pathname)) return NextResponse.next();
+  const { pathname } = req.nextUrl;
 
-  const token = req.cookies.get("algodatta_token")?.value;
-  const isPublic = PUBLIC.has(pathname) || pathname.startsWith("/reset");
-
-  if (!token && !isPublic) {
+  // Always send "/" to "/login"
+  if (pathname === '/') {
     const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    if (pathname !== "/") url.searchParams.set("next", pathname);
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
-  if (token && (pathname === "/" || pathname === "/login")) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  // Let Next internals & assets pass
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/images') ||
+    pathname.startsWith('/assets')
+  ) {
+    return NextResponse.next();
+  }
+
+  const isPublic = PUBLIC.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const needsAuth = PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+
+  if (needsAuth && !isPublic) {
+    const token = req.cookies.get('algodatta_auth')?.value;
+    if (!token) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('next', pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api/|_next/|favicon.ico).*)"],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|fonts|icons).*)'],
 };
