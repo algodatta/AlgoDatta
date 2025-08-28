@@ -1,16 +1,37 @@
-'use client';
-import { useEffect } from 'react';
 
-export default function Logout() {
-  useEffect(() => {
-    const run = async () => {
-      const base = process.env.NEXT_PUBLIC_API_BASE || '';
-      try {
-        await fetch(base.replace(/\/$/,'') + '/auth/logout', { method: 'POST', credentials: 'include' });
-      } catch {}
-      window.location.href = '/login';
-    };
-    run();
-  }, []);
-  return <main className="p-6">Signing you out…</main>;
+"use client";
+
+import { useEffect } from "react";
+
+import { useRouter } from "next/navigation";
+
+export const dynamic = "force-dynamic";
+
+export const revalidate = 0;
+
+
+
+export default function Page(){
+
+  const router = useRouter();
+
+  useEffect(()=>{
+
+    try{
+
+      localStorage.removeItem("token");
+
+    }catch{}
+
+    // expire cookie
+
+    document.cookie = "ad_at=; Path=/; Max-Age=0; SameSite=Lax; Secure";
+
+    router.replace("/login");
+
+  },[router]);
+
+  return <main className="min-h-screen grid place-items-center">Signing you out…</main>;
+
 }
+

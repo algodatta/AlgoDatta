@@ -5,23 +5,7 @@ import type { NextRequest } from "next/server";
 
 
 
-const PRIV_PATHS = [
-
-  "/dashboard",
-
-  "/executions",
-
-  "/orders",
-
-  "/strategies",
-
-  "/reports",
-
-  "/notifications",
-
-  "/admin",
-
-];
+const PRIV_PATHS = ["/dashboard","/executions","/orders","/strategies","/reports","/notifications","/admin"];
 
 
 
@@ -33,19 +17,43 @@ export function middleware(req: NextRequest) {
 
 
 
-  // Already logged-in users hitting /login → send to /dashboard (or ?next)
+  // Public auth pages
 
-  if (pathname === "/login" && token) {
+  const isAuthPublic = pathname === "/login" || pathname === "/signup" || pathname === "/reset" || pathname === "/reset/confirm" || pathname === "/";
 
-    const nextParam = req.nextUrl.searchParams.get("next") || "/dashboard";
 
-    const url = req.nextUrl.clone();
 
-    url.pathname = nextParam;
+  if (isAuthPublic) {
 
-    url.search = "";
+    // logged-in users shouldn't see login/signup/reset
 
-    return NextResponse.redirect(url);
+    if (token && (pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/reset" || pathname === "/reset/confirm")) {
+
+      const nextParam = req.nextUrl.searchParams.get("next") || "/dashboard";
+
+      const url = req.nextUrl.clone();
+
+      url.pathname = nextParam;
+
+      url.search = "";
+
+      return NextResponse.redirect(url);
+
+    }
+
+    // ensure "/" -> "/login"
+
+    if (pathname === "/") {
+
+      const url = req.nextUrl.clone();
+
+      url.pathname = "/login";
+
+      return NextResponse.redirect(url);
+
+    }
+
+    return NextResponse.next();
 
   }
 
