@@ -1,0 +1,194 @@
+diff --git a/backend/app/scripts/__init__.py b/backend/app/scripts/__init__.py
+new file mode 100644
+index 0000000..f4cb3dc
+--- /dev/null
++++ b/backend/app/scripts/__init__.py
+@@ -0,0 +1 @@
++# Makes 'app.scripts' a package.
+diff --git a/backend/app/scripts/ensure_admin.py b/backend/app/scripts/ensure_admin.py
+new file mode 100644
+index 0000000..e8f7b12
+--- /dev/null
++++ b/backend/app/scripts/ensure_admin.py
+@@ -0,0 +1,176 @@
++# Idempotent admin seeder for AlgoDatta backend.
++#
++# Run inside backend container:
++# python -m app.scripts.ensure_admin
++#
++# Or from host:
++# docker exec -e ADMIN_EMAIL="admin@algodatta.com" -e ADMIN_PASS="Admin@123" \
++# -i algodatta-backend python - <<'PY'
++# from app.scripts.ensure_admin import main
++# main()
++# PY
++#
++# It will:
++# * Read DATABASE_URL from env (as used by the app).
++# * Locate the users table (must have 'email' and one of 'hashed_password'/'password_hash').
++# * Update or insert the admin user (sets is_active / is_superuser variants if present).
++#
++# Works with psycopg2 or psycopg v3 (fallback import).
++
++from __future__ import annotations
++
++import os
++import sys
++from typing import Optional, Sequence, Tuple, Set
++
++import bcrypt
++
++# Try psycopg2 first (most common in SQLAlchemy "psycopg2" URL),
++# fall back to psycopg v3 if not available.
++try:
++    import psycopg2 as _pg  # type: ignore
++    _connect = _pg.connect
++    _paramstyle = "%s"
++except Exception:  # pragma: no cover - fallback path
++    import psycopg  # type: ignore
++    _connect = psycopg.connect  # same API signature for our usage
++    _paramstyle = "%s"
++
++
++def _normalize_dsn(dsn: str) -> str:
++    # Allow SQLAlchemy-style prefixes
++    return (
++        dsn.replace("postgresql+psycopg2", "postgresql")
++        .replace("postgresql+psycopg", "postgresql")
++    )
++
++
++def _get_env(name: str, default: Optional[str] = None) -> str:
++    v = os.environ.get(name, default)
++    if v is None:
++        print(f"ERROR: Missing required environment variable {name}", file=sys.stderr)
++        sys.exit(2)
++    return v
++
++
++def _fetchone(cur, sql: str, params: Sequence = ()) -> Optional[Tuple]:
++    cur.execute(sql, params)
++    return cur.fetchone()
++
++
++def _fetchall(cur, sql: str, params: Sequence = ()) -> Sequence[Tuple]:
++    cur.execute(sql, params)
++    return cur.fetchall()
++
++
++def _detect_users_table(cur) -> Optional[str]:
++    # Find a table in public schema with 'email' AND one of {'hashed_password','password_hash'}
++    sql = (
++        "SELECT c1.table_name"
++        " FROM information_schema.columns c1"
++        " JOIN information_schema.columns c2"
++        " ON c1.table_schema=c2.table_schema AND c1.table_name=c2.table_name"
++        " WHERE c1.table_schema='public' AND c1.column_name='email'"
++        " AND c2.column_name IN ('hashed_password','password_hash')"
++        " ORDER BY c1.table_name"
++    )
++    rows = _fetchall(cur, sql)
++    candidates = [r[0] for r in rows]
++    if candidates:
++        return candidates[0]
++
++    # light fallbacks
++    for guess in ("users", "user", "app_user", "account", "accounts"):
++        r = _fetchone(cur, "SELECT to_regclass(%s)", (f"public.{guess}",))
++        if r and r[0]:
++            return guess
++    return None
++
++
++def _get_columns(cur, table: str) -> Set[str]:
++    sql = (
++        "SELECT column_name"
++        " FROM information_schema.columns"
++        " WHERE table_schema='public' AND table_name=%s"
++    )
++    rows = _fetchall(cur, sql, (table,))
++    return {r[0] for r in rows}
++
++
++def _ensure_admin(conn, email: str, password: str) -> None:
++    cur = conn.cursor()
++
++    table = _detect_users_table(cur)
++    if not table:
++        print("ERROR: No users table with 'email' and password hash column found.", file=sys.stderr)
++        sys.exit(3)
++
++    cols = _get_columns(cur, table)
++    pass_col = ("hashed_password" if "hashed_password" in cols
++                else ("password_hash" if "password_hash" in cols else None))
++    if not pass_col:
++        print(f"ERROR: No password column on table '{table}'.", file=sys.stderr)
++        sys.exit(4)
++
++    is_super = next((c for c in ("is_superuser", "is_admin", "is_staff") if c in cols), None)
++    is_active = next((c for c in ("is_active", "active") if c in cols), None)
++    name_col = next((c for c in ("full_name", "name") if c in cols), None)
++
++    hpw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
++
++    # UPDATE first
++    set_parts = [f'"{pass_col}"={_paramstyle}']
++    vals = [hpw]
++    if is_super:
++        set_parts.append(f'"{is_super}"=true')
++    if is_active:
++        set_parts.append(f'"{is_active}"=true')
++    if name_col:
++        set_parts.append(f'"{name_col}"={_paramstyle}')
++        vals.append("Administrator")
++    sql_upd = f'UPDATE "{table}" SET ' + ", ".join(set_parts) + f' WHERE email={_paramstyle}'
++    vals.append(email)
++    cur.execute(sql_upd, tuple(vals))
++
++    if getattr(cur, "rowcount", 0) == 0:
++        # INSERT if missing
++        cols_list = (['email', pass_col] +
++                    ([is_super] if is_super else []) +
++                    ([is_active] if is_active else []) +
++                    ([name_col] if name_col else []))
++        vals2 = ([email, hpw] +
++                ([True] if is_super else []) +
++                ([True] if is_active else []) +
++                (["Administrator"] if name_col else []))
++
++        placeholders = ", ".join([_paramstyle] * len(vals2))
++        sql_ins = f'INSERT INTO "{table}" (' + ", ".join(f'"{c}"' for c in cols_list) + f') VALUES ({placeholders})'
++        cur.execute(sql_ins, tuple(vals2))
++        print(f"Inserted {email} into {table} ({pass_col})")
++    else:
++        print(f"Updated {email} in {table} ({pass_col})")
++
++    conn.commit()
++    print("OK")
++
++
++def main() -> None:
++    email = os.environ.get("ADMIN_EMAIL", "admin@algodatta.com").strip().lower()
++    password = os.environ.get("ADMIN_PASS", "Admin@123")
++
++    dsn = os.environ.get("DATABASE_URL")
++    if not dsn:
++        print("ERROR: DATABASE_URL not set", file=sys.stderr)
++        sys.exit(2)
++    dsn = (
++        dsn.replace("postgresql+psycopg2", "postgresql")
++        .replace("postgresql+psycopg", "postgresql")
++    )
++
++    conn = _connect(dsn)  # autocommit off by default; we call commit()
++    try:
++        _ensure_admin(conn, email, password)
++    finally:
++        try:
++            conn.close()
++        except Exception:
++            pass
++
++
++if __name__ == "__main__":
++    main()
