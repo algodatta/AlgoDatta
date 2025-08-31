@@ -7,3 +7,4 @@ python-dotenv==1.0.1
 psycopg[binary]==3.2.1
 email-validator
 psycopg2-binary==2.9.9
+httpx
