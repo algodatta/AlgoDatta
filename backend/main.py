@@ -1,5 +1,15 @@
 from fastapi import FastAPI
 from routes.broker import router as broker_router
+from app.api.routers import root_home
+app.include_router(root_home.router)
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://www.algodatta.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app = FastAPI()
 app.include_router(broker_router, prefix="/api")
