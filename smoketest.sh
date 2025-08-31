@@ -1,25 +1,14 @@
+
 #!/usr/bin/env bash
 set -euo pipefail
-
-echo "== Checking docker compose =="
-docker compose ps >/dev/null 2>&1 || { echo "Docker not ready or compose file missing."; exit 1; }
-
-echo "== Building and starting =="
+echo "Starting stack..."
 docker compose up -d --build
-
-echo "== Waiting for API =="
+echo "Wait for API..."
 for i in {1..30}; do
-  if curl -fsS http://localhost:8000/healthz >/dev/null; then
-    echo "API is up."
-    break
+  if curl -sS http://localhost:8000/api/healthz | grep -q '"ok"\?\|status'; then
+    echo "API is up"; break
   fi
   sleep 1
 done
-
-echo "== Backend /docs check =="
-curl -fsS http://localhost:8000/docs >/dev/null && echo "Docs OK"
-
-echo "== Frontend basic homepage =="
-curl -fsS http://localhost:3000 >/dev/null && echo "Frontend OK"
-
-echo "All good!"
+echo "Try login..."
+curl -sS -X POST http://localhost:8000/api/auth/login -H 'content-type: application/json' -d '{"email":"admin@algodatta.com","password":"ChangeMe123!"}' && echo

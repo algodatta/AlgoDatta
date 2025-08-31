@@ -1,42 +1,39 @@
+
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: algodatta-frontend
+  db:
+    image: postgres:15
+    container_name: algodatta-db
+    environment:
+      POSTGRES_USER: algouser
+      POSTGRES_PASSWORD: algopass
+      POSTGRES_DB: algodatta
     ports:
-    - "127.0.0.1:3000:3000"
-    restart: always
-    depends_on:
-    - backend
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: algodatta-backend
-    ports:
-    - "127.0.0.1:8000:8000"
-    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg://algouser:algopass@db:5432/algodatta
+      JWT_SECRET: super-secret-change-me
+      CORS_ORIGINS: https://www.algodatta.com,https://algodatta.com,http://localhost:3000
     depends_on:
-    - postgres
-    environment:
-      AUTH_JWT_ALGO: HS256
-      AUTH_JWT_SECRET: dev_secret_change_me
-      AUTH_COOKIE_NAMES: '["algodatta_session","access_token","auth_token"]'
-      EXEC_PUBLISHER_POLL_ENABLED: '1'
-      EXEC_PUBLISHER_POLL_INTERVAL: '5'
-      EXEC_PUBLISHER_LOOKBACK_SECONDS: '120'
-  postgres:
-    image: postgres:15
-    container_name: algodatta-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: algodatta
+      - db
     ports:
-    - 5432:5432
-    volumes:
-    - pgdata:/var/lib/postgresql/data
-    restart: always
+      - "8000:8000"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: algodatta-frontend
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
 volumes:
-  pgdata: null
+  pgdata:

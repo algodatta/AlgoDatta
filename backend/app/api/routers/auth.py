@@ -1,27 +1,38 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from app.api.deps import get_db, get_current_user
+from app.db.session import SessionLocal, Base, engine
+from app.models.user import User
 from app.schemas.auth import LoginRequest, Token
-from app.schemas.common import Message
-from app.core.security import verify_password, create_access_token
-from app.models import User
+from app.core.security import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/login", response_model=Token, responses={401: {"model": Message}})
-def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.execute(select(User).where(User.email == data.email)).scalar_one_or_none()
-    if not user or not verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
-    token = create_access_token(str(user.id), user.role.value)
-    return Token(access_token=token)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@router.get("/me")
-def me(current_user: User = Depends(get_current_user)):
-    return {
-        "id": str(current_user.id),
-        "email": current_user.email,
-        "role": current_user.role.value,
-        "status": current_user.status.value,
-    }
+def init_admin(db: Session):
+    # idempotent create of admin
+    admin_email = "admin@algodatta.com"
+    admin_pass = "ChangeMe123!"
+    if not db.query(User).filter(User.email == admin_email).first():
+        u = User(email=admin_email, password_hash=hash_password(admin_pass), role="admin")
+        db.add(u); db.commit()
+
+@router.on_event("startup")
+def _startup():
+    Base.metadata.create_all(bind=engine)
+    with SessionLocal() as db:
+        init_admin(db)
+
+@router.post("/login", response_model=Token, responses={401: {"description":"Invalid credentials"}})
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+    u = db.query(User).filter(User.email == data.email).first()
+    if not u or not verify_password(data.password, u.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+    tok = create_access_token(str(u.id), u.role)
+    return Token(access_token=tok)

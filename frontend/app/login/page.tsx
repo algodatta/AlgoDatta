@@ -1,73 +1,50 @@
+
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { loginRequest } from "@/lib/api";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { login } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [identity, setIdentity] = useState("");
+  const params = useSearchParams();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [nextUrl, setNextUrl] = useState<string | null>(null);
-
-  // parse ?next= without useSearchParams to avoid build issues
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const u = new URL(window.location.href);
-      const nxt = u.searchParams.get("next");
-      setNextUrl(nxt);
-    }
-  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
-    const res = await loginRequest(identity.trim(), password);
+    setError(null);
+    const res = await login(email, password);
     setLoading(false);
     if (res.ok) {
-      router.push(nextUrl || "/dashboard");
-      return;
+      const next = params?.get("next") || "/"; 
+      router.push(next);
+    } else {
+      setError(res.error || "Login failed");
     }
-    setError(res.error || "Invalid credentials");
   }
 
   return (
-    <main style={{minHeight:"100svh",display:"grid",placeItems:"center",background:"#0b1020"}}>
-      <div style={{width:"100%",maxWidth:420,background:"rgba(255,255,255,0.06)",backdropFilter:"blur(6px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:16,padding:24,boxShadow:"0 10px 30px rgba(0,0,0,.4)"}}>
-        <div style={{textAlign:"center",marginBottom:16}}>
-          <img src="/logo.svg" alt="AlgoDatta" style={{height:36,objectFit:"contain"}} onError={(e)=>{(e.currentTarget as HTMLImageElement).style.display="none"}}/>
-          <h1 style={{color:"#fff",fontSize:22,fontWeight:700,margin:"8px 0 0"}}>Welcome back</h1>
-          <p style={{color:"rgba(255,255,255,0.7)",marginTop:6,fontSize:13}}>Please sign in to continue</p>
-        </div>
-        <form onSubmit={onSubmit} style={{display:"grid",gap:12}}>
-          <label style={{display:"grid",gap:6}}>
-            <span style={{color:"#cfd8dc",fontSize:12}}>Email or Username</span>
-            <input value={identity} onChange={(e)=>setIdentity(e.target.value)} placeholder="you@company.com or username" autoComplete="username"
-              style={{padding:"12px 14px",borderRadius:10,border:"1px solid #263043",background:"#11162a",color:"#e3f2fd",outline:"none"}} />
-          </label>
-          <label style={{display:"grid",gap:6}}>
-            <span style={{color:"#cfd8dc",fontSize:12}}>Password</span>
-            <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Your password" autoComplete="current-password" required
-              style={{padding:"12px 14px",borderRadius:10,border:"1px solid #263043",background:"#11162a",color:"#e3f2fd",outline:"none"}} />
-          </label>
-          {error && (
-            <div style={{color:"#ff8a80",fontSize:12,background:"rgba(255,82,82,.15)",border:"1px solid rgba(255,82,82,.35)",padding:"8px 10px",borderRadius:8}}>
-              {error}
-            </div>
-          )}
-          <button type="submit" disabled={loading}
-            style={{marginTop:4,background:"#4f8cff",border:"1px solid #2e6bff",color:"#fff",padding:"12px 14px",borderRadius:10,fontWeight:700,cursor:"pointer",opacity:loading?0.75:1}}>
-            {loading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-        <div style={{display:"flex",justifyContent:"space-between",marginTop:12}}>
-          <Link href="/signup" style={{color:"#9ec1ff",fontSize:13}}>Create account</Link>
-          <Link href="/reset" style={{color:"#9ec1ff",fontSize:13}}>Forgot password?</Link>
-        </div>
-      </div>
+    <main style={{minHeight:"100svh", display:"grid", placeItems:"center", background:"#0b1020"}}>
+      <form onSubmit={onSubmit} style={{background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:12, padding:24, width:"92%", maxWidth:420}}>
+        <h1 style={{color:"#fff", fontSize:22, margin:0, marginBottom:8}}>Welcome back</h1>
+        <p style={{color:"rgba(255,255,255,0.7)", marginTop:0, marginBottom:16, fontSize:13}}>Sign in to continue</p>
+        <label style={{display:"grid", gap:6, marginBottom:10}}>
+          <span style={{color:"#cbd5e1", fontSize:12}}>Email</span>
+          <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" type="email" required style={{padding:"10px 12px", background:"#0f172a", border:"1px solid #334155", borderRadius:8, color:"#fff"}}/>
+        </label>
+        <label style={{display:"grid", gap:6, marginBottom:10}}>
+          <span style={{color:"#cbd5e1", fontSize:12}}>Password</span>
+          <input value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" type="password" required style={{padding:"10px 12px", background:"#0f172a", border:"1px solid #334155", borderRadius:8, color:"#fff"}}/>
+        </label>
+        {error && <div style={{color:"#ef4444", fontSize:13, marginBottom:12}}>{error}</div>}
+        <button disabled={loading} type="submit" style={{width:"100%", padding:"10px 12px", background:"#2563eb", color:"#fff", border:"0", borderRadius:8, fontWeight:600}}>
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
+        <p style={{color:"#94a3b8", fontSize:12, marginTop:12}}>Tip: try admin@algodatta.com / ChangeMe123!</p>
+      </form>
     </main>
   );
 }
