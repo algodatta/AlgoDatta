@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - /var/lib/algodatta/pgdata:/var/lib/postgresql/data
 
   backend:
     healthcheck:
@@ -57,11 +57,12 @@ services:
       # COGNITO_DOMAIN: "https://login.algodatta.com"
       # SESSION_COOKIE_DOMAIN: ".algodatta.com"
       #
-      # For LOCAL DEV you can leave SESSION_COOKIE_DOMAIN unset (cookies work better without domain=localhost).
-      # Example dev values (uncomment if you want to test end-to-end locally with a Cognito app client configured for localhost):
+      # For LOCAL DEV leave SESSION_COOKIE_DOMAIN unset (cookies behave better on localhost).
+      # Example dev values if testing Cognito locally:
       # OIDC_CLIENT_ID: "<dev-app-client-id>"
       # OIDC_REDIRECT_URI: "http://localhost:3000/auth/callback"
       # COGNITO_DOMAIN: "https://<your-cognito-domain>.auth.<REGION>.amazoncognito.com"
-      # (do not set SESSION_COOKIE_DOMAIN for localhost)
     depends_on:
       - backend
+    ports:
+      - "3000:3000"
