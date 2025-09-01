@@ -25,16 +25,14 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://algouser:algopass@db:5432/algodatta
       JWT_SECRET: super-secret-change-me
-      # CORS must allow your web app origin(s) and send credentials
       CORS_ORIGINS: https://www.algodatta.com,https://algodatta.com,http://localhost:3000
 
-      # --- Required for Cognito Managed Login (Option A) ---
-      OIDC_ISSUER: "https://cognito-idp.<REGION>.amazonaws.com/<USER_POOL_ID>"
-      OIDC_CLIENT_ID: "<your-app-client-id>"
+      # --- Cognito Managed Login (Option A) ---
+      OIDC_ISSUER: "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_XZrRRDJ6d"
+      OIDC_CLIENT_ID: "tdloi4m06lhijn0pj3l35899l"
 
-      # --- Optional: first-login role assignment (used by users_service.py) ---
+      # --- Optional: role assignment ---
       DEFAULT_ROLE: "trader"
-      # Keep JSON single-quoted in YAML to avoid parsing issues
       ROLE_EMAIL_MAP: '{"admin":["admin@yourdomain.com"],"analyst":["analyst@yourdomain.com"],"trader":["trader@yourdomain.com"]}'
     depends_on:
       - db
@@ -48,21 +46,13 @@ services:
       dockerfile: Dockerfile
     container_name: algodatta-frontend
     environment:
-      # Local dev points to backend port binding
-      NEXT_PUBLIC_API_BASE: "http://localhost:8000"
+      NEXT_PUBLIC_API_BASE: "https://api.algodatta.com"
 
-      # --- Required by the Next.js OIDC bridge (Option A) ---
-      # For PRODUCTION (on Lightsail/Nginx), set these to your real values:
-      # OIDC_CLIENT_ID: "<your-app-client-id>"
-      # OIDC_REDIRECT_URI: "https://www.algodatta.com/auth/callback"
-      # COGNITO_DOMAIN: "https://login.algodatta.com"
-      # SESSION_COOKIE_DOMAIN: ".algodatta.com"
-      #
-      # For LOCAL DEV leave SESSION_COOKIE_DOMAIN unset (cookies behave better on localhost).
-      # Example dev values if testing Cognito locally:
-      # OIDC_CLIENT_ID: "<dev-app-client-id>"
-      # OIDC_REDIRECT_URI: "http://localhost:3000/auth/callback"
-      # COGNITO_DOMAIN: "https://<your-cognito-domain>.auth.<REGION>.amazoncognito.com"
+      # --- Cognito OIDC bridge ---
+      OIDC_CLIENT_ID: "tdloi4m06lhijn0pj3l35899l"
+      OIDC_REDIRECT_URI: "https://www.algodatta.com/api/oidc/callback"
+      COGNITO_DOMAIN: "https://ap-south-1xzrrrdj6d.auth.ap-south-1.amazoncognito.com"
+      SESSION_COOKIE_DOMAIN: ".algodatta.com"
     depends_on:
       - backend
     ports:
