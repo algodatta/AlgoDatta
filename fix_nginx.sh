@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BACKUP_DIR="/etc/nginx/backup-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BACKUP_DIR"
+sudo mkdir -p "$BACKUP_DIR"
 
 echo "[*] Backing up existing configs to $BACKUP_DIR..."
 for f in /etc/nginx/sites-available/api.algodatta.com /etc/nginx/sites-available/www.algodatta.com /etc/nginx/sites-enabled/api.algodatta.com /etc/nginx/sites-enabled/www.algodatta.com; do
@@ -87,8 +87,8 @@ sudo rm -f /etc/nginx/sites-enabled/20-api-ssl.conf /etc/nginx/sites-enabled/20-
 
 rollback_docker() {
   echo "[ROLLBACK] Restarting Docker backend/frontend with previous images..."
-  docker compose stop backend frontend || true
-  docker compose up -d backend frontend || true
+  sudo docker compose stop backend frontend || true
+  sudo docker compose up -d backend frontend || true
 }
 
 rollback_nginx() {
@@ -99,7 +99,7 @@ rollback_nginx() {
 }
 
 echo "[4/8] Restarting Docker backend + frontend (with build)..."
-if ! docker compose up -d --build backend frontend; then
+if ! sudo docker compose up -d --build backend frontend; then
   rollback_docker
   rollback_nginx
   exit 1
